@@ -6,30 +6,39 @@ const dotenv = require("dotenv");
 const app = express();
 require("dotenv").config();
 
-const PORT = process.env.PORT || 8070; 
+const PORT = process.env.PORT || 8070; //starting 8070 port or available port
 
 app.use(cors());
 app.use(bodyParser.json());
 
+//connect database
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
-    useCreateIndex: true,
     useNewUrlParser: true,
-    useUnifiedTopologyL: true,
-    useFindAndModify: false
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log(" MongoDB Connection Success!");
+}).catch((error) => {
+    console.error(" MongoDB Connection Error:", error);
 });
 
+
+//connection
 const connection = mongoose.connection;
 connection.once("open", () =>{
     console.log("Mongodb Connection success!");
 })
 
-//access students.js file
-const studentRouter = require("./routes/students.js");
-app.use("/student",studentRouter);//call backend to frontend
+
+
+
+//access phamcyInventory table file
+const phamacyInventoryRouter = require("./routes/phamacyInventory.js");
+//(http://localhost:8070/phamacyInventory)we use this for routes.phamacyInventory file
+app.use("/phamacyInventory",phamacyInventoryRouter);//call backend to frontend
 
 app.listen(PORT, () => {
-    console.log('Server is up and running on pros ${PORT}')
+    console.log('Server is up and running on port number: ${PORT}');
 })
 
