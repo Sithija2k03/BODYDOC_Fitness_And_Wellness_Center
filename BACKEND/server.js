@@ -33,12 +33,17 @@ connection.once("open", () =>{
 
 
 
-//access phamcyInventory table file
+//access phamacyInventory table file
 const phamacyInventoryRouter = require("./routes/phamacyInventory.js");
 //(http://localhost:8070/phamacyInventory)we use this for routes.phamacyInventory file
 app.use("/phamacyInventory",phamacyInventoryRouter);//call backend to frontend
 
+
+//access appoinment table file
+const appoinmentRouter = require("./routes/appoinment.js");
+//(http://localhost:8070/appoinment)we use this for routes.appoinment file
+app.use("/appoinment",appoinmentRouter);//call backend to frontend
+
 app.listen(PORT, () => {
     console.log('Server is up and running on port number: ${PORT}');
 })
-
