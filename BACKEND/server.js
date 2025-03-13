@@ -50,6 +50,11 @@ const consultationRouter = require("./routes/consultation.js");
 //(http://localhost:8070/consultation)we use this for routes.appoinment file
 app.use("/consultation",consultationRouter);//call backend to frontend
 
+//access order table file
+const orderRouter = require("./routes/order.js");
+//(http://localhost:8070/order)we use this for routes.order file
+app.use("/order",orderRouter);//call backend to frontend
+
 app.listen(PORT, () => {
     console.log('Server is up and running on port number: ${PORT}');
 })

@@ -5,7 +5,8 @@ let Appoinment = require("../models/Appoinment");
 
 
 //data insert or add(create)(http://localhost:8070/appoinment/add)when we put this it call add part
-router.route("/add").post((req,res) => {
+router.post("/add", async (req, res) => {
+    try {
     //now we create some objects to collects datas in model file
     const appoinment_id = req.body.appoinment_id;
     const user_name  = req.body.user_name;
@@ -14,24 +15,35 @@ router.route("/add").post((req,res) => {
     const time_slot = req.body.time_slot;
     const status = req.body.status;
     
+    // Validate time_slot
+    const validTimeSlots = ["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM"];
+    if (!validTimeSlots.includes(time_slot)) {
+        return res.status(400).json({ error: "Invalid time slot selected" });
+    }
 
+    // Validate status
+    const validStatuses = ["Pending", "Confirmed", "Cancelled", "Completed"];
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: "Invalid status selected" });
+    }
+    
     const newAppoinment = new Appoinment({
         appoinment_id,
         user_name,
         doctor_name,
-        date,
+        date :new Date(date),
         time_slot,
         status
     })
 
     // this object newAppoinment send to the database
     //javascript promise like if else
-    newAppoinment.save().then(() =>{
-        res.json("Appoinment Added")
-    }).catch((err) =>{
-        console.log(err);
-    })
-})
+    await newConsultation.save();
+    res.status(201).json({ message: "Consultation added successfully!", data: newConsultation });
+} catch (error) {
+    res.status(500).json({ error: error.message });
+}
+});
 
 
 
@@ -94,13 +106,15 @@ router.route("/delete/:id").delete(async(req,res) => {
 router.route("/get/:id").get(async(req,res) => {
     let appoinmentId = req.params.id;
 
-    const appoinment = await Appoinment.findById(appoinmentId).then((appoinment) => {
-        res.status(200).send({status: "Appoinment fetched",appoinment})
-    }).catch(()=>{
-        console.log(err.message);
-        res.status(500).send({status: "Error with get appoinment" , error: err.message});
-    })
-})
+    await Appoinment.findById(appoinmentId)
+        .then((appoinment) => {
+            res.status(200).send({ status: "Appoinment fetched", appoinment });
+        })
+        .catch((err) => {
+            console.log(err.message);
+            res.status(500).send({ status: "Error fetching appoinment", error: err.message });
+        });
+});
 
 
 module.exports = router;

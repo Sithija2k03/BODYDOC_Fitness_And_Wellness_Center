@@ -5,7 +5,8 @@ let Consultation = require("../models/Consultation");
 
 
 //data insert or add(create)(http://localhost:8070/consultation/add)when we put this it call add part
-router.route("/add").post((req,res) => {
+router.post("/add", async (req, res) => {
+    try {
     //now we create some objects to collects datas in model file
     const c_id = req.body.c_id;
     const user_name  = req.body.user_name;
@@ -17,20 +18,18 @@ router.route("/add").post((req,res) => {
         c_id,
         user_name,
         doctor_name,
-        c_date,
+        c_date : new Date(c_date),
         prescription
 
-    })
-
-    // this object newConsultation send to the database
+    });
+// this object newConsultation send to the database
     //javascript promise like if else
-    newConsultation.save().then(() =>{
-        res.json("Consultation Added")
-    }).catch((err) =>{
-        console.log(err);
-    })
-})
-
+    await newConsultation.save();
+    res.status(201).json({ message: "Consultation added successfully!", data: newConsultation });
+} catch (error) {
+    res.status(500).json({ error: error.message });
+}
+});
 
 
 //data fatch
@@ -91,13 +90,15 @@ router.route("/delete/:id").delete(async(req,res) => {
 router.route("/get/:id").get(async(req,res) => {
     let consultationId = req.params.id;
 
-    const consultation = await Consultation.findById(ConsultationId).then((inventory) => {
-        res.status(200).send({status: "Consultation fetched",consultation})
-    }).catch(()=>{
-        console.log(err.message);
-        res.status(500).send({status: "Error with get inventory" , error: err.message});
-    })
-})
 
+    await Consultation.findById(consultationId)
+        .then((consultation) => {
+            res.status(200).send({ status: "Consultation fetched", consultation });
+        })
+        .catch((err) => {
+            console.log(err.message);
+            res.status(500).send({ status: "Error fetching consultation", error: err.message });
+        });
+});
 
 module.exports = router;
