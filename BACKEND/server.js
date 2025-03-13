@@ -44,6 +44,12 @@ const appoinmentRouter = require("./routes/appoinment.js");
 //(http://localhost:8070/appoinment)we use this for routes.appoinment file
 app.use("/appoinment",appoinmentRouter);//call backend to frontend
 
+
+//access consultation table file
+const consultationRouter = require("./routes/consultation.js");
+//(http://localhost:8070/consultation)we use this for routes.appoinment file
+app.use("/consultation",consultationRouter);//call backend to frontend
+
 app.listen(PORT, () => {
     console.log('Server is up and running on port number: ${PORT}');
 })
