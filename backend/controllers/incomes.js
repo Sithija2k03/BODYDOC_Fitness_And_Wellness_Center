@@ -20,3 +20,20 @@ exports.addIncome = async (req, res) => {
     }
 };
 
+
+exports.getIncomes = async (req, res) => {
+    try {
+        const incomes = await Income.find().sort({ createdAt: -1 });
+        res.status(200).json({ message: "All incomes", data: incomes });
+    } catch (error) {
+        console.error("Error fetching incomes:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+}
+
+exports.deleteIncome = async (req, res) => {
+   const{id} = req.params;
+   Income.findByIdAndDelete(id)
+   .then(() => res.json('Income deleted.'))
+   .catch(err => res.status(400).json('Error: ' + err));
+}
