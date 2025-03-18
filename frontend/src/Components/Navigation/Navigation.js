@@ -41,7 +41,7 @@ function Navigation({ active, setActive }) {
 
 const NavStyled = styled.nav`
     padding: 2rem 1.5rem;
-    width: 375px;
+    width: 320px;
     height: 100vh; /* Full height of the viewport */
     background: rgba(252, 246, 249, 0.8);
     border: 3px solid #FFFFFF;
@@ -82,7 +82,7 @@ const NavStyled = styled.nav`
         flex: 1; /* Takes up remaining space */
         display: flex;
         flex-direction: column;
-        gap: 0.5rem; /* Space between list items */
+        gap: 1rem; /* Space between list items */
 
         li {
             display: flex;
@@ -117,7 +117,7 @@ const NavStyled = styled.nav`
         position: relative;
         left: 0;
         top: 0;
-        width: 5px;
+        width: 8px;
         height: 100%;
         background: #222260;
         border-radius: 0 10px 10px 0;
