@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import Dashboard from './Components/Dashboard/Dashboard';
 import Incomes from './Components/Incomes/Incomes';
 import Expenses from './Components/Expenses/Expenses';
+import Salary from './Components/Salaries/salaries';
 import { useGlobalContext } from './context/globalContext';
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
         return <Incomes />
       case 4:
         return <Expenses />
+      case 5:
+        return <Salary />  
       default:
         return <Dashboard />
     }

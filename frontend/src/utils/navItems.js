@@ -1,4 +1,4 @@
-import { transactions, incomes, expenses,  dashboard, logout } from './icons';
+import { transactions, incomes, expenses,  dashboard,salary, logout } from './icons';
 
 export const navItems = [
     {
@@ -27,6 +27,12 @@ export const navItems = [
     },
     {
         id: 5,
+        title: 'Salary Payments',
+        icon: salary,
+        link: '/dashboard'
+    },
+    {
+        id: 6,
         title: 'Log out',
         icon: logout,
         link: '/dashboard'
