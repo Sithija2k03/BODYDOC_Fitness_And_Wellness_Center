@@ -6,8 +6,8 @@ import { useGlobalContext } from "../../context/globalContext";
 import Button from '../Button/Button'
 import {plus} from '../../utils/icons' 
 
-function Form() {
-    const { addIncome, getIncomes } = useGlobalContext();  
+function ExpenseForm() {
+    const { addExpense, getExpenses } = useGlobalContext();  
 
     const [inputState, setInputState] = React.useState({
         title: "",
@@ -34,8 +34,8 @@ function Form() {
             return;
         }
 
-        addIncome(inputState); 
-        getIncomes(); // after adding income, fetch all incomes again
+        addExpense(inputState); 
+        getExpenses(); // after adding income, fetch all incomes again
         setInputState({
             title: "",
             amount: "",
@@ -46,13 +46,13 @@ function Form() {
     };
 
     return (
-        <FormStyled onSubmit={handleSubmit}>
+        <ExpenseFormStyled onSubmit={handleSubmit}>
             <div className="input-control">
                 <input 
                     type="text" 
                     value={title}
                     name="title"
-                    placeholder="Income Title"
+                    placeholder="Expense Title"
                     onChange={handleInput("title")}
                 />
             </div>
@@ -62,7 +62,7 @@ function Form() {
                     type="number" 
                     value={amount}
                     name="amount"
-                    placeholder="Income amount"
+                    placeholder="Expense amount"
                     onChange={handleInput("amount")}
                 />
             </div>
@@ -79,12 +79,12 @@ function Form() {
             <div className="selects">
                 <select value={category} name="category" onChange={handleInput("category")}>
                     <option value="" disabled>--Select Category--</option>
-                    <option value="Memberships">Memberships</option>
-                    <option value="Gym/Yoga Booking">Gym/Yoga Session Booking</option>
-                    <option value="Swimming Pool Booking">Swimming Pool Booking</option>
-                    <option value="Badminton Court Booking">Badminton Court Booking</option>
-                    <option value="Pool Lounge Booking">Pool Lounge Booking</option>
-                    <option value="Medicare & E-Pharmacy">Medicare & E-Pharmacy</option>
+                    <option value="Electricity Bills">Electricity Bills</option>
+                    <option value="Water Bills">Water Bills</option>
+                    <option value="Facility Maintainance">Facility Maintainance</option>
+                    <option value="Eqipment Maintainance">Eqipment Maintainance</option>
+                    <option value="Pharmacy Inventory">Pharmacy Inventory</option>
+                    <option value="Cleaning Services">Cleaning Services</option>
                     <option value="Other">Other</option>
                 </select>
             </div>
@@ -95,14 +95,14 @@ function Form() {
                     name="description"
                     cols={30}
                     rows={4}
-                    placeholder="Income description"
+                    placeholder="Expense description"
                     onChange={handleInput("description")}
                 ></textarea>
             </div>
 
             <div className="submit-btn">
                 <Button 
-                    name={'Add Income'}
+                    name={'Add Expense'}
                     icon={plus}
                     bPad={'.8rem 1.6rem'}
                     bRad={'30px'}
@@ -110,11 +110,11 @@ function Form() {
                     color={'#fff'}
                 />
             </div>
-        </FormStyled>
+        </ExpenseFormStyled>
     );
 }
 
-const FormStyled = styled.form`
+const ExpenseFormStyled = styled.form`
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -185,4 +185,4 @@ const FormStyled = styled.form`
 
 
 
-export default Form;
+export default ExpenseForm;

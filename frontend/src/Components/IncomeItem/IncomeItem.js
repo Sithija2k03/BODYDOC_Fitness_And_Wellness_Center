@@ -1,7 +1,8 @@
 import React from 'react'
 import Button from '../Button/Button'
 import styled from 'styled-components';
-import {calendar, comment, trash, dollar, list, users, dumbell, pharmacy, swim, booking} from '../../utils/icons';
+import {calendar, comment, trash, dollar, list, users, dumbell, pharmacy, swim, booking, rupees, bolt, water, maintain, wrench, broom} from '../../utils/icons';
+import { dateFormat } from '../../utils/dateFormat';
 
 function IncomeItem({
     id,
@@ -19,9 +20,9 @@ function IncomeItem({
         switch(category){
             case 'Memberships':
                 return users;
-            case 'Gym/Yoga':
+            case 'Gym/Yoga Booking':
                 return dumbell;
-            case 'Swimming Pool':
+            case 'Swimming Pool Booking':
                 return swim;
             case 'Badminton Court Booking':
                 return booking;
@@ -38,18 +39,18 @@ function IncomeItem({
 
    const expenseCatIcon = () => {
     switch(category){
-        case 'Memberships':
-            return users;
-        case 'Gym/Yoga Session Booking':
-            return dumbell;
-        case 'Swimming Pool Booking':
-            return swim;
-        case 'Badminton Court Booking':
-            return booking;
-        case 'Pool Lounge Booking':
-            return booking;
-        case 'Medicare & E-Pharmacy':
+        case 'Electricity Bills':
+            return bolt;
+        case 'Water Bills':
+            return water;
+        case 'Facility Maintainance':
+            return maintain;
+        case 'Eqipment Maintainance':
+            return wrench;
+        case 'Pharmacy Inventory':
             return pharmacy;
+        case 'Cleaning Services':
+            return broom;
         case 'Other':
             return dollar;
         default:
@@ -66,8 +67,8 @@ function IncomeItem({
                 <h5>{title}</h5>
                 <div className='inner-content'>
                     <div className='text'>
-                        <p>{dollar} {amount}</p>
-                        <p>{calendar} {date}</p>
+                        <p>{rupees} {amount}</p>
+                        <p>{calendar} {dateFormat(date)}</p>
                         <p>{list} {category}</p>
                         <p> 
                             {comment}  
@@ -103,8 +104,8 @@ const IncomeItemStyled = styled.div`
     margin: 0 auto;
     color: #222260;
     display: flex;
-    gap: 1.5rem; /* Reduced gap for a more compact look */
-    align-items: center; /* Ensures text stays horizontally aligned */
+    gap: 1.5rem; 
+    align-items: center; 
 
     /* More Visible Icon */
     .icon {

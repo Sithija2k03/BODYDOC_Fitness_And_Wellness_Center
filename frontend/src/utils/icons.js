@@ -11,9 +11,18 @@ export const dollar = <i className="fa-solid fa-dollar-sign"></i>
 export const comment = < i className="fa-solid fa-comment"></i>
 export const list = <i className="fa-solid fa-list"></i>
 export const users = <i className="fa-solid fa-users"></i>
-export const dumbell = <i class="fa-solid fa-dumbbell"></i>
-export const swim = <i class="fa-solid fa-person-swimming"></i>
-export const badminton = <i class="fa-solid fa-badminton"></i>
-export const pool = <i class="fa-solid fa-pool-8-ball"></i>
-export const pharmacy = <i class="fa-solid fa-house-medical"></i>
-export const booking = <i class="fa-solid fa-book"></i>
+export const dumbell = <i className="fa-solid fa-dumbbell"></i>
+export const swim = <i className="fa-solid fa-person-swimming"></i>
+export const badminton = <i className="fa-solid fa-badminton"></i>
+export const pool = <i className="fa-solid fa-pool-8-ball"></i>
+export const pharmacy = <i className="fa-solid fa-house-medical"></i>
+export const booking = <i className="fa-solid fa-book"></i>
+export const rupees = <i className="fa-solid fa-rupee-sign"></i>
+export const bolt = <i className="fa-solid fa-bolt"></i>
+export const water = <i className="fa-solid fa-glass-water-droplet"></i>
+export const wrench = <i className="fa-solid fa-wrench"></i>
+export const maintain = <i className="fa-solid fa-paint-roller"></i>
+export const broom = <i className="fa-solid fa-broom"></i>
+export const salary = <i className="fa-solid fa-hand-holding-dollar"></i>
+export const pending = <i className="fa-solid fa-hourglass-end"></i>
+export const done = <i class="fa-solid fa-circle-check"></i>
