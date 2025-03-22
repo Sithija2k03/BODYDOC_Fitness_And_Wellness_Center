@@ -73,6 +73,9 @@ app.use("/supplier", supplierRouter);
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 app.use("/pharmacy", pharmacyItemRouter);
 
+const gymEquipmentRouter = require("./routes/gymEquipments.js");
+app.use("/gym", gymEquipmentRouter);
+
 app.listen(PORT, () => {
     console.log(`Server is up and running on port number: ${PORT}`);
 });
