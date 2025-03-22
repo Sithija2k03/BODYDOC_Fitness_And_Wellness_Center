@@ -70,6 +70,9 @@ connection.once("open", () => {
 const supplierRouter = require("./routes/suppliers.js");
 app.use("/supplier", supplierRouter);
 
+const pharmacyItemRouter = require("./routes/pharmacyItems.js");
+app.use("/pharmacy", pharmacyItemRouter);
+
 app.listen(PORT, () => {
     console.log(`Server is up and running on port number: ${PORT}`);
 });
