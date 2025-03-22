@@ -148,13 +148,50 @@
 
 
 const router = require("express").Router();
+const mongoose = require("mongoose");
 const Helth = require("../models/helth.js");
-const OpenAI = require("openai"); // For AI-generated plans
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize OpenAI
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY // Add your OpenAI API key to .env
-});
+// Initialize GoogleGenerativeAI with the API key
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+
+// Helper function to validate user ID
+const validateUserId = (userId) => {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new Error("Invalid user ID");
+    }
+};
+
+// Helper function to find user by ID
+const findUserById = async (userId) => {
+    const user = await Helth.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    return user;
+};
+
+// Helper function to extract text response from Gemini API
+const getGeminiResponseText = async (model, prompt) => {
+    try {
+        const result = await model.generateContent(prompt);
+        console.log("Full API Response:", JSON.stringify(result, null, 2)); // Log the full response
+
+        // Check for different response structures
+        if (result?.response?.candidates) {
+            return result.response.candidates[0]?.content?.parts?.map(part => part.text).join("\n") || "⚠️ No response generated.";
+        } else if (result?.candidates) {
+            return result.candidates[0]?.content?.parts?.map(part => part.text).join("\n") || "⚠️ No response generated.";
+        } else {
+            return "⚠️ Unexpected response structure.";
+        }
+    } catch (error) {
+        console.error("❌ Error generating AI response:", error);
+        return "⚠️ AI response failed.";
+    }
+};
+
+
 
 // Log a workout
 router.route("/log-workout/:id").post(async (req, res) => {
@@ -283,3 +320,6 @@ router.route("/generate-plans/:id").post(async (req, res) => {
         res.status(500).send({ status: "Error generating plans", error: err.message });
     }
 });
+
+// Export the router
+module.exports = router;

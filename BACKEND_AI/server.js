@@ -55,6 +55,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Import the Helth model
@@ -68,6 +69,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Import the helthR router
+const helthRouter = require("./routes/helthR.js");
 
 // MongoDB Connection
 const URL = process.env.MONGODB_URL;
