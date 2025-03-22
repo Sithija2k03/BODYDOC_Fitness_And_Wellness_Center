@@ -25,4 +25,5 @@ export const maintain = <i className="fa-solid fa-paint-roller"></i>
 export const broom = <i className="fa-solid fa-broom"></i>
 export const salary = <i className="fa-solid fa-hand-holding-dollar"></i>
 export const pending = <i className="fa-solid fa-hourglass-end"></i>
-export const done = <i class="fa-solid fa-circle-check"></i>
+export const done = <i className="fa-solid fa-circle-check"></i>
+export const employee = <i className="fa-solid fa-user-tie"></i>

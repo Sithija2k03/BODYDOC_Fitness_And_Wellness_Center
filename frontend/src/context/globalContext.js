@@ -81,6 +81,13 @@ export const GlobalProvider = ({ children }) => {
         return expenses.reduce((total, expense) => total + expense.amount, 0);
     };
 
+    const transactionHistory = () => {
+        const history = [...incomes, ...expenses];
+        history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return history.slice(0,4); 
+    };
+    
+
     // Salary section
     const addSalary = async (salaryData) => {
         try {
@@ -164,7 +171,8 @@ export const GlobalProvider = ({ children }) => {
             getSalaries,
             deleteSalary,
             updateSalaryStatus,
-            getEmployeeByRole
+            getEmployeeByRole,
+            transactionHistory
         }}>
             {children}
         </GlobalContext.Provider>

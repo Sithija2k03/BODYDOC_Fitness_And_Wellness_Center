@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { dateFormat } from '../../utils/dateFormat';
 import { useGlobalContext } from '../../context/globalContext';
 import Button from '../Button/Button';
-import {trash} from '../../utils/icons';
+import {trash, employee} from '../../utils/icons';
 
 function SalaryItem({
     id,
@@ -28,7 +28,9 @@ function SalaryItem({
         <SalaryItemStyled>
             <div className="indicator" style={{ backgroundColor: indicatorColor }}></div>
             <div className="content">
-                <h5>Employee: {employeeId.fullName}</h5>
+            <h5>
+                <span className="employee-icon">{employee}</span> {employeeId.fullName}
+            </h5>
                 <p>Basic Salary: {basicSalary}</p>
                 <p>Allowances: {allowances}</p>
                 <p>Deductions: {deductions}</p>
@@ -86,6 +88,11 @@ const SalaryItemStyled = styled.div`
         h5 {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
+
+            .employee-icon {
+            font-size: 1.5rem; /* Adjust the size as needed */
+             margin-right: 0.5rem; /* Add spacing between the icon and text */
+            }
         }
 
         p {
