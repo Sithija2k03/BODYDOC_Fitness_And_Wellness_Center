@@ -29,7 +29,7 @@ const OrbStyled = styled.div`
     margin-left: -40vh;
     margin-top: -40vh;
     background:linear-gradient(180deg, #F56692 0%, #F2994A 100%);
-    filter: blur(300px);
+    filter: blur(250px);
     animation: ${moveOrb} 10s alternate linear infinite;
 `;
 

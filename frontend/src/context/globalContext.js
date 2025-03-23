@@ -15,13 +15,14 @@ export const GlobalProvider = ({ children }) => {
     const addIncome = async (income) => {
         try {
             const response = await axios.post(`${API_URL}add-income`, income);
-            setIncomes([...incomes, response.data]);
+            setIncomes((prevIncomes) => [...prevIncomes, response.data]);
+    
+            await getIncomes();  // Ensures latest incomes are fetched after adding
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
-
-        getIncomes();
     };
+    
 
     const getIncomes = async () => {
         try {
@@ -172,7 +173,9 @@ export const GlobalProvider = ({ children }) => {
             deleteSalary,
             updateSalaryStatus,
             getEmployeeByRole,
-            transactionHistory
+            transactionHistory,
+            error,
+            setError
         }}>
             {children}
         </GlobalContext.Provider>

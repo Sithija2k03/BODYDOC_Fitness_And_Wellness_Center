@@ -101,11 +101,12 @@ const DashboardStyled = styled.div`
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 2rem;
+      margin-left: -0.5rem;
 
       .chart-container {
         grid-column: 1 / 4;
         height: 100%;
-        width: 100%; /* Ensure it takes full width of the container */
+        width: 100%; 
         max-width: 700px; /* Limit the maximum width */
         overflow: auto;
         background-color: #FCF6F9;
@@ -173,7 +174,8 @@ const DashboardStyled = styled.div`
       background-color: #FCF6F9;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      margin-right: 1.3rem;
+      margin-right: 2.5rem;
+      margin-left: -2rem;
 
     .salary-title {
     display: flex;
