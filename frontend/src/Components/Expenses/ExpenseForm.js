@@ -7,7 +7,7 @@ import Button from '../Button/Button'
 import {plus} from '../../utils/icons' 
 
 function ExpenseForm() {
-    const { addExpense, getExpenses } = useGlobalContext();  
+    const { addExpense, getExpenses ,error, setError} = useGlobalContext();  
 
     const [inputState, setInputState] = React.useState({
         title: "",
@@ -23,7 +23,8 @@ function ExpenseForm() {
         setInputState({
             ...inputState,
             [name]: e.target.value,
-        });
+        })
+        setError("");
     };
 
     const handleSubmit = (e) => {
@@ -32,6 +33,21 @@ function ExpenseForm() {
         if (!title || !amount || !date || !category || !description) {
             alert("Please fill all fields before submitting.");
             return;
+        }
+
+        // Ensure amount is a positive number
+       if (parseFloat(amount) <= 0) {
+        alert("Amount must be a positive number.");
+        return;
+        }
+
+        // Ensure date is not in the future
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Remove time to compare only dates
+
+        if (new Date(date) > today) {
+        alert("Date cannot be in the future.");
+        return;
         }
 
         addExpense(inputState); 
@@ -47,6 +63,7 @@ function ExpenseForm() {
 
     return (
         <ExpenseFormStyled onSubmit={handleSubmit}>
+             {error && <p className="error">{error}</p>}
             <div className="input-control">
                 <input 
                     type="text" 

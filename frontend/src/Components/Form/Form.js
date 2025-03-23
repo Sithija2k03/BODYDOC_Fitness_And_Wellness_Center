@@ -7,7 +7,7 @@ import Button from '../Button/Button'
 import {plus} from '../../utils/icons' 
 
 function Form() {
-    const { addIncome, getIncomes } = useGlobalContext();  
+    const { addIncome, getIncomes, error, setError } = useGlobalContext();  
 
     const [inputState, setInputState] = React.useState({
         title: "",
@@ -23,7 +23,8 @@ function Form() {
         setInputState({
             ...inputState,
             [name]: e.target.value,
-        });
+        })
+        setError("");
     };
 
     const handleSubmit = (e) => {
@@ -34,6 +35,21 @@ function Form() {
             return;
         }
 
+        // Ensure amount is a positive number
+       if (parseFloat(amount) <= 0) {
+        alert("Amount must be a positive number.");
+        return;
+        }
+
+        // Ensure date is not in the future
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Remove time to compare only dates
+
+        if (new Date(date) > today) {
+        alert("Date cannot be in the future.");
+        return;
+        }
+  
         addIncome(inputState); 
         getIncomes(); // after adding income, fetch all incomes again
         setInputState({
@@ -47,6 +63,7 @@ function Form() {
 
     return (
         <FormStyled onSubmit={handleSubmit}>
+            {error && <p className="error">{error}</p>}
             <div className="input-control">
                 <input 
                     type="text" 

@@ -4,7 +4,7 @@ const User = require('./userModel');  // Import the User model to fetch user dat
 const salarySchema = new mongoose.Schema({
     employeeId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',  // Reference to the 'User' model 
+        ref: 'User', 
         required: true,
     },
     basicSalary: {
