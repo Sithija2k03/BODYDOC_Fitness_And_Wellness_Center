@@ -21,3 +21,18 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Ignore node_modules in both frontend and backend
+BACKEND_AI/node_modules/
+frontend_ai/node_modules/
+
+# Ignore environment variables
+BACKEND_AI/.env
+frontend_ai/.env
+
+# Ignore build files
+frontend_ai/build/
+BACKEND_AI/dist/
+
+# Ignore logs
+*.log
