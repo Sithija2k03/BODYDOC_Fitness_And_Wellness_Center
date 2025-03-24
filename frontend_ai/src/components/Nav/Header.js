@@ -11,7 +11,7 @@ function Header() {
       <div className="container">
         {/* Logo */}
         <div className="logo">
-          <img src="./bodydoc.png" alt="Logo" className="logo-img" />
+          <img src="./img/bodydoc.png" alt="Logo" className="logo-img" />
         </div>
 
         {/* Navigation Links */}

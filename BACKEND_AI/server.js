@@ -142,35 +142,6 @@ app.post('/api/ai/workout', async (req, res) => {
 
 
 
-// app.post('/api/ai/workout', async (req, res) => {
-//     const { fitnessGoal, age, weight, height } = req.body;
-
-//     try {
-//         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-//         const prompt = `Create a structured 4-week workout plan for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}.
-//         - Include workout days, exercises, sets, reps, rest days, and progression over the 4 weeks.
-//         - Ensure the plan is balanced and suitable for beginners, intermediate, or advanced levels.`;
-
-//         console.log("Workout Plan Prompt:", prompt); // Log the prompt for debugging
-
-//         const workoutPlan = await getGeminiResponseText(model, prompt);
-
-//         if (workoutPlan.includes("⚠️")) {
-//             return res.status(400).json({
-//                 message: "Error generating workout plan",
-//                 error: workoutPlan,
-//             });
-//         }
-
-//         res.json({
-//             message: "✅ Workout Plan Generated Successfully!",
-//             workoutPlan: workoutPlan.trim(),
-//         });
-//     } catch (error) {
-//         console.error("❌ Error generating workout plan:", error);
-//         res.status(500).json({ message: "Error generating workout plan", error: error.message });
-//     }
-// });
 
 
 // AI Nutrition Plan Endpoint
@@ -221,69 +192,11 @@ app.post('/api/ai/nutrition', async (req, res) => {
 });
 
 
-// app.post('/api/ai/nutrition', async (req, res) => {
-//     const { fitnessGoal, age, weight, height } = req.body;
-
-//     try {
-//         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-//         // Construct the prompt
-//         const prompt = `Create a personalized nutrition plan for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}.
-//         - Provide a structured daily meal plan with breakfast, lunch, dinner, and snacks.
-//         - Include daily calorie intake, protein, carbs, and fats breakdown.
-//         - Suggest healthy food choices and portion sizes.`;
-
-//         console.log("Nutrition Plan Prompt:", prompt); // Log the prompt for debugging
-
-//         // Send the prompt to the Gemini API
-//         const nutritionPlan = await getGeminiResponseText(model, prompt);
-
-//         // Check if the response contains an error
-//         if (nutritionPlan.includes("⚠️")) {
-//             return res.status(400).json({
-//                 message: "Error generating nutrition plan",
-//                 error: nutritionPlan,
-//             });
-//         }
-
-//         // Send the response back to the client
-//         res.json({
-//             message: "✅ Nutrition Plan Generated Successfully!",
-//             nutritionPlan: nutritionPlan.trim(),
-//         });
-//     } catch (error) {
-//         console.error("❌ Error generating nutrition plan:", error);
-//         res.status(500).json({ message: "Error generating nutrition plan", error: error.message });
-//     }
-// });
-
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
 
-
-// app.post('/api/ai/nutrition', async (req, res) => {
-//     const { fitnessGoal, age, weight, height } = req.body;
-
-//     try {
-//         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-//         const prompt = `Create a personalized nutrition plan for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}.
-//         - Provide a structured daily meal plan with breakfast, lunch, dinner, and snacks.
-//         - Include daily calorie intake, protein, carbs, and fats breakdown.
-//         - Suggest healthy food choices and portion sizes.`;
-
-//         const nutritionPlan = await getGeminiResponseText(model, prompt);
-
-//         res.json({
-//             message: "✅ Nutrition Plan Generated Successfully!",
-//             nutritionPlan: nutritionPlan.trim(),
-//         });
-//     } catch (error) {
-//         console.error("❌ Error generating nutrition plan:", error);
-//         res.status(500).json({ message: "Error generating nutrition plan", error: error.message });
-//     }
-// });
 
 
