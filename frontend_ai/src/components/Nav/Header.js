@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import "./Header.css"; // Custom CSS
+import { Link } from "react-router-dom";
 
 function Header() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  
+  const [isAiDropdownOpen, setAiDropdownOpen] = useState(false); // State for AI dropdown
+
   return (
     <nav className="navbar">
       <div className="container">
-        {/**/}
-        <div class="logo">
-            <img src="./bodydoc.png" alt="Logo" class="logo-img" />
+        {/* Logo */}
+        <div className="logo">
+          <img src="./bodydoc.png" alt="Logo" className="logo-img" />
         </div>
 
         {/* Navigation Links */}
         <ul className="nav-links">
-          <li 
+          <li
             className="dropdown"
             onMouseEnter={() => setDropdownOpen(true)}
             onMouseLeave={() => setDropdownOpen(false)}
@@ -31,7 +33,19 @@ function Header() {
           </li>
           <li><a href="#">Medicare & Clinic</a></li>
           <li><a href="#">Pharmacy</a></li>
-          <li><a href="#">Support with AI</a></li>
+          <li
+            className="dropdown"
+            onMouseEnter={() => setAiDropdownOpen(true)}
+            onMouseLeave={() => setAiDropdownOpen(false)}
+          >
+            <a href="#">Support with AI ▼</a>
+            {isAiDropdownOpen && (
+              <ul className="dropdown-menu">
+                <li><Link to="/nutrition-plan">Nutrition Plan</Link></li>
+                <li><Link to="/workout-plan">Workout Plan</Link></li>
+              </ul>
+            )}
+          </li>
         </ul>
 
         {/* Search Form */}
