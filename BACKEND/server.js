@@ -16,7 +16,7 @@ const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+     useUnifiedTopology: true,
 }).then(() => {
     console.log(" MongoDB Connection Success!");
 }).catch((error) => {
@@ -56,5 +56,5 @@ const orderRouter = require("./routes/order.js");
 app.use("/order",orderRouter);//call backend to frontend
 
 app.listen(PORT, () => {
-    console.log('Server is up and running on port number: ${PORT}');
+    console.log(`Server is up and running on port number: ${PORT}`);
 })
