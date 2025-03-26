@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import avatar_m from '../../img/avatar_m.png';
 import { navItems } from '../../utils/navItems';
 import { logout } from '../../utils/icons';
 
-
 function Navigation({ active, setActive }) {
-    
+    const [inventoryOpen, setInventoryOpen] = useState(false);
+
+    const handleNavClick = (id) => {
+        if (id === 6) {
+            setInventoryOpen(!inventoryOpen);
+        } else {
+            setActive(id);
+            setInventoryOpen(false); // Close dropdown if another menu item is clicked
+        }
+    };
+
     return (
         <NavStyled>
             <div className="user-icon">
@@ -17,23 +26,30 @@ function Navigation({ active, setActive }) {
                 </div>
             </div>
             <ul className="nav-items">
-                {navItems.map((item) => {
-                    return (
-                        <li key={item.id}
-                            onClick={() => setActive(item.id)}
+                {navItems.map((item) => (
+                    <React.Fragment key={item.id}>
+                        <li
+                            onClick={() => handleNavClick(item.id)}
                             className={active === item.id ? 'active' : ''}
-                            >
+                        >
                             {item.icon}
                             <span>{item.title}</span>
+                            {item.id === 6 && <span className="dropdown-arrow">▼</span>}
                         </li>
-                    );
-                })}
+                        {item.id === 6 && inventoryOpen && (
+                            <ul className="dropdown-menu">
+                                <li onClick={() => setActive(61)}>Pharmacy Items</li>
+                                <li onClick={() => setActive(62)}>Gym Equipment</li>
+                            </ul>
+                        )}
+                    </React.Fragment>
+                ))}
             </ul>
             <div className="bottom-nav">
-               <div className='logout'>
+                <div className='logout'>
                     {logout}
                     <span>Log out</span>
-               </div>
+                </div>
             </div>
         </NavStyled>
     );
@@ -42,7 +58,7 @@ function Navigation({ active, setActive }) {
 const NavStyled = styled.nav`
     padding: 2rem 1.5rem;
     width: 320px;
-    height: 100vh; /* Full height of the viewport */
+    height: 100vh;
     background: rgba(252, 246, 249, 0.8);
     border: 3px solid #FFFFFF;
     backdrop-filter: blur(5px);
@@ -79,50 +95,78 @@ const NavStyled = styled.nav`
     }
 
     .nav-items {
-        flex: 1; /* Takes up remaining space */
+        flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 1rem; /* Space between list items */
+        gap: 1rem;
 
         li {
             display: flex;
             align-items: center;
-            gap: 0.8rem;  /* Space between icon and text */
+            justify-content: space-between;
+            gap: 0.8rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.4s ease-in-out;
             color: rgba(34, 34, 96, 0.6);
-            padding: 0.5rem 0.5rem; /* Padding for better spacing */
-            border-radius: 10px; /* Rounded corners */
+            padding: 0.5rem;
+            border-radius: 10px;
+            position: relative;
 
             &:hover {
-                background: rgba(34, 34, 96, 0.1); /* Hover effect */
+                background: rgba(34, 34, 96, 0.1);
             }
 
-            span {
-                font-size: 1rem;
+            .dropdown-arrow {
+                margin-left: auto;
+                font-size: 12px;
             }
         }
     }
 
-   .active {
-    color: rgba(34, 34, 96, 1)!important;
-
-    i {
-        color: rgba(34, 34, 96, 1)!important;
-    }
-
-    &::before {
-        content: '';
+    .dropdown-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #ddd;
         position: relative;
-        left: 0;
-        top: 0;
-        width: 8px;
-        height: 100%;
-        background: #222260;
-        border-radius: 0 10px 10px 0;
+        left: 20px;
+        top: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        width: 200px;
+
+        li {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+
+            &:hover {
+                background: #f5f5f5;
+            }
+        }
     }
-}
+
+    .active {
+        color: rgba(34, 34, 96, 1)!important;
+
+        i {
+            color: rgba(34, 34, 96, 1)!important;
+        }
+
+        &::before {
+            content: '';
+            position: relative;
+            left: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: #222260;
+            border-radius: 0 10px 10px 0;
+        }
+    }
 `;
 
 export default Navigation;
