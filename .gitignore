@@ -1,0 +1,29 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Ignore node_modules in both backend (BACKEND) and frontend (frontend_ph)
+BACKEND/node_modules/
+frontend_ph/node_modules/
+frontend/node_modules/
+
+# Ignore production and testing directories
+/coverage
+/build
+/frontend_ph/build
+/BACKEND/dist
+
+# Ignore environment variables
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
+# Ignore logs
+*.log
+
+# Ignore specific files and directories
+.DS_Store
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

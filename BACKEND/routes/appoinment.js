@@ -102,19 +102,25 @@ router.route("/delete/:id").delete(async(req,res) => {
 
 
 
-//get data (read)
-router.route("/get").get(async(req,res) => {
-    let appoinmentId = req.params.id;
-
-    await Appoinment.findById(appoinmentId)
-        .then((appoinment) => {
-            res.status(200).send({ status: "Appoinment fetched", appoinment });
-        })
-        .catch((err) => {
-            console.log(err.message);
-            res.status(500).send({ status: "Error fetching appoinment", error: err.message });
-        });
-});
+// get all appointments with all attributes
+router.route("/get").get(async (req, res) => {
+    try {
+      // Fetch all appointments and populate all attributes
+      const appointments = await Appoinment.find(); // No need for specific field selection, this fetches all fields
+  
+      // Check if there are appointments
+      if (appointments.length > 0) {
+        res.status(200).send({ status: "Appointments fetched", appointments });
+      } else {
+        res.status(404).send({ status: "No appointments found" });
+      }
+    } catch (err) {
+      console.log(err.message);
+      res.status(500).send({ status: "Error fetching appointments", error: err.message });
+    }
+  });
+  
+  
 
 
 module.exports = router;

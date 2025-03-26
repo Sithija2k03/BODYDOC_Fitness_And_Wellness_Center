@@ -1,37 +1,39 @@
 import React, { useEffect } from 'react';
 import AppointmentItem from '../AppointmentItem/AppointmentItem';
-import { useGlobalContext } from '../../context/globalContext'; // Import the global context
+import { useGlobalContext } from '../../context/globalContext';
 import styled from 'styled-components';
+import AppointmentForm from './AppoinmentForm';
 
 function AppointmentsList() {
-  const { appointments, getAppointments, loading, error } = useGlobalContext(); // Get loading, error and appointments from context
+  const { appointments, getAppointments, loading, error } = useGlobalContext(); 
 
   useEffect(() => {
-    // Call to fetch the appointments when the component mounts
     getAppointments();
-  }, [getAppointments]);
+  }, []);
+  
 
   return (
     <AppointmentsListStyled>
       <h2>Appointments List</h2>
+      <AppointmentForm />
       <div className="appointments">
         {loading ? (
-          <p>Loading appointments...</p> // Display a loading message or spinner
+          <p>Loading appointments...</p>
         ) : error ? (
-          <p>{error}</p> // Display error message if the fetch fails
+          <p>{error}</p>
         ) : appointments && appointments.length > 0 ? (
           appointments.map((appointment) => (
             <AppointmentItem
               key={appointment.id}
               id={appointment.id}
-              userName={appointment.user_name} // Adjusted the prop name to match the data
-              doctorName={appointment.doctor_name} // Adjusted the prop name to match the data
-              timeSlot={appointment.time_slot} // Adjusted the prop name to match the data
+              userName={appointment.user_name}
+              doctorName={appointment.doctor_name}
+              timeSlot={appointment.time_slot}
               date={appointment.date}
             />
           ))
         ) : (
-          <p>No appointments found</p> // Show this message when no appointments are found
+          <p>No appointments found</p>
         )}
       </div>
     </AppointmentsListStyled>

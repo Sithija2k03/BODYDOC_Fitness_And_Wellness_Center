@@ -9,7 +9,7 @@ function AppointmentsList() {
     // Fetch appointments when the component is mounted
     useEffect(() => {
         getAppointments(); // Call to fetch the appointments when the component mounts
-    }, [getAppointments]);
+    }, []);
 
     return (
         <AppointmentsListStyled>

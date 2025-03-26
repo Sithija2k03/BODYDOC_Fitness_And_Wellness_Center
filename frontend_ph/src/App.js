@@ -8,7 +8,7 @@ import Footer from "./components/Footer/Footer";
 import AppointmentForm from "./components/Appoinment/AppoinmentForm"; // Corrected name
 import Appoinment from './components/Appoinment/Appoinment'; // Corrected name
 import { GlobalProvider } from './context/globalContext'; // Import GlobalProvider
-import OrderForm from './components/order/OrderForm';
+import OrderForm from './components/Order/OrderForm';
 
 function App() {
   return (
