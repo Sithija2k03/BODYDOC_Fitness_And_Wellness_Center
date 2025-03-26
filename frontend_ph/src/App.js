@@ -5,22 +5,26 @@ import imgCover from './img/imgCover.jpg';
 import { MainLayout } from './styles/Layouts';
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import Appoinment from './components/Appoinment/Appoinment';
-import AppoinmentForm from "./components/Appoinment/AppoinmentForm"; // Import Appointment Form
+import AppointmentForm from "./components/Appoinment/AppoinmentForm"; // Corrected name
+import Appoinment from './components/Appoinment/Appoinment'; // Corrected name
+import { GlobalProvider } from './context/globalContext'; // Import GlobalProvider
+import OrderForm from './components/order/OrderForm';
 
 function App() {
   return (
-    <AppStyled $imgCover={imgCover} className="App">
-      <MainLayout>
-        <Header />
-        <Routes>
-          {/* <Route path="/add" element={<Appoinment />} /> Medicare & Clinic Page */}
-          <Route path="/add" element={<AppoinmentForm/>} /> {/* Add Appoinment Form Page */}
-        </Routes>
-       
-      </MainLayout>
-      <Footer />
-    </AppStyled>
+    <GlobalProvider> {/* Wrap the entire app with GlobalProvider */}
+      <AppStyled $imgCover={imgCover} className="App">
+        <MainLayout>
+          <Header />
+          <Routes>
+            <Route path="/add" element={<AppointmentForm />} /> {/* Appointment Form Page */}
+            <Route path="/appointment" element={<Appoinment />} /> {/* Appointment List Page */}
+            <Route path="/order" element={<OrderForm />} /> {/* Appointment List Page */}
+          </Routes>
+        </MainLayout>
+        <Footer />
+      </AppStyled>
+    </GlobalProvider>
   );
 }
 

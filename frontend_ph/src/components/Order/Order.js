@@ -1,31 +1,61 @@
-import React from 'react'
+import React, { useState } from "react";
 
-function Order() {
+const PharmacyInventoryForm = () => {
+  const [order, setOrder] = useState([{ medicine: "", quantity: 1 }]);
+  const [prescription, setPrescription] = useState(null);
+
+  const handleChange = (index, field, value) => {
+    const newOrder = [...order];
+    newOrder[index][field] = value;
+    setOrder(newOrder);
+  };
+
+  const handleAddMedicine = () => {
+    setOrder([...order, { medicine: "", quantity: 1 }]);
+  };
+
+  const handleFileUpload = (event) => {
+    setPrescription(event.target.files[0]);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Order Submitted:", order, "Prescription:", prescription);
+  };
+
   return (
-<form>
-      <label>User Name:</label>
-      <input type="text" placeholder="Enter your name" />
+    <div className="p-6 bg-gray-100 rounded-lg shadow-md max-w-lg mx-auto">
+      <h2 className="text-xl font-bold mb-4">Order Medicine</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {order.map((item, index) => (
+          <div key={index} className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Medicine Name"
+              value={item.medicine}
+              onChange={(e) => handleChange(index, "medicine", e.target.value)}
+              className="border p-2 flex-1 rounded"
+              required
+            />
+            <input
+              type="number"
+              min="1"
+              value={item.quantity}
+              onChange={(e) => handleChange(index, "quantity", e.target.value)}
+              className="border p-2 w-20 rounded"
+              required
+            />
+          </div>
+        ))}
+        <button type="button" onClick={handleAddMedicine} className="text-blue-600">+ Add More</button>
+        <div>
+          <label className="block mb-1">Upload Prescription (Optional)</label>
+          <input type="file" onChange={handleFileUpload} className="border p-2 rounded w-full" />
+        </div>
+        <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Submit Order</button>
+      </form>
+    </div>
+  );
+};
 
-      <label>Doctor Name:</label>
-      <input type="text" placeholder="Enter your doctor name" />
-
-      <label>Time-slot:</label>
-      <input type="email" placeholder="Enter your email" />
-
-      <label>Date:</label>
-      <input type="date" />
-
-      <label>Status:</label>
-      <select>
-        <option>Pending</option>
-        <option>Confirmed</option>
-        <option>Cancelled</option>
-        <option>Completed</option>
-      </select>
-
-      <button type="submit">Submit</button>
-    </form>
-  )
-}
-
-export default Order;
+export default PharmacyInventoryForm;

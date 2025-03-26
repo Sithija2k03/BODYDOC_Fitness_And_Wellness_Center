@@ -103,7 +103,7 @@ router.route("/delete/:id").delete(async(req,res) => {
 
 
 //get data (read)
-router.route("/get/:id").get(async(req,res) => {
+router.route("/get").get(async(req,res) => {
     let appoinmentId = req.params.id;
 
     await Appoinment.findById(appoinmentId)

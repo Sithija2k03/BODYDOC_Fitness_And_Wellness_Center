@@ -28,14 +28,21 @@ function Header() {
                 <li><a href="#">Swimming</a></li>
                 <li><a href="#">Pool Lounge</a></li>
               </ul>
+
+
             )}
           </li>
 
           {/* Use Link for Navigation */}
-          <li><Link to="/add">Medicare & Clinic</Link></li>  
-          <li><Link to="/pharmacy">Pharmacy</Link></li>
+          <li><Link to="/appointment">Medicare & Clinic</Link></li>  
+          <li><Link to="/order">Pharmacy</Link></li>
           <li><a href="#">Support with AI</a></li>
         </ul>
+        {/* Search Bar */}
+        <div className="search-bar">
+        <input type="text" placeholder="Search..." />
+        <button>Search</button>
+      </div>
 
         
       </div>

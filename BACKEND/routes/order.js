@@ -1,61 +1,44 @@
-const express = require("express");
 const router = require("express").Router();
 //import Order.js file
 let Order = require("../models/Order");
+// const multer = require("multer");
 
-
+// const storage = multer.memoryStorage(); // Store file in memory or update for disk storage
+// const upload = multer({ storage: storage });
 
 //data insert or add(create)(http://localhost:8070/order/add)when we put this it call add part
-router.post("/add" , async (req,res) => {
-    try{
+router.post("/add", async (req, res) => {
+    try {
     //now we create some objects to collects datas in model file
-    const order_id = req.body.order_id;
-    const item_id  = req.body.item_id;
-    const supplier_name = req.body.supplier_name;
-    const quality = req.body.quality;
-    const total = Number(req.body.total)
-    
-    // Validate status
-    const validQuality= ["Good", "Near Expiry", "Expired", "Damaged", "Low Stock"];
-    if (!validQuality.includes(quality)) {
-        return res.status(400).json({ error: "Invalid quality selected" });
-    }
-
+    const c_id = req.body.c_id;
+    const user_name  = req.body.user_name;
+    const doctor_name = req.body.doctor_name;
+    const c_date = Date(req.body.c_date);
+    const prescription = (req.body.prescription);
+   
     const newOrder = new Order({
-        order_id,
-        item_id,
-        supplier_name,
-        quality,
-        total
+        c_id,
+        user_name,
+        doctor_name,
+        c_date : new Date(c_date),
+        prescription
+
     });
+// this object newOrder send to the database
+    //javascript promise like if else
     await newOrder.save();
-    res.status(201).json({ message: "Order Added Successfully", data: newOrder });
+    res.status(201).json({ message: "Order added successfully!", data: newOrder });
 } catch (error) {
     res.status(500).json({ error: error.message });
 }
 });
-
-    // this object newOrder send to the database
-    //javascript promise like if else
-    router.post("/add-quality", async (req, res) => {
-        try {
-            const { quality } = req.body;
-    
-            const newQuality = new Order({ quality });
-    
-            await newQuality.save();
-            res.status(201).json({ message: "Quality added successfully!", data: newQuality });
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
-    });
 
 
 //data fatch
 //http://localhost:8070/order
 router.route("/").get((req,res)=>{
     //data take where the order table inserted
-    Order.find().then((order)=>{
+   Order.find().then((order)=>{
         res.json(order)
     }).catch((err)=>{
         console.log(err)
@@ -69,16 +52,16 @@ router.route("/").get((req,res)=>{
 //http://localhost:8070/order/update/id
 router.route("/update/:id").put(async(req,res) => {
     let orderId = req.params.id;
-    const {order_id,item_id,supplier_name,quality,total} = req.body;
+    const {c_id,user_name,doctor_name,c_date,prescription} = req.body;
 
-    const updateInventory = {
-        order_id,
-        item_id,
-        supplier_name,
-        quality,
-        total
+    const updateOrder = {
+        c_id,
+        user_name,
+        doctor_name,
+        c_date,
+        prescription
     }
-    const update = await Order.findByIdAndUpdate(orderId,updateInventory).then(() =>{
+    const update = await Order.findByIdAndUpdate(orderId,updateOrder).then(() =>{
         res.status(200).send({status: "Order updated"})
     }).catch((err) => {
         console.log(err);
@@ -90,9 +73,9 @@ router.route("/update/:id").put(async(req,res) => {
 
 
 //delete part
-//(http//localhost:8070/order/delete/id
+//(http//localhost:8070/Order/delete/id
 router.route("/delete/:id").delete(async(req,res) => {
-    let orderId = req.params.id;
+    let consultationId = req.params.id;
 
     await Order.findByIdAndDelete(orderId).then(() => {
         res.status(200).send({status: "Order deleted"});
@@ -119,6 +102,5 @@ router.route("/get/:id").get(async(req,res) => {
             res.status(500).send({ status: "Error fetching order", error: err.message });
         });
 });
-
 
 module.exports = router;

@@ -1,16 +1,57 @@
-import React, { useState } from 'react'
-import "./Appoinment.css";
+import React, { useState } from 'react';
+import { useGlobalContext } from '../../context/globalContext';
+import './Appoinment.css';
 
+const AppointmentForm = () => {
+  const [userName, setUserName] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [timeSlot, setTimeSlot] = useState('');
+  const [date, setDate] = useState('');
+  const [errors, setErrors] = useState({}); // State for validation errors
 
+  const { addAppointment } = useGlobalContext();
 
-const AppoinmentForm = () => {
-  const [userName, setUserName] = useState("");
-  const [doctorName, setDoctorName] = useState("");
-  const [timeSlot, setTimeSlot] = useState("");
-  const [date, setDate] = useState("");
+  // Validate Form Before Submission
+  const validateForm = () => {
+    let errors = {};
+    let isValid = true;
+
+    if (!userName.trim()) {
+      errors.userName = "User Name is required!";
+      isValid = false;
+    }
+
+    if (!doctorName.trim()) {
+      errors.doctorName = "Doctor Name is required!";
+      isValid = false;
+    }
+
+    if (!date) {
+      errors.date = "Date is required!";
+      isValid = false;
+    } else {
+      const today = new Date().toISOString().split('T')[0]; // Get today's date
+      if (date < today) {
+        errors.date = "Date cannot be in the past!";
+        isValid = false;
+      }
+    }
+
+    if (!timeSlot) {
+      errors.timeSlot = "Please select a time slot!";
+      isValid = false;
+    }
+
+    setErrors(errors);
+    return isValid;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return; // Stop form submission if validation fails
+    }
 
     const formData = {
       user_name: userName,
@@ -19,70 +60,77 @@ const AppoinmentForm = () => {
       date,
     };
 
-    console.log("Sending data:", formData); // Debugging
-
     try {
-      const response = await fetch("http://localhost:5000/api/appoinment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      await addAppointment(formData);
 
-      const data = await response.json();
-      console.log("Response from server:", data);
+      // Clear form fields after successful submission
+      setUserName('');
+      setDoctorName('');
+      setTimeSlot('');
+      setDate('');
+      setErrors({}); // Clear errors
+      alert("Appointment booked successfully!"); // Optional success message
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error('Error submitting form:', error);
+      alert("Failed to book appointment. Please try again.");
     }
   };
 
   return (
     <div className="container">
-      {/* Add  Logo */}
       <div className="logo-container">
-        <img src={".\components\Appoinment\bodydoc.png"} alt="Logo" className="logo" />
+        <img src="/img/bodydoc.png" alt="Logo" className="logo" />
       </div>
-      <h2 className="form-heading" >Book Your Appointment at BodyDoc.</h2>
+      <h2 className="form-heading">Book Your Appointment at BodyDoc.</h2>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
+        {/* User Name */}
         <label htmlFor="user_name">User Name:</label>
         <input
           type="text"
-          className="form-control"
+          className={`form-control ${errors.userName ? 'error-border' : ''}`}
           id="user_name"
           placeholder="Enter your name"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          required />
+          required
+        />
+        {errors.userName && <span className="error-text">{errors.userName}</span>}
 
+        {/* Doctor Name */}
         <label htmlFor="doctor_name">Doctor Name:</label>
         <input
           type="text"
-          className="form-control"
+          className={`form-control ${errors.doctorName ? 'error-border' : ''}`}
           id="doctor_name"
           placeholder="Enter your doctor name"
           value={doctorName}
           onChange={(e) => setDoctorName(e.target.value)}
-          required />
+          required
+        />
+        {errors.doctorName && <span className="error-text">{errors.doctorName}</span>}
 
+        {/* Date */}
         <label htmlFor="date">Date:</label>
         <input
           type="date"
-          className="form-control"
+          className={`form-control ${errors.date ? 'error-border' : ''}`}
           id="date"
-          placeholder="Enter your date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          required />
+          required
+        />
+        {errors.date && <span className="error-text">{errors.date}</span>}
 
+        {/* Time Slot */}
         <label htmlFor="time_slot">Time-slot:</label>
         <select
-          className="form-control"
+          className={`form-control ${errors.timeSlot ? 'error-border' : ''}`}
           id="time_slot"
           value={timeSlot}
           onChange={(e) => setTimeSlot(e.target.value)}
-          required>
+          required
+        >
           <option value="">Select Time</option>
           <option>09:00 AM - 10:00 AM</option>
           <option>10:00 AM - 11:00 AM</option>
@@ -90,14 +138,14 @@ const AppoinmentForm = () => {
           <option>02:00 PM - 03:00 PM</option>
           <option>03:00 PM - 04:00 PM</option>
         </select>
+        {errors.timeSlot && <span className="error-text">{errors.timeSlot}</span>}
 
-
-
-
-        <button type="submit" className="btn btn-primary mt-3">Submit</button>
+        <button type="submit" className="btn btn-primary mt-3">
+          Submit
+        </button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default AppoinmentForm;
+export default AppointmentForm;
