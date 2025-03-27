@@ -28,3 +28,5 @@ export const pending = <i className="fa-solid fa-hourglass-end"></i>
 export const done = <i className="fa-solid fa-circle-check"></i>
 export const employee = <i className="fa-solid fa-user-tie"></i>
 export const search = <i className="fa-solid fa-magnifying-glass"></i>
+export const inventory =<i class="fa-solid fa-boxes-stacked"></i>
+export const truck = <i class="fa-solid fa-truck"></i>

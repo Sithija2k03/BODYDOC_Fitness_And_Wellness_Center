@@ -9,6 +9,8 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import Incomes from './Components/Incomes/Incomes';
 import Expenses from './Components/Expenses/Expenses';
 import Salary from './Components/Salaries/salaries';
+import Inventory from './Components/Inventory/Inventory';
+import Suppliers from './Components/Suppliers/Supplier';
 import { useGlobalContext } from './context/globalContext';
 
 function App() {
@@ -29,7 +31,11 @@ function App() {
       case 4:
         return <Expenses />
       case 5:
-        return <Salary />  
+        return <Salary /> 
+      case 6:
+        return <Inventory/>
+      case 7:
+        return <Suppliers/>
       default:
         return <Dashboard />
     }
