@@ -1,0 +1,19 @@
+{
+  "name": "bodydoc_fitness_and_wellness_center",
+  "version": "1.0.0",
+  "main": "server.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center.git"
+  },
+  "author": "Sithija Dilshan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center/issues"
+  },
+  "homepage": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center#readme",
+  "description": ""
+}
