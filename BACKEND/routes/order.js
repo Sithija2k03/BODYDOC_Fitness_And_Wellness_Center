@@ -6,7 +6,7 @@ let Order = require("../models/Order");
 
 
 //data insert or add(create)(http://localhost:8070/order/add)when we put this it call add part
-router.post("/add" , async (req,res) => {
+router.post("/add-order" , async (req,res) => {
     try{
     //now we create some objects to collects datas in model file
     const order_id = req.body.order_id;

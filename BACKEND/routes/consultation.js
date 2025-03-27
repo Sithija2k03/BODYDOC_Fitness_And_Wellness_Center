@@ -5,7 +5,7 @@ let Consultation = require("../models/Consultation");
 
 
 //data insert or add(create)(http://localhost:8070/consultation/add)when we put this it call add part
-router.post("/add", async (req, res) => {
+router.post("/add-c", async (req, res) => {
     try {
     //now we create some objects to collects datas in model file
     const c_id = req.body.c_id;
