@@ -67,9 +67,10 @@
     "mime-db": "^1.52.0",
     "mime-types": "^2.1.35",
     "minimatch": "^3.1.2",
-    "mongodb": "^6.14.2",
+    "mongod": "^2.0.0",
+    "mongodb": "^6.15.0",
     "mongodb-connection-string-url": "^3.0.2",
-    "mongoose": "^8.12.1",
+    "mongoose": "^8.13.0",
     "mpath": "^0.9.0",
     "mquery": "^5.0.0",
     "ms": "^2.1.3",
@@ -129,5 +130,8 @@
   "bugs": {
     "url": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center/issues"
   },
-  "homepage": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center#readme"
+  "homepage": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center#readme",
+  "devDependencies": {
+    "mongodb-memory-server": "^10.1.4"
+  }
 }

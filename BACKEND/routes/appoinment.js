@@ -5,7 +5,7 @@ let Appoinment = require("../models/Appoinment");
 
 
 //data insert or add(create)(http://localhost:8070/appoinment/add)when we put this it call add part
-router.post("/add", async (req, res) => {
+router.post("/add-app", async (req, res) => {
     try {
     //now we create some objects to collects datas in model file
     const appoinment_id = req.body.appoinment_id;
