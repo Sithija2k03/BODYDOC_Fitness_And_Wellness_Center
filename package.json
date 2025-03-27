@@ -2,6 +2,7 @@
   "name": "bodydoc_fitness_and_wellness_center",
   "version": "1.0.0",
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
   "description": "inventory and equipment management sysytem",
   "main": "index.js",
@@ -18,11 +19,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
 >>>>>>> Stashed changes
+=======
+  "main": "server.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+>>>>>>> Stashed changes
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center.git"
   },
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 
   "author": "nimsra",
@@ -32,11 +39,15 @@
 =======
   "author": "Sithija Dilshan",
 >>>>>>> Stashed changes
+=======
+  "author": "Sithija Dilshan",
+>>>>>>> Stashed changes
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center/issues"
   },
   "homepage": "https://github.com/Sithija2k03/BODYDOC_Fitness_And_Wellness_Center#readme",
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 
   "dependencies": {
@@ -64,6 +75,9 @@
     "styled-components": "^6.1.15"
 
   }
+=======
+  "description": ""
+>>>>>>> Stashed changes
 =======
   "description": ""
 >>>>>>> Stashed changes
