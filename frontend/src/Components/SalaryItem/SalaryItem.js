@@ -29,8 +29,10 @@ function SalaryItem({
             <div className="indicator" style={{ backgroundColor: indicatorColor }}></div>
             <div className="content">
             <h5>
-                <span className="employee-icon">{employee}</span> {employeeId.fullName}
+              <span className="employee-icon">{employee}</span> 
+              {employeeId ? employeeId.fullName : "No Name Available"} {/* Add check here */}
             </h5>
+
                 <p>Basic Salary: {basicSalary}</p>
                 <p>Allowances: {allowances}</p>
                 <p>Deductions: {deductions}</p>
