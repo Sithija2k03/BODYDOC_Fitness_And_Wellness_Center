@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header"; 
-import { FaUserCircle } from "react-icons/fa"; // Profile icon
 
 function UserProfile() {
   const [user, setUser] = useState(null);
@@ -15,7 +14,17 @@ function UserProfile() {
         const response = await axios.get("http://localhost:8070/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(response.data);
+
+        let userData = response.data;
+        
+        // Assign default profile picture based on gender if no image is provided
+        if (!userData.profilePic) {
+          userData.profilePic = userData.gender === "female"
+            ? "/images/female-default.png"
+            : "/images/male-default.png";
+        }
+
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching profile:", error);
         navigate("/login"); // Redirect to login if not authenticated
@@ -25,20 +34,10 @@ function UserProfile() {
     fetchUserProfile();
   }, [navigate]);
 
-  // Get the default profile picture based on gender
-  const getProfilePic = () => {
-    if (user && user.profilePic) return user.profilePic;
-    return user && user.gender === "female"
-      ? "/images/female-default.png" // Default female image
-      : "/images/male-default.png";   // Default male image
-  };
-
-  // Handle Edit Profile (navigate to edit page)
   const handleEdit = () => {
     navigate("/edit-profile");
   };
 
-  // Handle Delete Profile
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete your profile?")) {
       try {
@@ -46,8 +45,8 @@ function UserProfile() {
         await axios.delete(`http://localhost:8070/user/delete/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        localStorage.clear(); // Clear user data
-        navigate("/register"); // Redirect after deletion
+        localStorage.clear(); 
+        navigate("/register");
       } catch (error) {
         console.error("Error deleting profile:", error);
       }
@@ -58,11 +57,13 @@ function UserProfile() {
 
   return (
     <div>
-      <Header activeTab="profile" /> {/* Header with active profile tab */}
+      <Header activeTab="profile" />
       <div style={styles.profileContainer}>
         <div style={styles.profileHeader}>
-          {/* Auto-filled FaUserCircle with Profile Picture */}
-          <div style={{ ...styles.profileIcon, backgroundImage: `url(${getProfilePic()})` }} />
+          <div style={{ 
+            ...styles.profileIcon, 
+            backgroundImage: `url(${user.profilePic})` 
+          }} />
           <h2>{user.fullName}'s Profile</h2>
         </div>
         <div style={styles.profileDetails}>
@@ -80,19 +81,18 @@ function UserProfile() {
   );
 }
 
-// Inline CSS styles
+// Internal CSS
+
 const styles = {
   profileContainer: {
     maxWidth: "600px",
     margin: "50px auto",
     padding: "40px",
-    background: "linear-gradient(145deg, #FF6F61, #FF9A9E)", // Soft gradient
+    background: "linear-gradient(145deg, #B3E5FC, #FFEBEE)", // Light blue and pink gradient
     borderRadius: "20px",
-    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.15)", // Soft shadow
+    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)", // Subtle shadow
     textAlign: "center",
-    color: "#fff",
-    position: "relative",
-    transition: "0.5s ease-in-out",
+    color: "#333", // Dark gray text for better contrast and readability
   },
   profileHeader: {
     display: "flex",
@@ -107,20 +107,17 @@ const styles = {
     borderRadius: "50%",
     backgroundSize: "cover",
     backgroundPosition: "center",
-    backgroundColor: "#ccc", // Fallback color
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#f0f0f0", // Soft background for the icon
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Light shadow for the icon
   },
   profileDetails: {
     fontSize: "18px",
-    color: "#fff",
+    color: "#333", // Dark gray text for better readability
     marginBottom: "30px",
     padding: "20px",
-    background: "rgba(255, 255, 255, 0.6)", // Glassmorphism
+    background: "rgba(255, 255, 255, 0.8)", // Light white background for details
     borderRadius: "15px",
-    backdropFilter: "blur(10px)",
+    backdropFilter: "blur(10px)", // Slight blur effect for soft background
   },
   profileActions: {
     display: "flex",
@@ -130,28 +127,19 @@ const styles = {
   },
   editBtn: {
     padding: "15px 30px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "18px",
-    fontWeight: "bold",
-    backgroundColor: "#4CAF50", // Fresh Green
+    backgroundColor: "#4CAF50", // Fresh green color for the edit button
     color: "white",
-    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.1)",
-    transition: "0.3s ease-in-out",
+    borderRadius: "8px",
+    cursor: "pointer", // Cursor changes to pointer on hover
   },
   deleteBtn: {
     padding: "15px 30px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "18px",
-    fontWeight: "bold",
-    backgroundColor: "#F44336", // Red
+    backgroundColor: "#FF5722", // A vibrant coral red for the delete button
     color: "white",
-    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.1)",
-    transition: "0.3s ease-in-out",
+    borderRadius: "8px",
+    cursor: "pointer", // Cursor changes to pointer on hover
   },
 };
+
 
 export default UserProfile;

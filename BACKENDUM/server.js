@@ -7,6 +7,8 @@ const app = express();
 dotenv.config(); // No need for require("dotenv").config();
 
 const PORT = process.env.PORT || 8070;
+const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+app.use(express.json());
 
 app.use(cors());
 app.use(bodyParser.json());

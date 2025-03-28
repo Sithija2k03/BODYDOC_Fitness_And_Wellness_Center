@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header"; // Import Header component
+import Header from "./Header";
 
 function EditProfile() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    profilePic: "", // Store the image URL
-    
+    gender: "",
+    profilePic: "",
   });
 
-  const [image, setImage] = useState(null);
   const navigate = useNavigate();
 
-
-
-  // Fetch user data on mount
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -25,21 +21,30 @@ function EditProfile() {
         const response = await axios.get("http://localhost:8070/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setFormData(response.data);
+
+        let userData = response.data;
+
+        // Assign default profile picture if not provided
+        if (!userData.profilePic) {
+          userData.profilePic = userData.gender === "female"
+            ? "/images/female-default.png"
+            : "/images/male-default.png";
+        }
+
+        setFormData(userData);
       } catch (error) {
         console.error("Error fetching profile:", error);
         navigate("/login");
       }
     };
+
     fetchUserProfile();
   }, [navigate]);
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -48,7 +53,7 @@ function EditProfile() {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Profile updated successfully!");
-      navigate("/profile"); // Redirect to profile page
+      navigate("/user-profile");
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -57,133 +62,59 @@ function EditProfile() {
   return (
     <div>
       <Header activeTab="profile" />
-      <div style={styles.container}>
-        <h2 style={styles.heading}>Edit Profile</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.label}>Full Name:</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            style={styles.input}
-            required
-          />
+      <div style={{
+        maxWidth: "500px",
+        margin: "50px auto",
+        padding: "30px",
+        background: "#f8f9fa",
+        borderRadius: "10px",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+        textAlign: "center",
+      }}>
+        <h2 style={{ marginBottom: "20px" }}>Edit Profile</h2>
+        <form onSubmit={handleSubmit}>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Full Name:</label>
+          <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required style={inputStyle} />
 
-          <label style={styles.label}>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            style={styles.input}
-            required
-           // Prevent users from changing their email
-          />
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Email:</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} style={inputStyle} />
 
-          <label style={styles.label}>Phone:</label>
-          <input
-            type="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            style={styles.input}
-            required
-           
-          />
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Phone:</label>
+          <input type="phone" name="phone" value={formData.phone} onChange={handleChange} required style={inputStyle} />
 
-          
-
-          <label style={styles.label}>Membership Status:</label>
-          <select
-            name="membershipStatus"
-            value={formData.membershipStatus}
-            onChange={handleChange}
-            style={styles.input}
-            required
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Expired">Expired</option>
+          <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Gender:</label>
+          <select name="gender" value={formData.gender} onChange={handleChange} style={inputStyle}>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
           </select>
 
-          <button type="submit" style={styles.saveButton}>Save Changes</button>
-          <button type="button" onClick={() => navigate("/profile")} style={styles.cancelButton}>Cancel</button>
+          <button type="submit" style={buttonStyle}>Save Changes</button>
+          <button type="button" onClick={() => navigate("/profile")} style={{ ...buttonStyle, backgroundColor: "#dc3545" }}>Cancel</button>
         </form>
       </div>
     </div>
   );
 }
 
-// Inline CSS styles
-const styles = {
-  container: {
-    width: "50%",
-    margin: "40px auto",
-    padding: "30px",
-    borderRadius: "12px",
-    background: "linear-gradient(135deg, #ffffff, #e0f2fe)",
-    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
-  },
-  heading: {
-    fontSize: "26px",
-    fontWeight: "bold",
-    color: "#1e3a8a",
-    marginBottom: "20px",
-    textTransform: "uppercase",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  label: {
-    fontSize: "16px",
-    fontWeight: "bold",
-    color: "#1e40af",
-    textAlign: "left",
-    marginBottom: "5px",
-  },
-  input: {
-    padding: "12px",
-    fontSize: "16px",
-    border: "2px solid #93c5fd",
-    borderRadius: "8px",
-    background: "#f1f5f9",
-    transition: "all 0.3s ease-in-out",
-  },
-  saveButton: {
-    marginTop: "15px",
-    padding: "12px",
-    background: "linear-gradient(90deg, #4caf50, #22c55e)",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "bold",
-    transition: "all 0.3s ease-in-out",
-  },
-  saveButtonHover: {
-    background: "linear-gradient(90deg, #22c55e, #16a34a)",
-    transform: "scale(1.05)",
-  },
-  cancelButton: {
-    padding: "12px",
-    background: "linear-gradient(90deg, #6c757d, #4b5563)",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "bold",
-    transition: "all 0.3s ease-in-out",
-  },
-  cancelButtonHover: {
-    background: "linear-gradient(90deg, #4b5563, #374151)",
-    transform: "scale(1.05)",
-  },
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "15px",
+  borderRadius: "5px",
+  border: "1px solid #ccc",
+  fontSize: "16px",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px",
+  backgroundColor: "#28a745",
+  color: "white",
+  border: "none",
+  borderRadius: "5px",
+  fontSize: "16px",
+  cursor: "pointer",
 };
 
 export default EditProfile;
