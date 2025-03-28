@@ -101,7 +101,7 @@ const SalariesStyled = styled.div`
         width: 100%;
         display: flex;
         justify-content: center;
-        margin-left: -500px;
+        margin-left: -420px;
         margin-bottom: 1.5rem;
 
         button {

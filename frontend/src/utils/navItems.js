@@ -17,7 +17,7 @@ export const navItems = [
         id: 3,
         title: 'Incomes',
         icon: incomes,
-        link: '/dashboard'
+        link: '/incomes'
     },
     {
         id: 4,
