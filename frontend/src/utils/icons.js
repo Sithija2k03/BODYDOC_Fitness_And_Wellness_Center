@@ -7,6 +7,7 @@ export const settings = <i className="fa-solid fa-gear"></i>
 export const calendar = <i className="fa-solid fa-calendar-days"></i>
 export const plus = <i className="fa-solid fa-plus"></i>
 export const trash = <i className="fa-solid fa-trash"></i>
+export const edit = <i className="fa-solid fa-pen-to-square"></i>
 export const dollar = <i className="fa-solid fa-dollar-sign"></i>
 export const comment = < i className="fa-solid fa-comment"></i>
 export const list = <i className="fa-solid fa-list"></i>
@@ -28,5 +29,6 @@ export const pending = <i className="fa-solid fa-hourglass-end"></i>
 export const done = <i className="fa-solid fa-circle-check"></i>
 export const employee = <i className="fa-solid fa-user-tie"></i>
 export const search = <i className="fa-solid fa-magnifying-glass"></i>
-export const inventory =<i class="fa-solid fa-boxes-stacked"></i>
-export const truck = <i class="fa-solid fa-truck"></i>
+export const inventory =<i className="fa-solid fa-boxes-stacked"></i>
+export const truck = <i className="fa-solid fa-truck"></i>
+export const fileText = <i className="fa-solid fa-file-pdf"></i>

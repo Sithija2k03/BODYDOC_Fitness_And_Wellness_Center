@@ -4,7 +4,7 @@ const User = require('../models/userModel');
 // Controller function to create salary
 const createSalary = async (req, res) => {
     try {
-        const { basicSalary, allowances, deductions, paymentDate, role } = req.body;
+        const { basicSalary, allowances, deductions, paymentDate, role, otHours, otRate, epfRate, etfRate } = req.body;
 
         // Fetch the user data based on the role
         const user = await User.findOne({ role });
@@ -25,8 +25,19 @@ const createSalary = async (req, res) => {
 
         // Get the salary based on the role from the salaryConfig
         const roleSalary = salaryConfig[user.role] || 30000;  
-        // Calculate net salary
-        const netSalary = roleSalary + allowances - deductions;
+
+        // Calculate hourly rate based on the basic salary (assuming 160 work hours per month)
+        const hourlyRate = roleSalary / 160;
+
+        // Calculate OT Pay
+        const otPay = otHours * hourlyRate * otRate;
+
+        // Calculate EPF and ETF deductions
+        const epfDeduction = (roleSalary + otPay) * (epfRate / 100);
+        const etfDeduction = (roleSalary + otPay) * (etfRate / 100);
+
+        // Calculate net salary after allowances, deductions, and the overtime pay
+        const netSalary = roleSalary + allowances - deductions + otPay - epfDeduction - etfDeduction;
 
         // Create the salary record
         const salary = new Salary({
@@ -34,6 +45,13 @@ const createSalary = async (req, res) => {
             basicSalary: roleSalary, 
             allowances,
             deductions,
+            otHours,
+            otRate,
+            otPay,
+            epfRate,
+            epfDeduction,
+            etfRate,
+            etfDeduction,
             netSalary,
             paymentDate,
             status: 'Pending',  
@@ -47,6 +65,7 @@ const createSalary = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 const getAllSalaries = async (req, res) => {
     try {

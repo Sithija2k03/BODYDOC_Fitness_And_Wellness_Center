@@ -63,7 +63,7 @@ function Salaries() {
                     <div className="salaries">
                         {filteredSalaries.length > 0 ? (
                             filteredSalaries.map((salary) => {
-                                const { _id, employeeId, basicSalary, allowances, deductions, netSalary, paymentDate, status } = salary;
+                                const { _id, employeeId, basicSalary, allowances, deductions, otHours, otRate, epfRate, etfRate,netSalary, paymentDate, status } = salary;
                                 return (
                                     <SalaryItem
                                         key={_id}
@@ -72,6 +72,10 @@ function Salaries() {
                                         basicSalary={basicSalary}
                                         allowances={allowances}
                                         deductions={deductions}
+                                        otHours={otHours}  
+                                        otRate={otRate}    
+                                        epfRate={epfRate}  
+                                        etfRate={etfRate}  
                                         netSalary={netSalary}
                                         paymentDate={paymentDate}
                                         status={status}
@@ -117,7 +121,41 @@ const SalariesStyled = styled.div`
             }
         }
     }
+
+    .salary-content {
+        overflow-x: auto; /* Allow horizontal scroll if content exceeds width */
+        margin-left: -20px; /* Adjust margin for horizontal scroll */
+    }
+
+    .salaries {
+        table {
+            width: 100%; /* Ensure it takes the full width */
+            table-layout: fixed; /* Fix column widths */
+            border-collapse: collapse; /* Collapse table borders */
+            font-size: 0.8rem; /* Reduce font size for smaller table */
+        }
+        
+        th, td {
+            padding: 0.8rem; /* Adjust padding for smaller table */
+            text-align: left;
+            border-bottom: 1px solid #ddd; /* Simple border between rows */
+        }
+
+        /* Prevent scrolling issues on smaller devices */
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+                font-size: 0.75rem; /* Smaller font on smaller screens */
+            }
+            
+            th, td {
+                padding: 0.6rem; /* Reduce padding on smaller screens */
+            }
+        }
+    }
 `;
+
+
 
 const SearchBarContainer = styled.div`
   display: flex;

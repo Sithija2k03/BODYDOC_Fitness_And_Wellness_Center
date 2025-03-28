@@ -2,162 +2,202 @@ import React from 'react';
 import styled from 'styled-components';
 import { dateFormat } from '../../utils/dateFormat';
 import { useGlobalContext } from '../../context/globalContext';
-import Button from '../Button/Button';
-import {trash, employee} from '../../utils/icons';
+import { trash, edit, fileText } from '../../utils/icons';  // Add an icon for the "Generate Payslip" button
+import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
+// SalaryItem component to display individual salary details
 function SalaryItem({
     id,
     employeeId,
     basicSalary,
     allowances,
     deductions,
+    otHours,
+    otRate,
+    epfRate,
+    etfRate,
     netSalary,
     paymentDate,
     status,
-    indicatorColor,
     deleteItem,
+    editItem
 }) {
     const { updateSalaryStatus } = useGlobalContext();  
 
+    // Handle status update (Pending -> Paid, Paid -> Pending)
     const handleUpdateStatus = () => {
-        const newStatus = status === "Pending" ? "Paid" : "Pending"; // Toggle status
+        const newStatus = status === "Pending" ? "Paid" : "Pending";
         updateSalaryStatus(id, newStatus); 
     };
 
+    // PDF Document for Payslip
+    const generatePayslip = () => (
+        <Document>
+            <Page style={styles.page}>
+                <Text style={styles.header}>Payslip</Text>
+                <View style={styles.section}>
+                    <Text>Employee: {employeeId ? employeeId.fullName : "No Name Available"}</Text>
+                    <Text>Payment Date: {dateFormat(paymentDate)}</Text>
+                    <Text>Status: {status}</Text>
+                </View>
+                <View style={styles.section}>
+                    <Text>Basic Salary: {basicSalary}</Text>
+                    <Text>Allowances: {allowances}</Text>
+                    <Text>Deductions: {deductions}</Text>
+                    <Text>OT Hours: {otHours}</Text>
+                    <Text>OT Rate: {otRate}</Text>
+                    <Text>EPF Rate: {epfRate}</Text>
+                    <Text>ETF Rate: {etfRate}</Text>
+                    <Text>Net Salary: {netSalary}</Text>
+                </View>
+            </Page>
+        </Document>
+    );
+
     return (
         <SalaryItemStyled>
-            <div className="indicator" style={{ backgroundColor: indicatorColor }}></div>
-            <div className="content">
-            <h5>
-              <span className="employee-icon">{employee}</span> 
-              {employeeId ? employeeId.fullName : "No Name Available"} {/* Add check here */}
-            </h5>
-
-                <p>Basic Salary: {basicSalary}</p>
-                <p>Allowances: {allowances}</p>
-                <p>Deductions: {deductions}</p>
-                <p>Net Salary: {netSalary}</p>
-                <p>Payment Date: {dateFormat(paymentDate)}</p>
-                <p>Status: <span className={status === "Paid" ? "paid" : "pending"}>{status}</span></p>
-
-                <div className="buttons">
-                    <button onClick={handleUpdateStatus} className={status === "Paid" ? "paid-btn" : "pending-btn"}>
-                        {status === "Pending" ? "Mark as Paid" : "Mark as Pending"}
-                    </button>
-                    <div className='actions'>
-                        <Button
-                            icon={trash}
-                            bPad={'1rem'}
-                            bRad={'50%'}
-                            bg={'var(--color-delete)'}
-                            color={'#fff'}
-                            iColor={'#fff'}
-                            hColor={'var(--color-green)'}
-                            onClick={() => deleteItem(id)}
-                            />
-                    </div>
-                </div>
+            <div className="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Basic Salary</th>
+                            <th>Allowances</th>
+                            <th>Deductions</th>
+                            <th>OT Hours</th>
+                            <th>Net Salary</th>
+                            <th>Payment Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{employeeId ? employeeId.fullName : "No Name Available"}</td>
+                            <td>{basicSalary}</td>
+                            <td>{allowances}</td>
+                            <td>{deductions}</td>
+                            <td>{otHours}</td>
+                            <td>{netSalary}</td>
+                            <td>{dateFormat(paymentDate)}</td>
+                            <td>
+                                <button onClick={handleUpdateStatus} className={status === "Paid" ? "paid-btn" : "pending-btn"}>
+                                    {status}
+                                </button>
+                            </td>
+                            <td>
+                                <div className='actions'>
+                                    <button className='delete-btn' onClick={() => deleteItem(id)}>{trash}</button>
+                                    {status === "Paid" && (
+                                        <PDFDownloadLink document={generatePayslip()} fileName={`Payslip_${id}.pdf`}>
+                                            <button className='payslip-btn'>
+                                                {fileText} Generate Payslip
+                                            </button>
+                                        </PDFDownloadLink>
+                                    )}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </SalaryItemStyled>
     );
 }
 
 const SalaryItemStyled = styled.div`
-    background: #FCF6F9;
-    border: 2px solid #FFFFFF;
-    box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-    border-radius: 20px;
-    padding: 1rem;
-    max-width: 93%;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    overflow: hidden;
+    overflow-x: auto;
 
-    .indicator {
-        width: 10px;
-        height: 100%;
+    .table-container {
+        max-width: 1000px;  /* Set a max width for the table */
+        margin: 0 auto;  /* Center the table */
+    }
+
+    table {
+        margin-left: -20px;
+        border-collapse: collapse;
+        background: #FCF6F9;
+        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        table-layout: auto; /* Ensures even distribution of space */
+        width: 100%;
+    }
+
+    th, td {
+        padding: 2px 6px;  /* Reduced padding to minimize gap */
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.75rem; /* Smaller font size */
+    }
+
+    th {
+        background: #F5F5F5;
+        font-weight: bold;
+        padding: 4px 6px;  /* Reduced padding on header */
+    }
+
+    .paid-btn {
+        background: green;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .pending-btn {
+        background: orange;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+
+    .edit-btn, .delete-btn, .payslip-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .delete-btn {
+        color: red;
+        margin-left: -40px;
+    }
+
+    .edit-btn {
+        color: blue;
+    }
+
+    .payslip-btn {
+        color: green;
+        font-size: 0.9rem;
+        margin-left: 10px;
+        padding: 4px 8px;
+        background: lightgreen;
         border-radius: 5px;
     }
-
-    .content {
-        flex: 1;
-        display: flex;
-        flex-direction: rows;
-        gap: 0.3rem; 
-
-        h5 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-
-            .employee-icon {
-            font-size: 1.5rem; /* Adjust the size as needed */
-             margin-right: 0.5rem; /* Add spacing between the icon and text */
-            }
-        }
-
-        p {
-            margin: 0.2rem 0;
-        }
-
-        .paid {
-            color: green;
-            font-weight: bold;
-        }
-
-        .pending {
-            color: red;
-            font-weight: bold;
-        }
-
-       .buttons {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-
-        button {
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-            padding: 10px 25px;
-            white-space: nowrap;
-            transition: all 0.3s ease-in-out;
-
-            &:hover {
-                opacity: 0.8;
-            }
-        }
-
-        .paid-btn {
-            background: green;
-            color: white;
-            width: 150px;
-            text-align: center;
-        }
-
-        .pending-btn {
-            background: orange;
-            color: white;
-            width: 130px;
-            text-align: center;
-        }
-
-        .delete-btn {
-            background: #FF6B6B;
-            color: white;
-            width: 70px; /* Make delete button smaller */
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem; /* Slightly bigger icon */
-        }
-     }
-    }
 `;
+
+const styles = StyleSheet.create({
+    page: {
+        padding: 20,
+    },
+    header: {
+        fontSize: 24,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    section: {
+        marginBottom: 10,
+    },
+});
 
 export default SalaryItem;
