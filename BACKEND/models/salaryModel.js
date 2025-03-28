@@ -90,3 +90,4 @@ salarySchema.pre('save', function (next) {
 const Salary = mongoose.model('Salary', salarySchema);
 
 module.exports = Salary;
+
