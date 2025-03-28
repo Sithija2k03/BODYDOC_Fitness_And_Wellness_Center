@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header"; 
+import { FiLogOut } from "react-icons/fi"; // Import logout icon from react-icons
 
 function UserProfile() {
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("profile");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,8 +22,8 @@ function UserProfile() {
         // Assign default profile picture based on gender if no image is provided
         if (!userData.profilePic) {
           userData.profilePic = userData.gender === "female"
-            ? "/images/female-default.png"
-            : "/images/male-default.png";
+            ? "./img/female-default.png"
+            : "./img/male-default.png";
         }
 
         setUser(userData);
@@ -53,28 +55,75 @@ function UserProfile() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from localStorage
+    navigate("/login"); // Redirect to login page
+  };
+
+  const handleNavClick = (tab) => {
+    setActiveTab(tab);
+  };
+
   if (!user) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div style={styles.container}>
       <Header activeTab="profile" />
       <div style={styles.profileContainer}>
-        <div style={styles.profileHeader}>
-          <div style={{ 
-            ...styles.profileIcon, 
-            backgroundImage: `url(${user.profilePic})` 
-          }} />
-          <h2>{user.fullName}'s Profile</h2>
-        </div>
-        <div style={styles.profileDetails}>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Phone:</strong> {user.phone}</p>
-          <p><strong>Role:</strong> {user.role}</p>
-          <p><strong>Membership Status:</strong> {user.membershipStatus}</p>
-        </div>
-        <div style={styles.profileActions}>
+        <div style={styles.sideNav}>
+          <div style={styles.profileHeader}>
+            <div 
+              style={{ 
+                ...styles.profileIcon, 
+                backgroundImage: `url(${user.profilePic})` 
+              }} 
+            />
+            <span style={styles.userName}>{user.fullName}</span> {/* Display user's name */}
+          </div>
           <button style={styles.editBtn} onClick={handleEdit}>Edit Profile</button>
           <button style={styles.deleteBtn} onClick={handleDelete}>Delete Profile</button>
+
+          <div style={styles.navLinks}>
+            <button style={styles.navBtn} onClick={() => handleNavClick("profile")}>Profile Information</button>
+            <button style={styles.navBtn} onClick={() => handleNavClick("bookings")}>My Bookings</button>
+            <button style={styles.navBtn} onClick={() => handleNavClick("appointments")}>My Doc Appointments</button>
+            <button style={styles.navBtn} onClick={() => handleNavClick("orders")}>My Orders</button>
+          </div>
+
+          {/* Logout Icon Button */}
+          <button style={styles.logoutBtn} onClick={handleLogout}>
+            <FiLogOut size={24} color="white" />
+          </button>
+        </div>
+
+        <div style={styles.profileContent}>
+          {activeTab === "profile" && (
+            <div style={styles.profileDetails}>
+              <h3>Profile Information</h3>
+              <p><strong>Email:</strong> {user.email}</p>
+              <p><strong>Phone:</strong> {user.phone}</p>
+              <p><strong>Role:</strong> {user.role}</p>
+              <p><strong>Membership Status:</strong> {user.membershipStatus}</p>
+            </div>
+          )}
+          {activeTab === "bookings" && (
+            <div>
+              <h3>My Bookings</h3>
+              {/* Add content for bookings here */}
+            </div>
+          )}
+          {activeTab === "appointments" && (
+            <div>
+              <h3>My Doc Appointments</h3>
+              {/* Add content for appointments here */}
+            </div>
+          )}
+          {activeTab === "orders" && (
+            <div>
+              <h3>My Orders</h3>
+              {/* Add content for orders here */}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -84,22 +133,31 @@ function UserProfile() {
 // Internal CSS
 
 const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column", // Ensure the header is positioned on top of everything
+    width: "100%", 
+  },
   profileContainer: {
-    maxWidth: "600px",
-    margin: "50px auto",
-    padding: "40px",
-    background: "linear-gradient(145deg, #B3E5FC, #FFEBEE)", // Light blue and pink gradient
-    borderRadius: "20px",
-    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)", // Subtle shadow
-    textAlign: "center",
-    color: "#333", // Dark gray text for better contrast and readability
+    display: "flex",
+    flexDirection: "row",
+    width: "90%",
+    marginTop: "100px",
+    marginLeft: "75px",
+  },
+  sideNav: {
+    width: "300px",
+    background: "#fff",
+    padding: "20px",
+    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)",
+    borderRadius: "10px",
+    marginRight: "20px",
   },
   profileHeader: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    gap: "20px",
-    marginBottom: "30px",
+    gap: "15px",
+    marginBottom: "20px",
   },
   profileIcon: {
     width: "80px",
@@ -107,39 +165,83 @@ const styles = {
     borderRadius: "50%",
     backgroundSize: "cover",
     backgroundPosition: "center",
-    backgroundColor: "#f0f0f0", // Soft background for the icon
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Light shadow for the icon
+    backgroundColor: "#f0f0f0",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+  },
+  userName: {
+    fontSize: "18px",
+    fontWeight: "500",
+    color: "#333",
+  },
+  editBtn: {
+    padding: "12px 20px",
+    backgroundColor: "#4CAF50", // Fresh green
+    color: "white",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginBottom: "15px",
+    fontSize: "16px",
+    fontWeight: "500",
+    textAlign: "center",
+    border: "none",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+    transition: "all 0.3s ease", // Smooth transition for hover effect
+  },
+  deleteBtn: {
+    padding: "12px 20px",
+    backgroundColor: "#FF5722", // Rich, vibrant red
+    color: "white",
+    borderRadius: "8px",
+    cursor: "pointer",
+    marginBottom: "25px",
+    marginLeft: "25px",
+    fontSize: "16px",
+    fontWeight: "500",
+    textAlign: "center",
+    border: "none",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+    transition: "all 0.3s ease", // Smooth transition for hover effect
+  },
+  navLinks: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    marginBottom: "20px",
+  },
+  navBtn: {
+    padding: "10px",
+    backgroundColor: "#f4f4f4",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "16px",
+    textAlign: "left",
+    width: "100%",
+    transition: "background-color 0.3s",
+  },
+  logoutBtn: {
+    padding: "10px",
+    backgroundColor: "#FF5722", // Red background for logout icon
+    color: "white",
+    borderRadius: "50%",
+    cursor: "pointer",
+    border: "none",
+    marginTop: "30px",
+    transition: "all 0.3s ease",
+  },
+  profileContent: {
+    flex: 1,
+    padding: "20px",
+    background: "linear-gradient(145deg, #B3E5FC, #FFEBEE)",
+    borderRadius: "20px",
+    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)",
+    textAlign: "left",
   },
   profileDetails: {
     fontSize: "18px",
-    color: "#333", // Dark gray text for better readability
+    color: "#333",
     marginBottom: "30px",
-    padding: "20px",
-    background: "rgba(255, 255, 255, 0.8)", // Light white background for details
-    borderRadius: "15px",
-    backdropFilter: "blur(10px)", // Slight blur effect for soft background
-  },
-  profileActions: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "25px",
-    marginTop: "30px",
-  },
-  editBtn: {
-    padding: "15px 30px",
-    backgroundColor: "#4CAF50", // Fresh green color for the edit button
-    color: "white",
-    borderRadius: "8px",
-    cursor: "pointer", // Cursor changes to pointer on hover
-  },
-  deleteBtn: {
-    padding: "15px 30px",
-    backgroundColor: "#FF5722", // A vibrant coral red for the delete button
-    color: "white",
-    borderRadius: "8px",
-    cursor: "pointer", // Cursor changes to pointer on hover
   },
 };
-
 
 export default UserProfile;

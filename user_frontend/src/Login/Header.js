@@ -1,15 +1,23 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom"; // To track the current route
 import "./Header.css"; // Custom CSS
+import { Link } from "react-router-dom";
 
 function Header() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   
+  // Get the current route
+  const location = useLocation();
+  
+  // Check if we're on the "User Profile" page (or any other page you'd like to check)
+  const isProfilePage = location.pathname === "/user-profile"; // Adjust path as necessary
+
   return (
     <nav className="navbar">
       <div className="container">
-        {/**/}
-        <div class="logo">
-            <img src="./bodydoc.png" alt="Logo" class="logo-img" />
+        {/* Logo */}
+        <div className="logo">
+          <img src="./img/bodydoc.png" alt="Logo" className="logo-img" />
         </div>
 
         {/* Navigation Links */}
@@ -34,11 +42,11 @@ function Header() {
           <li><a href="#">Support with AI</a></li>
         </ul>
 
-        {/* Search Form */}
-        <div className="search-bar">
-          <input type="text" placeholder="Search..." />
-          <button>Search</button>
-        </div>
+       {/* User Profile Icon Linked to /user-profile */}
+       <Link to="/user-profile" className={`user-profile ${isProfilePage ? "active" : ""}`}>
+          <img src="./img/male-default.png" alt="User Profile" className="profile-icon" />
+        </Link>
+
       </div>
     </nav>
   );
