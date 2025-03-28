@@ -202,7 +202,7 @@ const DashboardStyled = styled.div`
         margin-top: 10px;
         position: absolute; /* Position the button absolutely */
         bottom: 60px; /* Adjust button's distance from the bottom of the container */
-        left: 20%; /* Position it in the center horizontally */
+        left: 50%; /* Position it in the center horizontally */
         transform: translateX(-50%); /* Adjust for exact centering */
         width: auto; /* Ensures button width is adjusted according to content */
     }
