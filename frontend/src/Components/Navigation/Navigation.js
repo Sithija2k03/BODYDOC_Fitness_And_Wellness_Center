@@ -57,7 +57,7 @@ function Navigation({ active, setActive }) {
 
 const NavStyled = styled.nav`
     padding: 2rem 1.5rem;
-    width: 320px;
+    width: 270px;
     height: 100vh;
     background: rgba(252, 246, 249, 0.8);
     border: 3px solid #FFFFFF;

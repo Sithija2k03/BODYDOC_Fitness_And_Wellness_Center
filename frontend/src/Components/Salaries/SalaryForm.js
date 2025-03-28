@@ -11,11 +11,15 @@ function SalaryForm() {
 
     // State for salary form inputs
     const [inputState, setInputState] = useState({
-        role: "",  // New state for role selection
+        role: "",
         allowances: "",
         deductions: "",
+        otHours: "",
+        otRate: "1.5",   // Default OT Rate
+        epfRate: "8",     // Default EPF Rate
+        etfRate: "3",     // Default ETF Rate
         paymentDate: null,
-        status: "Pending",  // Default status
+        status: "Pending",
     });
 
     // State for employee data (fetched from the database)
@@ -25,19 +29,18 @@ function SalaryForm() {
         netSalary: 0,
     });
 
-    const { role, allowances, deductions, paymentDate, status } = inputState;
+    const { role, allowances, deductions, otHours, otRate, epfRate, etfRate, paymentDate, status } = inputState;
 
-    // Fetch employee data based on the selected role
     useEffect(() => {
         if (role) {
             const fetchEmployeeData = async () => {
                 try {
-                    const employee = await getEmployeeByRole(role); // Fetch employee by role
+                    const employee = await getEmployeeByRole(role);
                     if (employee) {
                         setEmployeeData({
                             employeeId: employee._id,
                             basicSalary: employee.basicSalary,
-                            netSalary: calculateNetSalary(employee.basicSalary, allowances, deductions),
+                            netSalary: calculateNetSalary(employee.basicSalary, allowances, deductions, otHours, otRate, epfRate, etfRate),
                         });
                     }
                 } catch (error) {
@@ -47,10 +50,13 @@ function SalaryForm() {
 
             fetchEmployeeData();
         }
-    }, [role, allowances, deductions]); // Re-run when role, allowances, or deductions change
+    }, [role, allowances, deductions, otHours, otRate, epfRate, etfRate]);
 
-    const calculateNetSalary = (basicSalary, allowances, deductions) => {
-        return basicSalary + parseFloat(allowances || 0) - parseFloat(deductions || 0);
+    const calculateNetSalary = (basicSalary, allowances, deductions, otHours, otRate, epfRate, etfRate) => {
+        const otPay = parseFloat(otHours || 0) * parseFloat(otRate || 1.5) * (basicSalary / 240);
+        const epf = (parseFloat(epfRate) / 100) * basicSalary;
+        const etf = (parseFloat(etfRate) / 100) * basicSalary;
+        return basicSalary + parseFloat(allowances || 0) + otPay - (parseFloat(deductions || 0) + epf + etf);
     };
 
     const handleInput = (name) => (e) => {
@@ -63,7 +69,7 @@ function SalaryForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!role || !allowances || !deductions || !paymentDate) {
+        if (!role || !allowances || !deductions || !paymentDate || !otHours || !otRate || !epfRate || !etfRate) {
             alert("Please fill all fields before submitting.");
             return;
         }
@@ -72,20 +78,27 @@ function SalaryForm() {
             role,
             allowances: parseFloat(allowances),
             deductions: parseFloat(deductions),
+            otHours: parseFloat(otHours),
+            otRate: parseFloat(otRate),
+            epfRate: parseFloat(epfRate),
+            etfRate: parseFloat(etfRate),
             paymentDate,
             status,
         };
 
         try {
-            await addSalary(newSalary); // Add salary to the database
-            getSalaries(); // Fetch all salaries again
+            await addSalary(newSalary);
+            getSalaries();
             alert("Salary added successfully!");
 
-            // Reset form
             setInputState({
                 role: "",
                 allowances: "",
                 deductions: "",
+                otHours: "",
+                otRate: "1.5",
+                epfRate: "8",
+                etfRate: "3",
                 paymentDate: null,
                 status: "Pending",
             });
@@ -98,11 +111,7 @@ function SalaryForm() {
     return (
         <FormStyled onSubmit={handleSubmit}>
             <div className="input-control">
-                <select 
-                    value={role} 
-                    name="role" 
-                    onChange={handleInput("role")}
-                >
+                <select value={role} name="role" onChange={handleInput("role")}>
                     <option value="" disabled>Select Role</option>
                     <option value="admin">Admin</option>
                     <option value="doctor">Doctor</option>
@@ -114,43 +123,37 @@ function SalaryForm() {
             </div>
 
             <div className="input-control">
-                <input 
-                    type="number" 
-                    value={allowances}
-                    name="allowances"
-                    placeholder="Allowances"
-                    onChange={handleInput("allowances")}
-                />
+                <input type="number" value={allowances} name="allowances" placeholder="Allowances" onChange={handleInput("allowances")} />
             </div>
 
             <div className="input-control">
-                <input 
-                    type="number" 
-                    value={deductions}
-                    name="deductions"
-                    placeholder="Deductions"
-                    onChange={handleInput("deductions")}
-                />
+                <input type="number" value={deductions} name="deductions" placeholder="Deductions" onChange={handleInput("deductions")} />
+            </div>
+
+            {/* OT Hours & OT Rate */}
+            <div className="input-control">
+                <input type="number" value={otHours} name="otHours" placeholder="OT Hours" onChange={handleInput("otHours")} />
             </div>
 
             <div className="input-control">
-                <DatePicker
-                    selected={paymentDate}
-                    dateFormat={"dd/MM/yyyy"}
-                    placeholderText="Select Payment Date"
-                    onChange={(date) => setInputState({ ...inputState, paymentDate: date })}
-                />
+                <input type="number" value={otRate} name="otRate" placeholder="OT Rate (default 1.5)" onChange={handleInput("otRate")} />
+            </div>
+
+            {/* EPF & ETF Rates */}
+            <div className="input-control">
+                <input type="number" value={epfRate} name="epfRate" placeholder="EPF Rate (%)" onChange={handleInput("epfRate")} />
+            </div>
+
+            <div className="input-control">
+                <input type="number" value={etfRate} name="etfRate" placeholder="ETF Rate (%)" onChange={handleInput("etfRate")} />
+            </div>
+
+            <div className="input-control">
+                <DatePicker selected={paymentDate} dateFormat={"dd/MM/yyyy"} placeholderText="Select Payment Date" onChange={(date) => setInputState({ ...inputState, paymentDate: date })} />
             </div>
 
             <div className="submit-btn">
-                <Button 
-                    name={'Add Salary'}
-                    icon={plus}
-                    bPad={'.8rem 1.6rem'}
-                    bRad={'30px'}
-                    bg={'var(--color-accent)'}
-                    color={'#fff'}
-                />
+                <Button name={'Add Salary'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'var(--color-accent)'} color={'#fff'} />
             </div>
         </FormStyled>
     );
@@ -160,11 +163,11 @@ const FormStyled = styled.form`
      display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 350px; /* Keep form compact */
+    max-width: 350px;
     gap: 1rem;
     margin-left: 5px;
     padding: 1rem;
-    align-items: flex-start; /* Align everything to the left */
+    align-items: flex-start;
 
     input, textarea, select {
         font-family: inherit;
@@ -176,7 +179,7 @@ const FormStyled = styled.form`
         background: #fff;
         resize: none;
         color: rgba(34, 34, 96, 0.9);
-        width: 100%; /* Ensure consistent size */
+        width: 100%;
         
         &::placeholder {
             color: rgba(34, 34, 96, 0.4);
@@ -193,7 +196,7 @@ const FormStyled = styled.form`
     .submit-btn {
         width: 100%;
         display: flex;
-        justify-content: center; /* Center the button */
+        justify-content: center;
 
         button {
             width: 200px; 
@@ -202,10 +205,11 @@ const FormStyled = styled.form`
             transition: all 0.3s ease-in-out;
             box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.06);
             border-radius: 8px;
-              gap: 1.6rem;
+            gap: 1.6rem;
             &:hover {
                 background: var(--color-green) !important;
             }
+        }
     }
 `;
 
