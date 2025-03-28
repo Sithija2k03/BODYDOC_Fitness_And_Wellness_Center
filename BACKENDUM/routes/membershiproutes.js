@@ -5,7 +5,7 @@ const Membership = require("../models/membership");
 // ================create membership ===========
 router.route("/add").post(async (req, res) => {
     try {
-        const { Name,membershipType,StartDate,EndDate } = req.body;
+        const { Name,membershipType,membershipPrice,StartDate,Benifits } = req.body;
 
        
 
@@ -14,8 +14,9 @@ router.route("/add").post(async (req, res) => {
             
             Name,
             membershipType,
+            membershipPrice,
             StartDate,
-            EndDate,
+            Benifits,
         });
 
         // Save the membership to the database
@@ -71,13 +72,14 @@ router.route("/:id").get(async (req, res) => {
 router.route("/update/:id").put(async(req,res) =>{
     let membershipid = req.params.id;
 
-    const{Name, membershipType,StartDate,EndDate } = req.body;
+    const{Name, membershipType,membershipPrice,StartDate,Benifits } = req.body;
 
     const updateMembership= {
         Name,
         membershipType,
+        membershipPrice,
         StartDate,
-        EndDate,
+        Benifits,
     }
 
     const update = await Membership.findByIdAndUpdate(membershipid,updateMembership)

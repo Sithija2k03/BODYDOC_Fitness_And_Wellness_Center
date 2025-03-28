@@ -2,45 +2,59 @@ const router = require("express").Router();
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { decodToken } = require("../models/jwt");
+const expressAsyncHandler = require("express-async-handler");
+const multer = require("multer");
+const path = require("path");
 
-
-
-
+const authMiddleware = require("../Middleware/authMiddleware"); // Import middleware
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "mykey";
 
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+    destination: "./uploads/",
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  });
+  
+  const upload = multer({ storage });
+
 // User Registration Route
-router.route("/add").post(async (req, res) => {
+router.post("/add", async (req, res) => {
     try {
-        const { fullName, email, password, phone,  role, createdAt } = req.body;
+        let { fullName, email, password,gender,dateofBirth, phone, role } = req.body;
+
+        // Normalize email for case-insensitive uniqueness
+        email = email.toLowerCase();
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });  // FIXED: findOne() should be correctly written
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "User already exists!" });
         }
-        
+
+        // Encrypt password
         const salt = await bcrypt.genSalt(10);
         const myEncPassword = await bcrypt.hash(password, salt);
-       
-        
 
         // Create a new user
         const newUser = new User({
-            fullName,
+            fullName: fullName.trim(), // Preserve capitalization but remove extra spaces
             email,
-            password : myEncPassword,
+            password: myEncPassword,
+            gender,
+            dateofBirth : new Date(dateofBirth),
             phone,
             role,
-            createdAt,
+            createdAt: Date.now() // Automatically generate createdAt timestamp
         });
 
         // Save the user to the database
         await newUser.save();
 
-        // Send a success response
+        // Send success response
         res.status(201).json({ message: "User registered successfully!" });
 
     } catch (error) {
@@ -49,9 +63,8 @@ router.route("/add").post(async (req, res) => {
     }
 });
 
-
-// Read All Users
-router.route("/").get(async (req, res) => {
+// ✅ Read All Users (Admin Only)
+router.get("/", authMiddleware(["admin"]), async (req, res) => {
     try {
         const users = await User.find(); // Fetch all users
         res.status(200).json(users);
@@ -61,11 +74,27 @@ router.route("/").get(async (req, res) => {
     }
 });
 
-// Read a Single User by Email
-router.route("/:email").get(async (req, res) => {
+// ✅ Read User Profile (Authenticated Users Only)
+router.get("/profile", authMiddleware(), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Fetch user by ID from JWT token
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({ message: "Error fetching user profile", error: error.message });
+    }
+});
+
+// ✅ Read a Single User by Email (Authenticated Users Only)
+router.get("/:email", authMiddleware(), async (req, res) => {
     try {
         const { email } = req.params;
-        const user = await User.findOne({ email }); // Find user by email
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: "User not found!" });
@@ -78,143 +107,127 @@ router.route("/:email").get(async (req, res) => {
     }
 });
 
-//=========login user=====
-
-router.post("/login", async (req, res) => {
+// ✅ Update Profile (User can update only their own profile, Admin can update anyone)
+router.put("/update/:id", upload.single("profilePic"),authMiddleware(), async (req, res) => {
     try {
-        const { fullName, password } = req.body;
+        const { id } = req.params;
+        const { fullName, email, password,gender,dateofBirth, phone, role } = req.body;
 
-        console.log("Login Attempt:", fullName, password);
+        // If no profile picture is uploaded, set the default based on gender
+    if (req.file) {
+        user.profilePic = `/uploads/${req.file.filename}`;
+      } else {
+        if (user.gender === "male") {
+          user.profilePic = "/images/male-default.png"; // Default male image
+        } else if (user.gender === "female") {
+          user.profilePic = "/images/female-default.png"; // Default female image
+        }
+      }
+  
 
-        // Normalize fullName for case-insensitive search
-        const user = await User.findOne({ fullName: fullName.trim().toLowerCase() });
-        console.log("User Found:", user);
-
-        if (!user) {
-            return res.status(400).json({ message: "User not found. Check full name spelling." });
+        // Check if the logged-in user is updating their own profile or an admin is updating someone else
+        if (req.user.id !== id && req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access Forbidden! You can only update your own profile." });
         }
 
-        // Check password using bcrypt
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log("Password Match:", isMatch);
-
-        if (!isMatch) {
-            return res.status(400).json({ message: "Incorrect password" });
+        // Hash new password if provided
+        let updatedFields = { fullName, email, phone,gender,dateofBirth, role };
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updatedFields.password = await bcrypt.hash(password, salt);
         }
 
-        // Generate JWT Token
-        const token = jwt.sign(
-            { id: user._id, fullName: user.fullName, role: user.role },
-            JWT_SECRET,  // Use the global JWT_SECRET
-            { expiresIn: "1h" }
-        );
+        // Update user
+        const updatedUser = await User.findByIdAndUpdate(id, updatedFields, { new: true });
 
-        console.log("Generated Token:", token); // Debugging
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found!" });
+        }
 
-        // Send response with token
-        return res.status(200).json({
-            token,
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                role: user.role,
-            }
-        });
+        res.status(200).json({ message: "User updated successfully!", user: updatedUser });
 
     } catch (error) {
-        console.error("Error during login:", error);
-        return res.status(500).json({ message: "Error logging in", error: error.message });
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: "Error updating user", error: error.message });
+    }
+});
+
+// ✅ Delete User (User can delete their own account, Admin can delete anyone)
+router.delete("/delete/:id", authMiddleware(), async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Ensure the logged-in user is deleting their own account or is an admin
+        if (req.user.id !== id && req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access Forbidden! You can only delete your own account." });
+        }
+
+        // Delete user
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        res.status(200).json({ message: "User deleted successfully!" });
+
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ message: "Error deleting user", error: error.message });
     }
 });
 
 
 
-// Validate Token Route
-router.post("/validate", async (req, res) => {
-    try {
-        const { token } = req.body; // Get the token from request body
-        console.log("Received Token:", token);
-
-        // Verify the token using jwt.verify()
-        const decoded = jwt.verify(token, JWT_SECRET);
-        console.log("Decoded Token:", decoded);
-
-        res.status(200).json({ valid: true, user: decoded });
-
-    } catch (error) {
-        console.error("Token validation error:", error.message);
-        res.status(401).json({ valid: false, message: "Invalid or expired token" });
-    }
-});
-
-
-
-
-
-//========authMiddleware==============
-const authMiddleware = (req, res, next) => {
-    const authHeader = req.header("Authorization");
-
-    if (!authHeader) {
-        return res.status(401).json({ message: "Access Denied! No token provided." });
-    }
-
-    try {
-        const token = authHeader.split(" ")[1]; // Extract token after 'Bearer'
-        const verified = jwt.verify(token, mykey);
-        req.user = verified;
-        next();
-    } catch (error) {
-        return res.status(400).json({ message: "Invalid Token!" });
-    }
+// 🔹 Generate JWT Token
+const generateToken = (id, role) => {
+    return jwt.sign({ id, role }, JWT_SECRET, { expiresIn: "7d" });
 };
 
 
-// update profile
+// 🔹 Role-Based Login Route
+router.post("/login", expressAsyncHandler(async (req, res) => {
+    const { email, password } = req.body;
 
-router.route("/update/:id").put(async(req,res) =>{
-    let userid = req.params.id;
-
-    const{fullName, email, password, phone,  role, createdAt } = req.body;
-
-    const updateUser = {
-        fullName,
-        email,
-        password,
-        phone,
-        role,
-        createdAt
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and Password are required" });
     }
 
-    const update = await User.findByIdAndUpdate(userid,updateUser)
-    .then(()=>{
-        res.status(200).send({status: "user updated"})
-    }).catch((error)=>{
-        console.log(error);
-        res.status(500).send({status: "Error with updating Data",error:error.message});
-    })
-    
-    
-})
+    // Normalize email
+    const normalizedEmail = email.toLowerCase();
 
-//=============Delete user============
+    // Find user by email
+    const user = await User.findOne({ email: normalizedEmail });
 
-router.route("/delete/:id").delete(async(req,res) =>{
-    let userid = req.params.id;
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
 
+    // Validate password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
 
-    await User.findByIdAndDelete(userid)
-    .then(()=>{
-        res.status(200).send({status:" User Deleted"});
+    // Check if user has a valid role
+    const allowedRoles = ["member", "doctor", "admin","trainer","pharmacist", "receiptionist"];
+    if (!allowedRoles.includes(user.role)) {
+        return res.status(403).json({ error: "Access denied" });
+    }
 
-    }).catch((error)=>{
-        console.log(error.message);
-        res.status(500).send({status:"Error with delete user", error: error.message});
-    })
-})
+    // Generate JWT token
+    const token = generateToken(user._id, user.role);
 
-
-
+    res.status(200).json({
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        token,
+        expiresIn: 604800, // 7 days in seconds
+        message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} logged in successfully`,
+    });
+}));
 
 
 module.exports = router;

@@ -12,7 +12,7 @@ const bookingSchema =  new Schema({
 
     facility_type : {
         type: String,
-        enum:["Gym","Swimming Pool","Badminton Court","Medical Center"],
+        enum:["Gym","Swimming Pool","Badminton Court","Pool Lounge"],
         required : true
     },
 

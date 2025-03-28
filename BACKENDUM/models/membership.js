@@ -11,8 +11,13 @@ const membershipSchema =  new Schema({
 
     membershipType: {
         type: String,
-        enum:["Basic","Premium","VIP"],
+        enum:["Annual","Monthly"],
         required : true
+    },
+
+    membershipPrice: {
+        type: String,
+        required: true
     },
 
     StartDate: {
@@ -20,7 +25,7 @@ const membershipSchema =  new Schema({
         required: true
     },
 
-    EndDate : {
+    Benifits: {
         type : String,
         required : true
     },

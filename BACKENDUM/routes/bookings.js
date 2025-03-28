@@ -51,6 +51,8 @@ router.route("/").get(async (req, res) => {
 
 
 
+
+
 //============fetching booking by Id=========
 router.route("/:id").get(async (req, res) => {
     try {
@@ -111,6 +113,25 @@ router.route("/delete/:id").delete(async(req,res) =>{
         res.status(500).send({status:"Error with delete booking", error: error.message});
     })
 })
+
+// Search booking by Name
+router.route("/search/:name").get(async (req, res) => {
+    try {
+        let bookingName = req.params.name;
+
+        const bookings = await Booking.find({ Name: { $regex: bookingName, $options: "i" } });
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(404).json({ message: "No bookings found with this name" });
+        }
+
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error("Error searching bookings:", error);
+        res.status(500).json({ message: "Error searching bookings", error: error.message });
+    }
+});
+
 
 
 
