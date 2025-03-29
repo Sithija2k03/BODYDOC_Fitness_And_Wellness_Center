@@ -117,7 +117,7 @@ function SalaryForm() {
                     <option value="doctor">Doctor</option>
                     <option value="trainer">Trainer</option>
                     <option value="pharmacist">Pharmacist</option>
-                    <option value="receptionist">Receptionist</option>
+                    <option value="receiptionist">Receptionist</option>
                     <option value="member">Member</option>
                 </select>
             </div>
