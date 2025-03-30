@@ -1,4 +1,4 @@
-import User from '../models/userModel.js';
+import User from '../models/user.js';
 
 export const getEmployeeByRole = async (req, res) => {
     const { role } = req.query; // Get role from query parameters

@@ -80,7 +80,7 @@ function IncomeItem({
                             icon={trash}
                             bPad={'1rem'}
                             bRad={'50%'}
-                            bg={'var(--primary-color)'}
+                            bg={' #222260'}
                             color={'#fff'}
                             iColor={'#fff'}
                             hColor={'var(--color-green)'}

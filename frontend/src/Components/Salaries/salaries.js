@@ -53,7 +53,7 @@ function Salaries() {
                         icon={plus}
                         bPad={'.8rem 1.6rem'}
                         bRad={'30px'}
-                        bg={'var(--color-accent)'}
+                        bg={'#F56692'}
                         color={'#fff'}
                         onClick={openForm}
                     />
@@ -168,7 +168,7 @@ const SearchBarContainer = styled.div`
     width: 100%;
     max-width: 400px;
     padding: 10px 40px 10px 10px;
-    border: 2px solid var(--primary-color);
+    border: 2px solid #222260;
     border-radius: 20px;
     font-size: 1rem;
     outline: none;
@@ -184,8 +184,8 @@ const SearchBarContainer = styled.div`
     width: 60px;
     height: 60px;
     position: absolute;
-    left: 500px;
-    top: 145px;
+    left: 430px;
+    top: 128px;
     color: var(--color-primary);
     cursor: pointer;
   }

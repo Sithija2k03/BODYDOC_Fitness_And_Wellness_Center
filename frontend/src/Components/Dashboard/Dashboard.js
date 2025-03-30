@@ -44,7 +44,7 @@ function Dashboard() {
             const expenseEntry = expenses[i]?.amount ? `$${expenses[i].amount}` : "-";
             const salaryEntry = salaries[i]?.netSalary ? `$${salaries[i].netSalary}` : "-";
     
-            rows.push([incomeEntry, expenseEntry, salaryEntry, `$${balance}`]);
+            rows.push([incomeEntry, expenseEntry, salaryEntry]);
         }
     
         // Add total row

@@ -117,7 +117,7 @@ function SalaryForm() {
                     <option value="doctor">Doctor</option>
                     <option value="trainer">Trainer</option>
                     <option value="pharmacist">Pharmacist</option>
-                    <option value="receptionist">Receptionist</option>
+                    <option value="receiptionist">Receptionist</option>
                     <option value="member">Member</option>
                 </select>
             </div>
@@ -153,7 +153,7 @@ function SalaryForm() {
             </div>
 
             <div className="submit-btn">
-                <Button name={'Add Salary'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'var(--color-accent)'} color={'#fff'} />
+                <Button name={'Add Salary'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'#F56692'} color={'#fff'} />
             </div>
         </FormStyled>
     );

@@ -123,7 +123,7 @@ function ExpenseForm() {
                     icon={plus}
                     bPad={'.8rem 1.6rem'}
                     bRad={'30px'}
-                    bg={'var(--color-accent)'}
+                    bg={'#F56692'}
                     color={'#fff'}
                 />
             </div>

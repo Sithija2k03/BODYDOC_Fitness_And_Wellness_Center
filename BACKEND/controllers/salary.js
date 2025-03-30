@@ -1,5 +1,5 @@
 const Salary = require('../models/salaryModel');
-const User = require('../models/userModel'); 
+const User = require('../models/user'); 
 
 // Controller function to create salary
 const createSalary = async (req, res) => {
@@ -19,7 +19,7 @@ const createSalary = async (req, res) => {
             "doctor": 80000,
             "trainer": 50000,
             "pharmacist": 60000,
-            "receptionist": 40000,
+            "receiptionist": 40000,
             "member": 30000,  
         };
 
