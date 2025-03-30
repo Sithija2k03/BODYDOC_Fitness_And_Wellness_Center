@@ -107,50 +107,70 @@ router.get("/:email", authMiddleware(), async (req, res) => {
     }
 });
 
-// ✅ Update Profile (User can update only their own profile, Admin can update anyone)
-router.put("/update/:id", upload.single("profilePic"),authMiddleware(), async (req, res) => {
+// ✅ Update User Profile (Authenticated Users Only)
+router.put("/update/:id", upload.single("profilePic"), authMiddleware(), async (req, res) => {
     try {
         const { id } = req.params;
-        const { fullName, email, password,gender,dateofBirth, phone, role } = req.body;
 
-        // If no profile picture is uploaded, set the default based on gender
-    if (req.file) {
-        user.profilePic = `/uploads/${req.file.filename}`;
-      } else {
-        if (user.gender === "male") {
-          user.profilePic = "/images/male-default.png"; // Default male image
-        } else if (user.gender === "female") {
-          user.profilePic = "/images/female-default.png"; // Default female image
-        }
-      }
-  
-
-        // Check if the logged-in user is updating their own profile or an admin is updating someone else
-        if (req.user.id !== id && req.user.role !== "admin") {
-            return res.status(403).json({ message: "Access Forbidden! You can only update your own profile." });
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({ message: "Request body is empty!" });
         }
 
-        // Hash new password if provided
-        let updatedFields = { fullName, email, phone,gender,dateofBirth, role };
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            updatedFields.password = await bcrypt.hash(password, salt);
-        }
-
-        // Update user
-        const updatedUser = await User.findByIdAndUpdate(id, updatedFields, { new: true });
-
-        if (!updatedUser) {
+        // Fetch user by ID
+        const user = await User.findById(id);
+        if (!user) {
             return res.status(404).json({ message: "User not found!" });
         }
 
-        res.status(200).json({ message: "User updated successfully!", user: updatedUser });
+        // Prepare updated fields
+        const updatedFields = {
+            fullName: req.body.fullName || user.fullName,
+            email: req.body.email || user.email,
+            phone: req.body.phone || user.phone,
+            gender: req.body.gender || user.gender,
+            dateofBirth: req.body.dateofBirth ? new Date(req.body.dateofBirth) : user.dateofBirth,
+            role: req.body.role || user.role,
+            profilePic: user.profilePic, // Retain old profile picture unless updated
+        };
+
+        // Handle profile picture upload
+        if (req.file) {
+            updatedFields.profilePic = `/uploads/${req.file.filename}`;
+        }
+
+        // Hash password if provided
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            updatedFields.password = await bcrypt.hash(req.body.password, salt);
+        }
+
+        // Update the user
+        const updatedUser = await User.findByIdAndUpdate(id, updatedFields, { new: true });
+
+        if (!updatedUser) {
+            return res.status(500).json({ message: "Failed to update user!" });
+        }
+
+        // Generate a new JWT token after successful update
+        const newToken = jwt.sign(
+            { id: updatedUser._id, role: updatedUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        res.status(200).json({
+            message: "User updated successfully!",
+            user: updatedUser,
+            token: newToken, // Return the new token
+        });
 
     } catch (error) {
         console.error("Error updating user:", error);
         res.status(500).json({ message: "Error updating user", error: error.message });
     }
 });
+
+
 
 // ✅ Delete User (User can delete their own account, Admin can delete anyone)
 router.delete("/delete/:id", authMiddleware(), async (req, res) => {

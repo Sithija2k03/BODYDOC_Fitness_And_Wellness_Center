@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
-
-
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,50 +9,43 @@ function Login() {
   });
 
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Hook to navigate programmatically
+  const navigate = useNavigate();
 
-  // Handle input changes
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) navigate('/user-profile');
+  }, [navigate]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
-    // Email regex for  validation
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailPattern.test(formData.email)) {
       setMessage('Invalid email address');
       return;
     }
 
-
-
     try {
       const response = await axios.post('http://localhost:8070/user/login', formData);
-      // If login is successful, you can save user info and redirect to a protected page
-      localStorage.setItem('user', JSON.stringify(response.data)); // Save user data in local storage or context
-      localStorage.setItem('token', response.data.token); // Save the JWT token
+      localStorage.setItem('user', JSON.stringify(response.data));
+      localStorage.setItem('token', response.data.token);
 
-      // Conditional navigation based on role
-      const userRole = response.data.role; // Assuming the role is in the response data
-
+      const userRole = response.data.role;
       if (userRole === 'member') {
-        navigate('/user-profile'); // Redirect to User Profile page for 'member'
-      } else if (['admin', 'doctor', 'trainer','pharmacist'].includes(userRole)) {
-        navigate('/user-profile'); // Redirect to Admin Dashboard for other roles (admin, doctor, trainer)
+        navigate('/user-profile');
+      } else if (['admin', 'doctor', 'trainer', 'pharmacist', 'receptionist'].includes(userRole)) {
+        navigate('/user-profile'); // Redirect to admin dashboard
       } else {
-        navigate('/dashboard'); // Default redirect for other roles if needed
+        navigate('/dashboard');
       }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login failed');
     }
   };
-
-
-  
 
   return (
     <div style={styles.container}>
@@ -70,6 +60,7 @@ function Login() {
             placeholder="Enter Email" 
             required 
             style={styles.input} 
+            value={formData.email} 
             onChange={handleChange} 
           />
 
@@ -80,10 +71,9 @@ function Login() {
             placeholder="Enter Password" 
             required 
             style={styles.input} 
+            value={formData.password} 
             onChange={handleChange} 
           />
-
-          
 
           <button type="submit" style={styles.button}>Login</button>
         </form>

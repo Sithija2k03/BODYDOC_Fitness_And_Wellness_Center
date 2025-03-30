@@ -8,6 +8,7 @@ import Register from "./Register/Register";  // Import Register component
 import Login from './Login/Login';
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
+import BookingForm from "./Booking/BookingForm";
 
 const App = () => {
     return (
@@ -21,6 +22,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} /> 
                 <Route path="/user-profile" element={<UserProfile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/booking" element={<BookingForm />} />
 
             </Routes>
         </Router>

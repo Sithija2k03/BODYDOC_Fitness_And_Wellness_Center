@@ -40,6 +40,11 @@ function UserProfile() {
     navigate("/edit-profile");
   };
 
+
+
+  
+
+
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete your profile?")) {
       try {

@@ -48,16 +48,33 @@ function EditProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:8070/user/update/${formData._id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Profile updated successfully!");
-      navigate("/user-profile");
+        const token = localStorage.getItem("token");
+        const userId = formData._id || formData.id; // Ensure user ID is correctly referenced
+
+        if (!userId) {
+            throw new Error("User ID is missing.");
+        }
+
+        const response = await axios.put(`http://localhost:8070/user/update/${userId}`, formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (response.data.token) {
+            localStorage.setItem("token", response.data.token); // Store the new token if updated
+            localStorage.setItem("user", JSON.stringify(response.data.user)); // Update user data
+        }
+
+        alert("Profile updated successfully!");
+        navigate("/user-profile"); // Redirect to profile page after successful update
     } catch (error) {
-      console.error("Error updating profile:", error);
+        console.error("Profile update failed:", error.response?.data || error.message);
+        alert("Error updating profile. Please try again.");
     }
-  };
+};
+
 
   return (
     <div>
@@ -88,7 +105,7 @@ function EditProfile() {
             <option value="female">Female</option>
           </select>
 
-          <button type="submit" style={buttonStyle}>Save Changes</button>
+          <button type="submit"  onClick={() => navigate("/user-profile")} style={buttonStyle}>Save Changes</button>
           <button type="button" onClick={() => navigate("/profile")} style={{ ...buttonStyle, backgroundColor: "#dc3545" }}>Cancel</button>
         </form>
       </div>

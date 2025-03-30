@@ -31,7 +31,7 @@ const BookingForm = () => {
             // On success, redirect to the bookings page (or show a success message)
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/bookings");  // You can change this URL as needed
+                navigate("/booking");  // You can change this URL as needed
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -39,15 +39,76 @@ const BookingForm = () => {
         }
     };
 
+    // Internal CSS with colorful and modern design
+    const styles = {
+        container: {
+            maxWidth: "400px",
+            margin: "auto",
+            padding: "30px",
+            backgroundColor: "#f0f8ff",
+            borderRadius: "10px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+            textAlign: "center",
+        },
+        heading: {
+            color: "#2c3e50",
+            fontSize: "24px",
+            marginBottom: "15px",
+        },
+        formGroup: {
+            marginBottom: "15px",
+            textAlign: "left",
+        },
+        label: {
+            display: "block",
+            marginBottom: "5px",
+            fontWeight: "bold",
+            color: "#34495e",
+        },
+        input: {
+            width: "100%",
+            padding: "8px",
+            borderRadius: "5px",
+            border: "1px solid #bdc3c7",
+            backgroundColor: "#ecf0f1",
+        },
+        select: {
+            width: "100%",
+            padding: "8px",
+            borderRadius: "5px",
+            border: "1px solid #bdc3c7",
+            backgroundColor: "#ecf0f1",
+        },
+        button: {
+            width: "100%",
+            padding: "10px",
+            backgroundColor: "#e74c3c",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "16px",
+            transition: "background 0.3s ease",
+        },
+        buttonHover: {
+            backgroundColor: "#c0392b",
+        },
+        errorMessage: {
+            color: "red",
+            textAlign: "center",
+            marginBottom: "10px",
+        },
+    };
+
     return (
-        <div className="booking-form-container">
-            <h2>Online Booking Form</h2>
+        <div style={styles.container}>
+            <h2 style={styles.heading}>Online Booking Form</h2>
             
-            {error && <div className="error-message">{error}</div>}
+            {error && <div style={styles.errorMessage}>{error}</div>}
 
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="name">Name</label>
+                <div style={styles.formGroup}>
+                    <label htmlFor="name" style={styles.label}>Name</label>
                     <input
                         type="text"
                         id="name"
@@ -55,29 +116,30 @@ const BookingForm = () => {
                         value={formData.Name}
                         onChange={handleInputChange}
                         required
+                        style={styles.input}
                     />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="facility_type">Facility Type</label>
+                <div style={styles.formGroup}>
+                    <label htmlFor="facility_type" style={styles.label}>Facility Type</label>
                     <select
                         id="facility_type"
                         name="facility_type"
                         value={formData.facility_type}
                         onChange={handleInputChange}
                         required
+                        style={styles.select}
                     >
                         <option value="">Select Facility</option>
                         <option value="Gym">Gym</option>
                         <option value="Swimming Pool">Swimming Pool</option>
                         <option value="Badminton">Badminton</option>
                         <option value="Pool Lounge">Pool Lounge</option>
-                        {/* Add more facilities as per your requirement */}
                     </select>
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="date">Date</label>
+                <div style={styles.formGroup}>
+                    <label htmlFor="date" style={styles.label}>Date</label>
                     <input
                         type="date"
                         id="date"
@@ -85,11 +147,12 @@ const BookingForm = () => {
                         value={formData.date}
                         onChange={handleInputChange}
                         required
+                        style={styles.input}
                     />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="time_slot">Time Slot</label>
+                <div style={styles.formGroup}>
+                    <label htmlFor="time_slot" style={styles.label}>Time Slot</label>
                     <input
                         type="time"
                         id="time_slot"
@@ -97,21 +160,23 @@ const BookingForm = () => {
                         value={formData.time_slot}
                         onChange={handleInputChange}
                         required
+                        style={styles.input}
                     />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="status">Status</label>
+                <div style={styles.formGroup}>
+                    <label htmlFor="status" style={styles.label}>Status</label>
                     <input
                         type="text"
                         id="status"
                         name="status"
                         value={formData.status}
                         readOnly
+                        style={styles.input}
                     />
                 </div>
 
-                <button type="submit" className="submit-button">Book Now</button>
+                <button type="submit" style={styles.button}>Book Now</button>
             </form>
         </div>
     );
