@@ -47,6 +47,6 @@ export const navItems = [
         id: 8,
         title: 'LogOut',
         icon: logout,
-        link: '/dashboard'
+        link: '/login'
     }
 ];

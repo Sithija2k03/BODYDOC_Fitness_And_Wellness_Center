@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import styled from 'styled-components';
 import avatar_m from '../../img/avatar_m.png';
 import { navItems } from '../../utils/navItems';
-import { logout } from '../../utils/icons';
 
 function Navigation({ active, setActive }) {
     const [inventoryOpen, setInventoryOpen] = useState(false);
+    const navigate = useNavigate(); // Initialize navigate function
 
     const handleNavClick = (id) => {
         if (id === 6) {
@@ -14,6 +15,12 @@ function Navigation({ active, setActive }) {
             setActive(id);
             setInventoryOpen(false); // Close dropdown if another menu item is clicked
         }
+    };
+
+    // Logout Function
+    const handleLogout = () => {
+        localStorage.removeItem('authToken'); // Clear stored authentication token
+        navigate('/login'); // Redirect user to login page
     };
 
     return (
@@ -29,7 +36,7 @@ function Navigation({ active, setActive }) {
                 {navItems.map((item) => (
                     <React.Fragment key={item.id}>
                         <li
-                            onClick={() => handleNavClick(item.id)}
+                            onClick={item.id === 8 ? handleLogout : () => handleNavClick(item.id)}
                             className={active === item.id ? 'active' : ''}
                         >
                             {item.icon}
@@ -45,12 +52,6 @@ function Navigation({ active, setActive }) {
                     </React.Fragment>
                 ))}
             </ul>
-            <div className="bottom-nav">
-                <div className='logout'>
-                    {logout}
-                    <span>Log out</span>
-                </div>
-            </div>
         </NavStyled>
     );
 }
