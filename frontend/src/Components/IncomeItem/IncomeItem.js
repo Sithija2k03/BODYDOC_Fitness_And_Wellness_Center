@@ -126,7 +126,7 @@ const IncomeItemStyled = styled.div`
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.3rem; 
+        gap: 0.3rem;
         
         h5 {
             font-size: 1rem;

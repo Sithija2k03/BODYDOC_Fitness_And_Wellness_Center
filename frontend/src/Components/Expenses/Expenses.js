@@ -114,7 +114,7 @@ const SearchBarContainer = styled.div`
   margin-left: 15px;
 
   input {
-    background: var(--color-white);
+    background: #FFFFFF;
     width: 100%;
     max-width: 400px;
     padding: 10px 40px 10px 10px; 
@@ -134,8 +134,8 @@ const SearchBarContainer = styled.div`
     width: 60px;
     height: 60px;
     position: absolute;
-    left: 400px;
-    top: 230px;
+    left: 420px;
+    top: 235px;
     color: var(--color-primary);
     cursor: pointer;
   }
