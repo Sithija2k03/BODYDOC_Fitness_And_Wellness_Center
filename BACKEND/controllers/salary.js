@@ -1,5 +1,5 @@
 const Salary = require('../models/salaryModel');
-const User = require('../models/userModel'); 
+const User = require('../models/user'); 
 
 // Controller function to create salary
 const createSalary = async (req, res) => {

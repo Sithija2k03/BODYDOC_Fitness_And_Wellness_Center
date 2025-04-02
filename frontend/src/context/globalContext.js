@@ -1,8 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000/api/v1/';
-const API_URL_2 = 'http://localhost:4000/';
+const API_URL = 'http://localhost:4000/';
 
 const GlobalContext = React.createContext();
 
@@ -18,7 +17,7 @@ export const GlobalProvider = ({ children }) => {
     // Income section
     const addIncome = async (income) => {
         try {
-            const response = await axios.post(`${API_URL}add-income`, income);
+            const response = await axios.post(`${API_URL}transactions/add-income`, income);
             setIncomes((prevIncomes) => [...prevIncomes, response.data]);
     
             await getIncomes();  // Ensures latest incomes are fetched after adding
@@ -27,10 +26,9 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-
     const getIncomes = async () => {
         try {
-            const response = await axios.get(`${API_URL}get-incomes`);
+            const response = await axios.get(`${API_URL}transactions/get-incomes`);
             setIncomes(response.data.data);
             console.log("Fetched incomes:", response.data);
         } catch (error) {
@@ -40,7 +38,7 @@ export const GlobalProvider = ({ children }) => {
 
     const deleteIncome = async (id) => {
         try {
-            await axios.delete(`${API_URL}delete-income/${id}`);
+            await axios.delete(`${API_URL}transactions/delete-income/${id}`);
             getIncomes();  // Refresh the income list after deletion
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
@@ -54,7 +52,7 @@ export const GlobalProvider = ({ children }) => {
     // Expense section
     const addExpense = async (expense) => {
         try {
-            const response = await axios.post(`${API_URL}add-expense`, expense);
+            const response = await axios.post(`${API_URL}transactions/add-expense`, expense);
             setExpenses([...expenses, response.data]);
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
@@ -65,7 +63,7 @@ export const GlobalProvider = ({ children }) => {
 
     const getExpenses = async () => {
         try {
-            const response = await axios.get(`${API_URL}get-expenses`);
+            const response = await axios.get(`${API_URL}transactions/get-expenses`);
             setExpenses(response.data.data);
             console.log("Fetched expenses:", response.data);
         } catch (error) {
@@ -75,7 +73,7 @@ export const GlobalProvider = ({ children }) => {
 
     const deleteExpense = async (id) => {
         try {
-            await axios.delete(`${API_URL}delete-expense/${id}`);
+            await axios.delete(`${API_URL}transactions/delete-expense/${id}`);
             getExpenses();  // Refresh the expense list after deletion
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
@@ -89,14 +87,13 @@ export const GlobalProvider = ({ children }) => {
     const transactionHistory = () => {
         const history = [...incomes, ...expenses];
         history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        return history.slice(0,4); 
+        return history.slice(0, 4);
     };
-    
 
     // Salary section
     const addSalary = async (salaryData) => {
         try {
-            const response = await axios.post(`${API_URL}create`, salaryData);
+            const response = await axios.post(`${API_URL}transactions/create`, salaryData);
             setSalaries([...salaries, response.data.salary]);
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
@@ -107,7 +104,7 @@ export const GlobalProvider = ({ children }) => {
 
     const getSalaries = async () => {
         try {
-            const response = await axios.get(`${API_URL}salaries`);
+            const response = await axios.get(`${API_URL}transactions/salaries`);
             setSalaries(response.data.salaries);
             console.log("Fetched salaries:", response.data);
         } catch (error) {
@@ -117,7 +114,7 @@ export const GlobalProvider = ({ children }) => {
 
     const deleteSalary = async (id) => {
         try {
-            await axios.delete(`${API_URL}salary-delete/${id}`);
+            await axios.delete(`${API_URL}transactions/salary-delete/${id}`);
             getSalaries();  // Refresh the salary list after deletion
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
@@ -126,7 +123,7 @@ export const GlobalProvider = ({ children }) => {
 
     const updateSalaryStatus = async (salaryId, newStatus) => {
         try {
-            const response = await axios.patch(`${API_URL}update-status/${salaryId}`, { status: newStatus });
+            const response = await axios.patch(`${API_URL}transactions/update-status/${salaryId}`, { status: newStatus });
     
             if (response.data.salary) {
                 setSalaries((prevSalaries) =>
@@ -141,8 +138,6 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-    
-
     // Function to fetch employee by role
     const getEmployeeByRole = async (role) => {
         try {
@@ -159,10 +154,10 @@ export const GlobalProvider = ({ children }) => {
         }
     };
   
-    //Inventory Section
+    // Inventory Section
     const getPharmacyItems = async () => {
       try {
-        const response = await axios.get(`${API_URL_2}pharmacy/`);
+        const response = await axios.get(`${API_URL}pharmacy/`);
         setPharmacyItems(response.data);
         setError(null);
       } catch (err) {
@@ -172,7 +167,7 @@ export const GlobalProvider = ({ children }) => {
   
     const addPharmacyItem = async (item) => {
       try {
-        const response = await axios.post(`${API_URL_2}pharmacy/add`, item);
+        const response = await axios.post(`${API_URL}pharmacy/add`, item);
         setPharmacyItems((prev) => [...prev, response.data.item]);
         setError(null);
       } catch (err) {
@@ -182,7 +177,7 @@ export const GlobalProvider = ({ children }) => {
   
     const getSuppliers = async () => {
       try {
-        const response = await axios.get(`${API_URL_2}supplier/get`);
+        const response = await axios.get(`${API_URL}supplier/get`);
         setSuppliers(response.data);
         setError(null);
         setSuccess(null);
@@ -194,7 +189,7 @@ export const GlobalProvider = ({ children }) => {
     const addSupplier = async (supplier) => {
       try {
         console.log("Supplier Payload:", supplier);
-        const response = await axios.post(`${API_URL_2}supplier/add`, supplier);
+        const response = await axios.post(`${API_URL}supplier/add`, supplier);
         if (!response.data || !response.data.supplier) {
           throw new Error("Invalid response from server");
         }
@@ -209,7 +204,7 @@ export const GlobalProvider = ({ children }) => {
   
     const deleteSupplier = async (supplier_id) => {
       try {
-        await axios.delete(`${API_URL_2}supplier/delete/${supplier_id}`);
+        await axios.delete(`${API_URL}supplier/delete/${supplier_id}`);
         setSuppliers((prev) => prev.filter((supplier) => supplier.supplier_id !== supplier_id));
         setError(null);
         setSuccess("Supplier deleted successfully"); // Set success message
