@@ -10,7 +10,7 @@ function Header() {
       <div className="container1">
         {/* Logo */}
         <div className="logo">
-          <img src="./components/Header/bodudoc.png" alt="Logo" className="logo-img" />
+          <img src="" alt="Logo" className="logo-img" />
         </div>
 
         {/* Navigation Links */}
@@ -34,10 +34,11 @@ function Header() {
           </li>
 
           {/* Use Link for Navigation */}
-          <li><Link to="/appointment">Medicare & Clinic</Link></li>  
+          <li><Link to="/layout">Medicare & Clinic</Link></li>  
           <li><Link to="/order">Pharmacy</Link></li>
           <li><a href="#">Support with AI</a></li>
         </ul>
+        
         {/* Search Bar */}
         <div className="search-bar">
         <input type="text" placeholder="Search..." />

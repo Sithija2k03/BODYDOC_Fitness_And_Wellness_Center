@@ -6,9 +6,12 @@ import { MainLayout } from './styles/Layouts';
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import AppointmentForm from "./components/Appoinment/AppoinmentForm"; // Corrected name
-import Appoinment from './components/Appoinment/Appoinment'; // Corrected name
 import { GlobalProvider } from './context/globalContext'; // Import GlobalProvider
-import OrderForm from './components/Order/OrderForm';
+import AppoinmentLayout from "./components/AppoinmentLayout/AppoinmentLayout";
+import GloabalOrders from './components/GloabalOrders';
+import GloabalAppoinment from './components/GloabalAppoinment';
+import AppoinmentDisplay from './components/AppoinmentDisplay';
+
 
 function App() {
   return (
@@ -17,9 +20,13 @@ function App() {
         <MainLayout>
           <Header />
           <Routes>
-            <Route path="/add" element={<AppointmentForm />} /> {/* Appointment Form Page */}
-            <Route path="/appointment" element={<Appoinment />} /> {/* Appointment List Page */}
-            <Route path="/order" element={<OrderForm />} /> {/* Appointment List Page */}
+            <Route path="/add" element={<AppointmentForm />} /> Appointment Form Page
+            {/* <Route path="/appointment" element={<Appoinment />} /> Appointment List Page */}
+            {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
+            <Route path="/layout" element={<AppoinmentLayout />} />
+            <Route path="/gloabal" element={<GloabalAppoinment />} />
+            <Route path="/display" element={<AppoinmentDisplay />} />
+          
           </Routes>
         </MainLayout>
         <Footer />

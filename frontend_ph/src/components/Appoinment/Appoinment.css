@@ -37,7 +37,7 @@ input, select {
 
 /* Button styling */
 button {
-    background-color: #007bff;
+    background-color: #F56692;
     color: white;
     padding: 10px;
     border: none;
@@ -47,7 +47,7 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #dd275e;
 }
 
 /* Responsive design */

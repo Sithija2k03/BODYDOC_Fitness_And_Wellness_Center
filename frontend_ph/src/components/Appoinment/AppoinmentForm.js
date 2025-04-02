@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGlobalContext } from '../../context/globalContext';
 import './Appoinment.css';
 
+
 const AppointmentForm = () => {
   const [userName, setUserName] = useState('');
   const [doctorName, setDoctorName] = useState('');
@@ -15,44 +16,58 @@ const AppointmentForm = () => {
   const validateForm = () => {
     let errors = {};
     let isValid = true;
-
+    const invalidChars = /[@!~#$%^&*<>1234567890]/;
+  
     if (!userName.trim()) {
       errors.userName = "User Name is required!";
       isValid = false;
+    } else if (invalidChars.test(userName)) { 
+      errors.userName = "User Name cannot contain @, !, #, %, ^, &, *, or numbers!";
+      isValid = false;
+      alert("Invalid username! Please do not use special characters or numbers."); // Alert message
     }
-
+  
+    
     if (!doctorName.trim()) {
       errors.doctorName = "Doctor Name is required!";
       isValid = false;
+    } else if (invalidChars.test(doctorName)) { 
+      errors.doctorName = "Doctor Name cannot contain @, !, #, %, ^, &, *, or numbers!";
+      isValid = false;
+      alert("Invalid doctorName! Please do not use special characters or numbers."); // Alert message
     }
-
+  
+  
+  
     if (!date) {
       errors.date = "Date is required!";
       isValid = false;
     } else {
-      const today = new Date().toISOString().split('T')[0]; // Get today's date
+      const today = new Date().toISOString().split('T')[0];
       if (date < today) {
         errors.date = "Date cannot be in the past!";
         isValid = false;
       }
     }
-
+  
     if (!timeSlot) {
       errors.timeSlot = "Please select a time slot!";
       isValid = false;
     }
-
-    setErrors(errors);
-    return isValid;
+  
+    return { isValid, errors };
   };
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return; // Stop form submission if validation fails
+    const { isValid, errors } = validateForm();
+    if (!isValid) {
+      setErrors(errors);
+      return;
     }
-
     const formData = {
       user_name: userName,
       doctor_name: doctorName,
@@ -144,8 +159,15 @@ const AppointmentForm = () => {
           Submit
         </button>
       </form>
+            <div className="button-container">
+        <button className="btn btn-secondary mt-3">View My Appointments</button>
+      </div>
     </div>
+
+
   );
+
+  
 };
 
 export default AppointmentForm;

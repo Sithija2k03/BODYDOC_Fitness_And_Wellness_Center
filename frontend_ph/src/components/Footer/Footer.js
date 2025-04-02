@@ -2,65 +2,112 @@ import React from "react";
 import styled from "styled-components";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+const styles = {
+  footer: {
+      backgroundColor: "black",
+      color: "white",
+      padding: "40px 50px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginTop: "100px",
+      width: "100%",
+  },
+  footerColumn: {
+      flex: 1,
+      marginRight: "30px",
+  },
+  footerTitle: {
+      fontWeight: "bold",
+      fontSize: "18px",
+      marginBottom: "15px",
+      textDecoration: "underline",
+  },
+  footerText: {
+      fontSize: "14px",
+      lineHeight: "1.8",
+  },
+  footerLinks: {
+      listStyle: "none",
+      padding: 0,
+  },
+  footerLink: {
+      color: "white",
+      textDecoration: "none",
+      fontSize: "14px",
+      display: "block",
+      marginBottom: "8px",
+  },
+  socialIcons: {
+      display: "flex",
+      gap: "10px",
+      marginTop: "15px",
+  },
+  socialIcon: {
+      width: "25px",
+      height: "25px",
+  },
+  copyright: {
+      textAlign: "center",
+      marginTop: "20px",
+      fontSize: "14px",
+      width:"100%",
+  },
+  whatsappIcon: {
+      position: "fixed",
+      bottom: "20px",
+      right: "20px",
+      width: "50px",
+      height: "50px",
+  }
+};
+
 
 function Footer() {
   return (
     <FooterWrapper>
-      {/* Footer Content */}
-      <FooterContent>
-        <AboutSection>
-        <div class="logo">
-        <img src="./bodydoc.png" alt="Logo" className="logo-img" />
-
+{/* Footer Section */}
+<footer style={styles.footer}>
+    <div style={styles.footerColumn}>
+        <img src="/img/logo.png" alt="Body Doc Logo" style={{ width: "120px" }} />
+        <p style={styles.footerText}>We are Sri Lanka’s first and only medically oriented gym, revolutionizing fitness and wellness.</p>
+        <div style={styles.socialIcons}>
+            <img src="/img/facebook_logo.png" alt="Facebook" style={styles.socialIcon} />
+            <img src="/img/instagram.png" alt="Instagram" style={styles.socialIcon} />
+            <img src="/img/whatsapp.png" alt="whatsapp" style={styles.socialIcon} />
         </div>
-          <Logo>BODY <span>DOC</span></Logo>
-          <p>
-            We are Sri Lanka’s first and only medically oriented gym,
-            revolutionizing fitness and wellness.
-          </p>
-          <SocialIcons>
-            <a href="#"><i className="fab fa-facebook"></i></a>
-            <a href="#"><i className="fab fa-instagram"></i></a>
-            <a href="#"><i className="fab fa-youtube"></i></a>
-          </SocialIcons>
-        </AboutSection>
+    </div>
+    <div style={styles.footerColumn}>
+        <h3 style={styles.footerTitle}>Site Map</h3>
+        <ul style={styles.footerLinks}>
+            <li><a href="/" style={styles.footerLink}>Home</a></li>
+            <li><a href="/about" style={styles.footerLink}>About Us</a></li>
+            <li><a href="/contact" style={styles.footerLink}>Contact Us</a></li>
+            <li><a href="/services" style={styles.footerLink}>Facilities & Services</a></li>
+            <li><a href="/membership" style={styles.footerLink}>Membership</a></li>
+        </ul>
+    </div>
+    <div style={styles.footerColumn}>
+        <h3 style={styles.footerTitle}>Contact Info</h3>
+        <p style={styles.footerText}>Athurugiriya Road, Malabe, Sri Lanka</p>
+        <p style={styles.footerText}>Phone: 071 0XX XXXX</p>
+        <p style={styles.footerText}>Email: info@bodydoc.com</p>
+    </div>
+    </footer>
 
-        <FooterSection>
-          <SectionTitle>Site Map</SectionTitle>
-          <FooterLink href="#">Home</FooterLink>
-          <FooterLink href="#">About Us</FooterLink>
-          <FooterLink href="#">Contact Us</FooterLink>
-          <FooterLink href="#">Privacy Policy</FooterLink>
-          <FooterLink href="#">Gym System Login</FooterLink>
-        </FooterSection>
-
-        <FooterSection>
-          <SectionTitle>Facilities & Services</SectionTitle>
-          <FooterLink href="#">Recreational Activities</FooterLink>
-          <FooterLink href="#">Medicare & Clinic</FooterLink>
-        </FooterSection>
-
-        <FooterSection>
-          <SectionTitle>Train at Body Doc</SectionTitle>
-          <FooterLink href="#">Personal Training</FooterLink>
-          <FooterLink href="#">Group Fitness</FooterLink>
-          <FooterLink href="#">Class Schedule</FooterLink>
-        </FooterSection>
-      </FooterContent>
-
-      {/* Copyright Section */}
-      <Copyright>
-        <p>© Copyright 2023 BodyDoc. Developed by <strong>GCM</strong></p>
-      </Copyright>
+      {/* Copyright */}
+     <div style={styles.copyright}>
+      <p>&copy; 2025 Body Doc. All rights reserved.</p>
+     </div>
     </FooterWrapper>
   );
 }
 
 // Styled Components
 const FooterWrapper = styled.footer`
-  background-color:#2c3e50;
   color: white;
   text-align: center;
+  width: "100%";
 `;
 
 
@@ -96,7 +143,6 @@ const SocialIcons = styled.div`
 
 const FooterSection = styled.div`
   text-align: left;
-  min-width: 200px;
 `;
 
 const SectionTitle = styled.h3`
@@ -118,6 +164,7 @@ const Copyright = styled.div`
   padding: 15px;
   border-top: 1px solid #444;
   font-size: 14px;
+  width: "100%";
 `;
 
 export default Footer;
