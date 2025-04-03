@@ -1,21 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SupplierForm from '../Form/SupplierForm';
 import SupplierItem from '../Suppliers/SupplierItem';
-import { useGlobalContext } from '../../../../frontendIE/src/context/globalContext';
-import { InnerLayout } from '../../../../frontendIE/src/styles/Layouts';
+import { useGlobalContext } from '../../context/globalContext';
+import { useParams, useNavigate } from 'react-router-dom';
 
 
 function EditSupplierForm({ updateSupplier }) {
     const { id } = useParams();  // Get the supplier ID from the URL
     const { suppliers, getSuppliers } = useGlobalContext();
+    const navigate = useNavigate(); // Use navigate instead of history.push
     const [supplierDetails, setSupplierDetails] = useState({
         supplier_name: '',
         contact: '',
         credits: '',
         supplyCategory: '',
     });
-    const history = useHistory();
 
     // Fetch suppliers when the component is mounted
     useEffect(() => {
@@ -43,7 +43,7 @@ function EditSupplierForm({ updateSupplier }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         updateSupplier(supplierDetails);
-        history.push('/');  // Redirect to the supplier list after updating
+        navigate('/Suppliers/supplier');  // Redirect to the supplier list after updating
     };
 
     return (
