@@ -13,7 +13,8 @@ export const GlobalProvider = ({ children }) => {
     const [pharmacyItems, setPharmacyItems] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
     const [success, setSuccess] = React.useState(null);
-
+    const [loading, setLoading] = React.useState(true);
+    
     // Income section
     const addIncome = async (income) => {
         try {
@@ -176,15 +177,18 @@ export const GlobalProvider = ({ children }) => {
     };
   
     const getSuppliers = async () => {
-      try {
-        const response = await axios.get(`${API_URL}supplier/get`);
-        setSuppliers(response.data);
-        setError(null);
-        setSuccess(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch suppliers');
-      }
-    };
+        setLoading(true); // Start loading
+        try {
+          const response = await axios.get(`${API_URL}supplier/get`);
+          setSuppliers(response.data);
+          setError(null);
+          setSuccess(null);
+        } catch (err) {
+          setError(err.response?.data?.error || 'Failed to fetch suppliers');
+        } finally {
+          setLoading(false);  // End loading
+        }
+      };
   
     const addSupplier = async (supplier) => {
       try {
@@ -214,6 +218,35 @@ export const GlobalProvider = ({ children }) => {
       }
     };
 
+    const updateSupplier = async (supplier_id, updatedData) => {
+        try {
+            await axios.put(`${API_URL}supplier/update/${supplier_id}`, updatedData, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            setSuppliers((prev) =>
+                prev.map((supplier) =>
+                    supplier.supplier_id === supplier_id ? { ...supplier, ...updatedData } : supplier
+                )
+            );
+
+            setError(null);
+            setSuccess("Supplier updated successfully!");
+        } catch (err) {
+            console.error("Update Supplier Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to update supplier");
+        }
+    };
+    
+
+
+   
+    
+    
+    
+
+
+
     return (
         <GlobalContext.Provider value={{ 
             addIncome, 
@@ -241,6 +274,8 @@ export const GlobalProvider = ({ children }) => {
             getSuppliers, 
             addSupplier,
             deleteSupplier,
+            updateSupplier,
+            //handleSubmit,
             error,
             setError
         }}>
