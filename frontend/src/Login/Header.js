@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 function Header() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isAiDropdownOpen, setAiDropdownOpen] = useState(false); 
   
   // Get the current route
   const location = useLocation();
@@ -39,7 +40,19 @@ function Header() {
           </li>
           <li><a href="#">Medicare & Clinic</a></li>
           <li><a href="#">Pharmacy</a></li>
-          <li><a href="#">Support with AI</a></li>
+            <li
+                      className="dropdown"
+                      onMouseEnter={() => setAiDropdownOpen(true)}
+                      onMouseLeave={() => setAiDropdownOpen(false)}
+                    >
+                      <a href="#">Support with AI ▼</a>
+                      {isAiDropdownOpen && (
+                        <ul className="dropdown-menu">
+                          <li><Link to="/nutrition-plan">Nutrition Plan</Link></li>
+                          <li><Link to="/workout-plan">Workout Plan</Link></li>
+                        </ul>
+                      )}
+                    </li>
         </ul>
 
        {/* User Profile Icon Linked to /user-profile */}
