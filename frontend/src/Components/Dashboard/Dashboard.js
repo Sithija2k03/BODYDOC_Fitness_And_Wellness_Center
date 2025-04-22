@@ -40,19 +40,19 @@ function Dashboard() {
         const maxLength = Math.max(incomes.length, expenses.length, salaries.length);
     
         for (let i = 0; i < maxLength; i++) {
-            const incomeEntry = incomes[i]?.amount ? `$${incomes[i].amount}` : "-";
-            const expenseEntry = expenses[i]?.amount ? `$${expenses[i].amount}` : "-";
-            const salaryEntry = salaries[i]?.netSalary ? `$${salaries[i].netSalary}` : "-";
+            const incomeEntry = incomes[i]?.amount ? `Rs.${incomes[i].amount}` : "-";
+            const expenseEntry = expenses[i]?.amount ? `Rs.${expenses[i].amount}` : "-";
+            const salaryEntry = salaries[i]?.netSalary ? `Rs.${salaries[i].netSalary}` : "-";
     
             rows.push([incomeEntry, expenseEntry, salaryEntry]);
         }
     
         // Add total row
         rows.push([
-            `Total: $${totalIncomeValue}`,
-            `Total: $${totalExpensesValue}`,
-            `Total: $${totalSalary}`,
-            `Final Balance: $${balance}`
+            `Total: Rs.${totalIncomeValue}`,
+            `Total: Rs.${totalExpensesValue}`,
+            `Total: Rs.${totalSalary}`,
+            `Final Balance: Rs.${balance}`
         ]);
     
         // Generate the PDF table

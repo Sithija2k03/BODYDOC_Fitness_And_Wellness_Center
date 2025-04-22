@@ -29,12 +29,12 @@ function Login() {
       console.log('Login response:', response.data);
   
       localStorage.setItem('user', JSON.stringify(response.data));
-      localStorage.setItem('authToken', response.data.token); // Changed from token to authToken
+      localStorage.setItem('token', response.data.token);
   
-      const userRole = response.data.role ? response.data.role.toLowerCase() : null;
-      if (userRole === 'admin' || userRole === 'doctor') {
-        console.log('Navigating to /admin/dashboard');
-        navigate('/admin/dashboard');
+      // Get role from response and navigate accordingly
+      const userRole = response.data.role;  // Directly accessing role from response
+      if (userRole === 'admin' ) {
+        navigate('/admin/dashboard');  // Admin goes to the dashboard
       } else {
         console.log('Navigating to /user-profile');
         navigate('/user-profile');

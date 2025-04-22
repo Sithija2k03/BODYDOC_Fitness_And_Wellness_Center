@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import styled from 'styled-components';
 import avatar_m from '../../img/avatar_m.png';
@@ -7,6 +7,16 @@ import { navItems } from '../../utils/navItems';
 function Navigation({ active, setActive }) {
     const [inventoryOpen, setInventoryOpen] = useState(false);
     const navigate = useNavigate(); // Initialize navigate function
+    const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const userObj = JSON.parse(storedUser); 
+            setUserName(userObj.fullName); // Access fullName from the parsed object
+        }
+    }, []);
+    
 
     const handleNavClick = (id) => {
         if (id === 6) {
@@ -20,6 +30,7 @@ function Navigation({ active, setActive }) {
     // Logout Function
     const handleLogout = () => {
         localStorage.removeItem('authToken'); // Clear stored authentication token
+        localStorage.removeItem('userName'); // Clear user name
         navigate('/login'); // Redirect user to login page
     };
 
@@ -28,8 +39,8 @@ function Navigation({ active, setActive }) {
             <div className="user-icon">
                 <img src={avatar_m} alt="avatar" />
                 <div className="text">
-                    <h2>Sithija</h2>
-                    <p>Admin Financial Dashboard</p>
+                    <h2>{userName}</h2>
+                    <p>Admin Dashboard</p>
                 </div>
             </div>
             <ul className="nav-items">
@@ -88,10 +99,12 @@ const NavStyled = styled.nav`
 
         h2 {
             color: rgba(34, 34, 96, 1);
+            margin-left: -.6rem;
         }
 
         p {
             color: rgba(34, 34, 96, 0.6);
+            margin-left: -.6rem;
         }
     }
 

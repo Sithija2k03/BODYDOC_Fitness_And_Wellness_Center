@@ -184,6 +184,17 @@ const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
   const [nutritionResult, setNutritionResult] = React.useState(null);
 
+  const PrivateRoute = ({ children }) => {
+  const user = JSON.parse(localStorage.getItem('user'));  // Get user data from localStorage
+  const token = localStorage.getItem('token');  // Get token from localStorage
+
+  if (!token || user?.role !== 'admin') {
+    return <Navigate to="/login" />;  // Redirect to login if not logged in or not admin
+  }
+
+  return children;  // Render the children if user is authenticated and an admin
+};
+
   return (
     <Router>
       <div className="app">
@@ -208,11 +219,6 @@ const App = () => {
             path="/workout-plan" 
             element={<WorkOut setResult={setWorkoutResult} />} 
           />
-          {/* Optional: Add a home route or redirect if needed
-          <Route 
-            path="/" 
-            element={<div><h2>Welcome to Fitness Planner</h2></div>} 
-          /> */}
 
           {/* Admin Routes - Protected by PrivateRoute */}
           <Route path="/admin/*" element={
@@ -233,11 +239,6 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
-        {/* Display results below the routed components */}
-        <div className="results-container">
-          {workoutResult && <ResultDisplay title="Workout Plan" data={workoutResult} />}
-          {nutritionResult && <ResultDisplay title="Nutrition Plan" data={nutritionResult} />}
-        </div>
       </div>
     </Router>
   );

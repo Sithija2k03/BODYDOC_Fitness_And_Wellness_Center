@@ -76,7 +76,7 @@ function SupplierForm() {
                 </select>
             </div>
             <div className="submit-btn">
-                <Button name={'Add Supplier'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'var(--color-accent)'} color={'#fff'} />
+                <Button name={'Add Supplier'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'#F56692'} color={'#fff'} />
             </div>
         </FormStyled>
     );

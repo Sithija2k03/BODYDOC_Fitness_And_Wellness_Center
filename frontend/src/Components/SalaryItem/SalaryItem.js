@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { dateFormat } from '../../utils/dateFormat';
 import { useGlobalContext } from '../../context/globalContext';
 import { trash, edit, fileText } from '../../utils/icons';  // Add an icon for the "Generate Payslip" button
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { PDFDownloadLink, Document, Page, Text, View,Image, StyleSheet } from '@react-pdf/renderer';
+import bgLogo from '../../img/bodydoc.png';
 
 // SalaryItem component to display individual salary details
 function SalaryItem({
@@ -30,25 +31,35 @@ function SalaryItem({
         updateSalaryStatus(id, newStatus); 
     };
 
-    // PDF Document for Payslip
     const generatePayslip = () => (
         <Document>
             <Page style={styles.page}>
+                <Image src={bgLogo} style={styles.logo} />
                 <Text style={styles.header}>Payslip</Text>
+    
                 <View style={styles.section}>
-                    <Text>Employee: {employeeId ? employeeId.fullName : "No Name Available"}</Text>
+                    <Text>Employee: {employeeId ? employeeId.fullName : 'No Name Available'}</Text>
                     <Text>Payment Date: {dateFormat(paymentDate)}</Text>
                     <Text>Status: {status}</Text>
                 </View>
-                <View style={styles.section}>
-                    <Text>Basic Salary: {basicSalary}</Text>
-                    <Text>Allowances: {allowances}</Text>
-                    <Text>Deductions: {deductions}</Text>
-                    <Text>OT Hours: {otHours}</Text>
-                    <Text>OT Rate: {otRate}</Text>
-                    <Text>EPF Rate: {epfRate}</Text>
-                    <Text>ETF Rate: {etfRate}</Text>
-                    <Text>Net Salary: {netSalary}</Text>
+    
+                <View style={styles.table}>
+                    <View style={[styles.row, { backgroundColor: '#ddd' }]}>
+                        <Text style={styles.column}>Description</Text>
+                        <Text style={styles.column}>Amount</Text>
+                    </View>
+                    <View style={styles.row}><Text style={styles.column}>Basic Salary</Text><Text style={styles.column}>{basicSalary}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>Allowances</Text><Text style={styles.column}>{allowances}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>Deductions</Text><Text style={styles.column}>{deductions}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>OT Hours</Text><Text style={styles.column}>{otHours}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>OT Rate</Text><Text style={styles.column}>{otRate}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>OT Pay</Text><Text style={styles.column}>{(otHours * (basicSalary / 160) * otRate).toFixed(2)}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>EPF Deduction ({epfRate}%)</Text><Text style={styles.column}>{(basicSalary * (epfRate / 100)).toFixed(2)}</Text></View>
+                    <View style={styles.row}><Text style={styles.column}>ETF Deduction ({etfRate}%)</Text><Text style={styles.column}>{(basicSalary * (etfRate / 100)).toFixed(2)}</Text></View>
+                    <View style={[styles.row, { backgroundColor: '#ddd' }]}>
+                        <Text style={[styles.column, { fontWeight: 'bold' }]}>Net Salary</Text>
+                        <Text style={[styles.column, { fontWeight: 'bold' }]}>{netSalary}</Text>
+                    </View>
                 </View>
             </Page>
         </Document>
@@ -189,14 +200,39 @@ const SalaryItemStyled = styled.div`
 const styles = StyleSheet.create({
     page: {
         padding: 20,
+        fontSize: 12,
+        fontFamily: 'Helvetica',
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        marginBottom: 10,
+        alignSelf: 'center',
     },
     header: {
-        fontSize: 24,
         textAlign: 'center',
-        marginBottom: 20,
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
     },
     section: {
         marginBottom: 10,
+    },
+    table: {
+        display: 'flex',
+        flexDirection: 'column',
+        borderWidth: 1,
+        borderColor: '#000',
+    },
+    row: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: '#000',
+        padding: 5,
+    },
+    column: {
+        flex: 1,
+        textAlign: 'center',
     },
 });
 
