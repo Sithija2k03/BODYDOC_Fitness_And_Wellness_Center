@@ -179,6 +179,9 @@ import Supplier from "./Components/Suppliers/Supplier";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
 import ResultDisplay from './Components/ResultDisplay';
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
+import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
+import AppoinmentList from './Components/Appoinment/Appoinment'
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -209,6 +212,13 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+
+          {/* E-Pharmacy Routes */}
+          <Route path="/addAppointment" element={<AppointmentForm />} />
+            {/* <Route path="/appointment" element={<Appoinment />} /> Appointment List Page */}
+            {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
+            <Route path="/appointment-layout" element={<AppoinmentLayout />} />
+            <Route path="/appointment-display" element={<AppoinmentList/>} />
 
           {/* Fitness & Nutrition Routes */}
           <Route 
