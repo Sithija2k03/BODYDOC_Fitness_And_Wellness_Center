@@ -208,11 +208,6 @@ const App = () => {
             path="/workout-plan" 
             element={<WorkOut setResult={setWorkoutResult} />} 
           />
-          {/* Optional: Add a home route or redirect if needed */}
-          <Route 
-            path="/" 
-            element={<div><h2>Welcome to Fitness Planner</h2></div>} 
-          />
 
           {/* Admin Routes - Protected by PrivateRoute */}
           <Route path="/admin/*" element={
