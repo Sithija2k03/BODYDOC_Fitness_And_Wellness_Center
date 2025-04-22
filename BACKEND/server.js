@@ -72,6 +72,13 @@ const connectDB = require('./db/db');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+const User = require("./models/user.js");
+const userRouter = require("./routes/users.js");
+const membershipRouter = require("./routes/membershiproutes.js");
+const staffRouter = require("./routes/staffroutes.js");
+const bookingRouter = require("./routes/bookings.js");
+const transactionRouter = require("./routes/transactions.js");
+const supplierRouter = require("./routes/suppliers.js");
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Helth = require("./models/helth.js");
 
@@ -87,7 +94,8 @@ app.use(bodyParser.json());
 
 // Connect to MongoDB
 const URL = process.env.MONGODB_URL;
-mongoose.connect(URL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MONGODB_URL)
+
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 

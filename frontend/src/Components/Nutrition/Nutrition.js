@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Header from '../../Login/Header';
+import ResultDisplay from '../ResultDisplay';
 
 function Nutrition({ setResult }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function Nutrition({ setResult }) {
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nutritionResult, setNutritionResult] = React.useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -185,6 +187,10 @@ function Nutrition({ setResult }) {
           {isSubmitting ? 'Generating...' : 'Generate Nutrition Plan'}
         </button>
       </form>
+      {/* Display results below the routed components */}
+              <div className="results-container">
+                {nutritionResult && <ResultDisplay title="Nutrition Plan" data={nutritionResult} />}
+              </div>
     </div>
   );
 }

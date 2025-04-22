@@ -13,10 +13,8 @@ import Inventory from './Components/Inventory/Inventory';
 import { GlobalProvider } from './context/globalContext'; // Import GlobalProvider
 import Supplier from './Components/Suppliers/Supplier';
 import Login from './Login/Login'; // Import Login component
-import { Outlet } from 'react-router-dom';
 
-
-function AdminLayout() {
+function App() {
   const [active, setActive] = React.useState(1);
 
   const displayData = () => {
@@ -46,20 +44,20 @@ function AdminLayout() {
 
   return (
     <GlobalProvider> {/* Wrap your app with GlobalProvider */}
-      <AdminLayoutStyled bg={bg} className="App">
+      <AppStyled bg={bg} className="App">
         {orbMemo}
         <MainLayout>
           <Navigation active={active} setActive={setActive} />
           <main>
-            <Outlet /> {/* Use Outlet to render child routes */}
+            {displayData()}
           </main>
         </MainLayout>
-      </AdminLayoutStyled>
+      </AppStyled>
     </GlobalProvider>
   );
 }
 
-const AdminLayoutStyled = styled.div`
+const AppStyled = styled.div`
   height: 100vh;
   background-image: url(${(props) => props.bg});
   position: relative;
@@ -77,4 +75,4 @@ const AdminLayoutStyled = styled.div`
   }
 `;
 
-export default AdminLayout;
+export default App;
