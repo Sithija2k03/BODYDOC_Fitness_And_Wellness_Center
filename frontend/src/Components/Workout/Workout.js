@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Header from '../../Login/Header';
+import ResultDisplay from '../ResultDisplay';
 
 function Workout({ setResult }) {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ function Workout({ setResult }) {
     height: '',
     userId: ''
   });
-  
+  const [workoutResult, setWorkoutResult] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -137,6 +138,10 @@ function Workout({ setResult }) {
           {isSubmitting ? 'Generating...' : 'Generate Workout Plan'}
         </button>
       </form>
+      {/* Display results below the routed components */}
+              <div className="results-container">
+                {workoutResult && <ResultDisplay title="Workout Plan" data={workoutResult} />}
+              </div>
     </div>
   );
 }
