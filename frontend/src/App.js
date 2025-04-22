@@ -179,6 +179,10 @@ import Supplier from "./Components/Suppliers/Supplier";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
 import ResultDisplay from './Components/ResultDisplay';
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; // Corrected name
+import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
+import GloabalAppoinment from './Components/GloabalAppoinment';
+import AppoinmentDisplay from './Components/AppoinmentDisplay'
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -209,6 +213,14 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+
+          {/* E-Pharmacy Routes */}
+          {/* <Route path="/addAppointment" element={<AppointmentForm />} /> Appointment Form Page */}
+            {/* <Route path="/appointment" element={<Appoinment />} /> Appointment List Page */}
+            {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
+            {/* <Route path="/layout" element={<AppoinmentLayout />} />
+            <Route path="/gloabal" element={<GloabalAppoinment />} />
+            <Route path="/display" element={<AppoinmentDisplay />} /> */}
 
           {/* Fitness & Nutrition Routes */}
           <Route 
