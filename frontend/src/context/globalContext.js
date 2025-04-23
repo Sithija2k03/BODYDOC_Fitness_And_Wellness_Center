@@ -12,6 +12,7 @@ export const GlobalProvider = ({ children }) => {
     const [salaries, setSalaries] = React.useState([]);
     const [error, setError] = React.useState(null);
     const [pharmacyItems, setPharmacyItems] = React.useState([]);
+    const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
     const [success, setSuccess] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
@@ -200,9 +201,58 @@ export const GlobalProvider = ({ children }) => {
             console.error("Delete Pharmacy Item Error:", err.response || err.message);
             setError(err.response?.data?.error || "Failed to delete pharmacy item");
         }
-    };    
-      
-  
+    }; 
+    
+    
+
+    //Gym Equipment Section
+    const getGymEquipment = async () => {
+        setLoading(true); // Start loading
+        try {
+            const response = await axios.get(`${API_URL}gym/`);
+            setGymEquipment(response.data);
+            setError(null);
+            setSuccess(null);
+        } catch (err) {
+            console.error("Get Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || 'Failed to fetch gym equipment');
+        } finally {
+            setLoading(false); // End loading
+        }
+    };
+
+    const addGymEquipment = async (equipment) => {
+        try {
+            console.log("Gym Equipment Payload:", equipment);
+            const response = await axios.post(`${API_URL}gym/add`, equipment);
+            if (!response.data || !response.data.equipment) {
+                throw new Error("Invalid response from server");
+            }
+            setGymEquipment((prev) => [...prev, response.data.equipment]);
+            setError(null);
+            setSuccess("Gym equipment added successfully");
+        } catch (err) {
+            console.error("Add Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to add gym equipment");
+        }
+    };
+
+    const deleteGymEquipment = async (equipmentId) => {
+        try {
+            await axios.delete(`${API_URL}gym/delete/${equipmentId}`);
+            setGymEquipment((prev) =>
+                prev.filter((item) => item.equipmentId !== equipmentId)
+            );
+            setError(null);
+            setSuccess("Gym equipment deleted successfully");
+        } catch (err) {
+            console.error("Delete Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to delete gym equipment");
+        }
+    };
+
+
+// Supplier Section
     const getSuppliers = async () => {
         setLoading(true); // Start loading
         try {
@@ -264,6 +314,8 @@ export const GlobalProvider = ({ children }) => {
             setError(err.response?.data?.error || "Failed to update supplier");
         }
     };
+
+    
     
 
 
@@ -303,6 +355,10 @@ export const GlobalProvider = ({ children }) => {
             deleteSupplier,
             updateSupplier,
             deletePharmacyItem,
+            gymEquipment,
+            getGymEquipment,
+            addGymEquipment,
+            deleteGymEquipment,
             error,
             setError
         }}>

@@ -29,8 +29,8 @@ app.use("/supplier", supplierRouter);
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 app.use("/pharmacy", pharmacyItemRouter);
 
-// const gymEquipmentRouter = require("./routes/gymEquipments.js");
-// app.use("/gym", gymEquipmentRouter);
+ const gymEquipmentRouter = require("./routes/gymEquipments.js");
+ app.use("/gym", gymEquipmentRouter);
 
 // const inventorySummariesRouter = require("./routes/inventorySummaries.js");
 // app.use("/inventorySummaries", inventorySummariesRouter);

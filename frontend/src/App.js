@@ -52,7 +52,7 @@ const App = () => {
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
           <Route path="/pharmacy-items" element={<Pharmacy />} />
-          <Route path="/GymEquipment" element={<GymEquipment />} />
+          <Route path="/gymEquipment" element={<GymEquipment />} />
 
           {/* Pharmacy and Gym Equipment Pages */}
          

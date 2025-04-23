@@ -1,101 +1,104 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useGlobalContext } from "../../context/globalContext";
-import Button from '../Button/Button'; // Adjust path if needed
+import Button from '../Button/Button';
 import { plus } from '../../utils/icons';
 
-function AddPharmacyItem() {
-    const { addPharmacyItem, getPharmacyItems, error, setError } = useGlobalContext();
+function EquipmentForm({ onClose }) {
+    const { addGymEquipment, error, setError } = useGlobalContext();
 
     const [inputState, setInputState] = useState({
-        itemNumber: "",
-        itemName: "",
-        itemCategory: "",
-        availableStockQty: "",
-        reorderLevel: "",
-        supplierName: "",
-        supplierId: "",
-        orderQty: "",
+        equipmentId: '',
+        equipmentName: '',
+        equipmentCategory: '',
+        lastMaintenanceDate: ''
     });
 
-    const { itemNumber, itemName, itemCategory, availableStockQty, reorderLevel, supplierName, supplierId, orderQty } = inputState;
+    const {
+        equipmentId,
+        equipmentName,
+        equipmentCategory,
+        lastMaintenanceDate
+    } = inputState;
 
     const handleInput = (name) => (e) => {
-        setInputState({ ...inputState, [name]: e.target.value });
-        setError("");
+        const value = e.target.value;
+        setInputState(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!itemNumber || !itemName || !itemCategory || !availableStockQty || !reorderLevel || !supplierName || !supplierId || !orderQty) {
-            alert("Please fill all fields before submitting.");
-            return;
-        }
-
-        if (parseFloat(itemNumber) <= 0 || parseFloat(availableStockQty) < 0 || parseFloat(reorderLevel) < 0 || parseFloat(orderQty) < 0) {
-            alert("Item Number, Stock, Reorder Level, and Order Qty must be positive numbers.");
-            return;
+        // Validate that all fields are filled
+        for (let key in inputState) {
+            if (inputState[key] === '') {
+                alert("Please fill all fields before submitting.");
+                return;
+            }
         }
 
         const payload = {
-            itemNumber: parseFloat(itemNumber),
-            itemName,
-            itemCategory,
-            availableStockQty: parseFloat(availableStockQty),
-            reorderLevel: parseFloat(reorderLevel),
-            supplierName,
-            supplierId,
-            orderQty: parseFloat(orderQty),
+            equipmentId: Number(equipmentId),
+            equipmentName,
+            equipmentCategory,
+            lastMaintenanceDate: new Date(lastMaintenanceDate).toISOString()
         };
 
         try {
-            await addPharmacyItem(payload);
-            await getPharmacyItems(); // Fetch updated items
+            await addGymEquipment(payload);
+            onClose && onClose();
             setInputState({
-                itemNumber: "",
-                itemName: "",
-                itemCategory: "",
-                availableStockQty: "",
-                reorderLevel: "",
-                supplierName: "",
-                supplierId: "",
-                orderQty: "",
+                equipmentId: '',
+                equipmentName: '',
+                equipmentCategory: '',
+                lastMaintenanceDate: ''
             });
-        } catch (error) {
-            setError("Failed to add pharmacy item");
+        } catch (err) {
+            setError("Failed to add gym equipment");
         }
     };
 
     return (
         <FormStyled onSubmit={handleSubmit}>
             {error && <p className="error">{error}</p>}
-            <div className="input-control">
-                <input type="number" value={itemNumber} name="itemNumber" placeholder="Item Number" onChange={handleInput("itemNumber")} />
-            </div>
-            <div className="input-control">
-                <input type="text" value={itemName} name="itemName" placeholder="Item Name" onChange={handleInput("itemName")} />
-            </div>
-            <div className="input-control">
-                <input type="text" value={itemCategory} name="itemCategory" placeholder="Category" onChange={handleInput("itemCategory")} />
-            </div>
-            <div className="input-control">
-                <input type="number" value={availableStockQty} name="availableStockQty" placeholder="Stock" onChange={handleInput("availableStockQty")} />
-            </div>
-            <div className="input-control">
-                <input type="number" value={reorderLevel} name="reorderLevel" placeholder="Reorder Level" onChange={handleInput("reorderLevel")} />
-            </div>
-            <div className="input-control">
-                <input type="text" value={supplierName} name="supplierName" placeholder="Supplier Name" onChange={handleInput("supplierName")} />
-            </div>
-            <div className="input-control">
-                <input type="text" value={supplierId} name="supplierId" placeholder="Supplier ID" onChange={handleInput("supplierId")} />
-            </div>
-            <div className="input-control">
-                <input type="number" value={orderQty} name="orderQty" placeholder="Order Qty" onChange={handleInput("orderQty")} />
-            </div>
+            <input
+                type="number"
+                value={equipmentId}
+                placeholder="Equipment ID"
+                onChange={handleInput('equipmentId')}
+            />
+            <input
+                type="text"
+                value={equipmentName}
+                placeholder="Equipment Name"
+                onChange={handleInput('equipmentName')}
+            />
+            <input
+                type="text"
+                value={equipmentCategory}
+                placeholder="Category"
+                onChange={handleInput('equipmentCategory')}
+            />
+            <input
+                type="date"
+                value={lastMaintenanceDate}
+                placeholder="Last Maintenance Date"
+                onChange={handleInput('lastMaintenanceDate')}
+            />
+
             <div className="submit-btn">
-                <Button name={'Add Item'} icon={plus} bPad={'.8rem 1.6rem'} bRad={'30px'} bg={'#F56692'} color={'#fff'} />
+                <Button
+                    name={'Add Equipment'}
+                    icon={plus}
+                    bPad={'.8rem 1.6rem'}
+                    bRad={'30px'}
+                    bg={'#6C63FF'}
+                    color={'#fff'}
+                />
             </div>
         </FormStyled>
     );
@@ -105,7 +108,7 @@ const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 350px;
+    max-width: 400px;
     gap: 1rem;
     margin-left: 5px;
     padding: 1rem;
@@ -119,11 +122,12 @@ const FormStyled = styled.form`
         border-radius: 6px;
         border: 1px solid #ccc;
         background: #fff;
+        color: rgba(34, 34, 96, 0.9);
         width: 100%;
-    }
 
-    .input-control {
-        width: 100%;
+        &::placeholder {
+            color: rgba(34, 34, 96, 0.4);
+        }
     }
 
     .submit-btn {
@@ -135,15 +139,21 @@ const FormStyled = styled.form`
             width: 200px;
             padding: 0.6rem;
             font-size: 0.9rem;
-            border-radius: 8px;
             transition: all 0.3s ease-in-out;
+            box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            gap: 1.6rem;
+            &:hover {
+                background: var(--color-green) !important;
+            }
         }
     }
 
     .error {
         color: red;
         font-size: 0.85rem;
+        margin: 0;
     }
 `;
 
-export default AddPharmacyItem;
+export default EquipmentForm;
