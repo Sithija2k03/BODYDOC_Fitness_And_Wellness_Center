@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
+
 const API_URL = 'http://localhost:4000/';
 
 const GlobalContext = React.createContext();
@@ -156,25 +157,51 @@ export const GlobalProvider = ({ children }) => {
     };
   
     // Inventory Section
+    //add parmacy items
     const getPharmacyItems = async () => {
-      try {
-        const response = await axios.get(`${API_URL}pharmacy/`);
-        setPharmacyItems(response.data);
-        setError(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch pharmacy items');
-      }
-    };
-  
-    const addPharmacyItem = async (item) => {
-      try {
-        const response = await axios.post(`${API_URL}pharmacy/add`, item);
-        setPharmacyItems((prev) => [...prev, response.data.item]);
-        setError(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to add pharmacy item');
-      }
-    };
+        setLoading(true); // Start loading
+        try {
+          const response = await axios.get(`${API_URL}pharmacy/`);
+          setPharmacyItems(response.data);
+          setError(null);
+          setSuccess(null);
+        } catch (err) {
+          setError(err.response?.data?.error || 'Failed to fetch pharmacy items');
+        } finally {
+          setLoading(false); // End loading
+        }
+      };
+      
+      const addPharmacyItem = async (item) => {
+        try {
+          console.log("Pharmacy Item Payload:", item);
+          const response = await axios.post(`${API_URL}pharmacy/add`, item);
+          if (!response.data || !response.data.item) {
+            throw new Error("Invalid response from server");
+          }
+          setPharmacyItems((prev) => [...prev, response.data.item]);
+          setError(null);
+          setSuccess("Pharmacy item added successfully");
+        } catch (err) {
+          console.error("Add Pharmacy Item Error:", err.response || err.message);
+          setError(err.response?.data?.error || "Failed to add pharmacy item");
+        }
+      };
+      
+      const deletePharmacyItem = async (itemNumber) => {
+        try {
+            await axios.delete(`${API_URL}pharmacy/delete/${itemNumber}`);
+            setPharmacyItems((prev) =>
+                prev.filter((item) => item.itemNumber !== itemNumber)
+            );
+            setError(null);
+            setSuccess("Pharmacy item deleted successfully");
+        } catch (err) {
+            console.error("Delete Pharmacy Item Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to delete pharmacy item");
+        }
+    };    
+      
   
     const getSuppliers = async () => {
         setLoading(true); // Start loading
@@ -275,7 +302,7 @@ export const GlobalProvider = ({ children }) => {
             addSupplier,
             deleteSupplier,
             updateSupplier,
-            //handleSubmit,
+            deletePharmacyItem,
             error,
             setError
         }}>

@@ -1,6 +1,5 @@
-import { transactions, incomes, expenses,  dashboard,salary, logout, inventory,truck } from './icons';
-
-export const navItems = [
+import { transactions, incomes, expenses, dashboard, salary, logout, inventory, truck } from './icons';
+const navItems = [
     {
         id: 1,
         title: 'Dashboard',
@@ -11,7 +10,7 @@ export const navItems = [
         id: 2,
         title: 'View Transactions',
         icon: transactions,
-        link: '/dashboard'
+        link: '/transactions'
     },
     {
         id: 3,
@@ -23,30 +22,32 @@ export const navItems = [
         id: 4,
         title: 'Expenses',
         icon: expenses,
-        link: '/dashboard'
+        link: '/expenses'
     },
     {
         id: 5,
         title: 'Salary Payments',
         icon: salary,
-        link: '/dashboard'
+        link: '/salaries'
     },
     {
         id: 6,
         title: 'Inventory',
         icon: inventory,
-        link: '/dashboard'
+        link: '/inventory'
     },
     {
         id: 7,
         title: 'Suppliers',
         icon: truck,
-        link: '/dashboard'
+        link: '/suppliers'
     },
     {
         id: 8,
-        title: 'LogOut',
+        title: 'Log Out',
         icon: logout,
         link: '/login'
     }
 ];
+
+export default navItems; // ✅ Added default export
