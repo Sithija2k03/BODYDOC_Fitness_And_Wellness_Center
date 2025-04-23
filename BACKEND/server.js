@@ -26,6 +26,7 @@ app.use("/transactions", transactionRouter);
 const supplierRouter = require("./routes/suppliers.js");
 app.use("/supplier", supplierRouter);
 
+
 // const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 // app.use("/pharmacy", pharmacyItemRouter);
 

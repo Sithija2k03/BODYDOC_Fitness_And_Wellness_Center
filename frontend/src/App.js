@@ -94,6 +94,9 @@ import Expenses from "./Components/Expenses/Expenses";
 import Salary from "./Components/Salaries/salaries";
 import Inventory from "./Components/Inventory/Inventory";
 import Supplier from "./Components/Suppliers/Supplier";
+import BookingForm from "./Booking/BookingForm";
+import BookingList from "./Booking/BookingList";
+import EditBooking from "./Booking/EditBooking";
 
 // PrivateRoute to protect admin routes
 const PrivateRoute = ({ children }) => {
@@ -120,6 +123,9 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/booking" element={<BookingForm />} />
+        <Route path="/booking-list" element={<BookingList />} />
+        <Route path="/edit-booking/:id" element={<EditBooking />} />
 
         {/* Admin Routes - Protected by PrivateRoute */}
         <Route path="/admin/*" element={

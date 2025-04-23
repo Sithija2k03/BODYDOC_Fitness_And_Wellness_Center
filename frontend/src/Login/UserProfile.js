@@ -2,43 +2,58 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header"; 
-import { FiLogOut } from "react-icons/fi"; // Import logout icon from react-icons
+import { FiLogOut } from "react-icons/fi";
 
 function UserProfile() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
+  const [bookings, setBookings] = useState([]); // ✅ New state for bookings
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = localStorage.getItem("token"); // Get token from local storage
+        const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:4000/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         let userData = response.data;
-        
-        // Assign default profile picture based on gender if no image is provided
         if (!userData.profilePic) {
           userData.profilePic = userData.gender === "female"
             ? "./img/female-default.png"
             : "./img/male-default.png";
         }
-
         setUser(userData);
       } catch (error) {
         console.error("Error fetching profile:", error);
-        navigate("/login"); // Redirect to login if not authenticated
+        navigate("/login");
       }
     };
 
     fetchUserProfile();
   }, [navigate]);
 
-  const handleEdit = () => {
-    navigate("/edit-profile");
-  };
+  // ✅ Fetch bookings when activeTab changes to "bookings"
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        if (activeTab === "bookings" && user?._id) {
+          const token = localStorage.getItem("token");
+          const response = await axios.get(`http://localhost:8070/booking/user/${user._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setBookings(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+
+    fetchBookings();
+  }, [activeTab, user]);
+
+  const handleEdit = () => navigate("/edit-profile");
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete your profile?")) {
@@ -56,8 +71,8 @@ function UserProfile() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove token from localStorage
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   const handleNavClick = (tab) => {
@@ -78,7 +93,7 @@ function UserProfile() {
                 backgroundImage: `url(${user.profilePic})` 
               }} 
             />
-            <span style={styles.userName}>{user.fullName}</span> {/* Display user's name */}
+            <span style={styles.userName}>{user.fullName}</span>
           </div>
           <button style={styles.editBtn} onClick={handleEdit}>Edit Profile</button>
           <button style={styles.deleteBtn} onClick={handleDelete}>Delete Profile</button>
@@ -90,7 +105,6 @@ function UserProfile() {
             <button style={styles.navBtn} onClick={() => handleNavClick("orders")}>My Orders</button>
           </div>
 
-          {/* Logout Icon Button */}
           <button style={styles.logoutBtn} onClick={handleLogout}>
             <FiLogOut size={24} color="white" />
           </button>
@@ -109,7 +123,21 @@ function UserProfile() {
           {activeTab === "bookings" && (
             <div>
               <h3>My Bookings</h3>
-              {/* Add content for bookings here */}
+              {bookings.length > 0 ? (
+                <ul>
+                  {bookings.map((booking) => (
+                    <li key={booking._id} style={{ marginBottom: "10px" }}>
+                      <strong>Facility:</strong> {booking.facility_type} <br />
+                      <strong>Date:</strong> {booking.date} <br />
+                      <strong>Time Slot:</strong> {booking.time_slot} <br />
+                      <strong>Status:</strong> {booking.status}
+                      <hr />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No bookings found.</p>
+              )}
             </div>
           )}
           {activeTab === "appointments" && (
@@ -243,5 +271,7 @@ const styles = {
     marginBottom: "30px",
   },
 };
+
+
 
 export default UserProfile;
