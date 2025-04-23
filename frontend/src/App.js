@@ -178,7 +178,8 @@ import Inventory from "./Components/Inventory/Inventory";
 import Supplier from "./Components/Suppliers/Supplier";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
-import ResultDisplay from './Components/ResultDisplay';
+import WorkoutResult from './Components/Workout/WorkoutResult';
+import NutritionResults from "./Components/Nutrition/NutritionResults";
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -219,6 +220,11 @@ const App = () => {
             path="/workout-plan" 
             element={<WorkOut setResult={setWorkoutResult} />} 
           />
+
+          <Route path="/result" element={<WorkoutResult />} />
+          <Route path="/nutrition-result" element={<NutritionResults />} />
+
+
 
           {/* Admin Routes - Protected by PrivateRoute */}
           <Route path="/admin/*" element={
