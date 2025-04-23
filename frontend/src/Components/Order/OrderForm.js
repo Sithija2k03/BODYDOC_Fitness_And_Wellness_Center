@@ -1,172 +1,218 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useGlobalContext } from '../../context/globalContext';
+import { useNavigate } from "react-router-dom";
+import Header from '../../Login/Header';
+import Button from '../AppoinmentLayout/Button';
 
+const containerStyle = {
+  width: '400px',
+  margin: '50px auto',
+  padding: '30px',
+  background: '#bab2b2',
+  borderRadius: '10px',
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+};
+
+const logoStyle = {
+  width: '150px',
+  height: 'auto',
+};
+
+const formStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+};
+
+const labelStyle = {
+  fontWeight: 'bold',
+  marginBottom: '5px',
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '8px',
+  marginBottom: '20px',
+  border: '1px solid #ccc',
+  borderRadius: '5px',
+  fontSize: '16px',
+};
+
+const errorTextStyle = {
+  color: 'red',
+  fontSize: '14px',
+  marginBottom: '10px',
+};
+
+const errorBorderStyle = {
+  border: '1px solid red',
+};
+
+const buttonStyle = {
+  backgroundColor: '#F56692',
+  color: 'white',
+  padding: '10px',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontSize: '16px',
+};
+
+const buttonHoverStyle = {
+  backgroundColor: '#dd275e',
+};
 
 const OrderForm = () => {
-  const [user_name, setUserName] = useState("");
-  const [doctor_name, setDoctorName] = useState("");
-  const [c_date, setDate] = useState("");
-  const [prescription, setPrescription] = useState(null);
-  const [errors, setErrors] = useState({}); // State for validation errors
+  const navigate = useNavigate();
+  const { addOrder } = useGlobalContext();
 
-  // Handle file upload validation
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  const [userName, setUserName] = useState('');
+  const [doctorName, setDoctorName] = useState('');
+  const [prescriptionFile, setPrescriptionFile] = useState(null); // Changed to store file
+  const [cDate, setCDate] = useState('');
+  const [errors, setErrors] = useState({});
+  const [isHovering, setIsHovering] = useState(false);
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      setPrescription(reader.result); // Store as Base64
-    };
-    
-    if (file) {
-      const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-      const maxSize = 2 * 1024 * 1024; // 2MB
-
-      if (!allowedTypes.includes(file.type)) {
-        setErrors((prev) => ({
-          ...prev,
-          prescription: "Invalid file type! Only PDF, JPG, and PNG are allowed.",
-        }));
-        setPrescription(null);
-        return;
-      }
-
-      if (file.size > maxSize) {
-        setErrors((prev) => ({
-          ...prev,
-          prescription: "File size exceeds 2MB!",
-        }));
-        setPrescription(null);
-        return;
-      }
-
-      setErrors((prev) => ({ ...prev, prescription: "" }));
-      setPrescription(file);
-    }
-  };
-
-  // Validate form before submitting
   const validateForm = () => {
     let errors = {};
     let isValid = true;
+    const invalidChars = /[@!~#$%^&*<>1234567890]/;
 
-    if (!user_name.trim()) {
-      errors.user_name = "User Name is required!";
+    if (!userName.trim()) {
+      errors.userName = "User Name is required!";
       isValid = false;
+    } else if (invalidChars.test(userName)) {
+      errors.userName = "User Name cannot contain @, !, #, %, ^, &, *, or numbers!";
+      isValid = false;
+      alert("Invalid username! Please do not use special characters or numbers.");
     }
 
-    if (!doctor_name.trim()) {
-      errors.doctor_name = "Doctor Name is required!";
+    if (!doctorName.trim()) {
+      errors.doctorName = "Doctor Name is required!";
       isValid = false;
+    } else if (invalidChars.test(doctorName)) {
+      errors.doctorName = "Doctor Name cannot contain @, !, #, %, ^, &, *, or numbers!";
+      isValid = false;
+      alert("Invalid doctorName! Please do not use special characters or numbers.");
     }
 
-    if (!c_date) {
-      errors.c_date = "Date is required!";
+    if (!cDate) {
+      errors.cDate = "Consultation Date is required!";
       isValid = false;
     } else {
-      const today = new Date().toISOString().split("T")[0];
-      if (c_date < today) {
-        errors.c_date = "Date cannot be in the past!";
+      const today = new Date().toISOString().split('T')[0];
+      if (cDate < today) {
+        errors.cDate = "Date cannot be in the past!";
         isValid = false;
       }
     }
 
-    if (!prescription) {
-      errors.prescription = "Prescription file is required!";
+    if (!prescriptionFile) {
+      errors.prescription = "Prescription PDF file is required!";
+      isValid = false;
+    } else if (!prescriptionFile.name.toLowerCase().endsWith('.pdf')) {
+      errors.prescription = "Only PDF files are allowed!";
       isValid = false;
     }
 
-    setErrors(errors);
-    return isValid;
+    return { isValid, errors };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
+    const { isValid, errors } = validateForm();
+    if (!isValid) {
+      setErrors(errors);
       return;
     }
 
+    // Create FormData to handle file upload
     const formData = new FormData();
-    formData.append("user_name", user_name);
-    formData.append("doctor_name", doctor_name);
-    formData.append("c_date", c_date);
-    formData.append("prescription", prescription);
+    formData.append('user_name', userName);
+    formData.append('doctor_name', doctorName);
+    formData.append('c_date', cDate);
+    formData.append('prescription', prescriptionFile);
 
     try {
-      const response = await fetch("http://localhost:8070/order/add", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      console.log("Response from server:", data);
-
-      // Reset form on success
-      setUserName("");
-      setDoctorName("");
-      setDate("");
-      setPrescription(null);
+      await addOrder(formData);
+      setUserName('');
+      setDoctorName('');
+      setCDate('');
+      setPrescriptionFile(null);
       setErrors({});
-      alert("Order submitted successfully!");
+      alert("Order placed successfully!");
+      // Reset the file input
+      document.getElementById('prescription').value = null;
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Failed to submit order. Please try again.");
+      console.error("Error submitting order:", error);
+      alert("Failed to place order. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <label htmlFor="user_name">User Name:</label>
-      <input
-        type="text"
-        id="user_name"
-        className={errors.user_name ? "error-border" : ""}
-        value={user_name}
-        onChange={(e) => setUserName(e.target.value)}
-        required
-      />
-      {errors.user_name && <span className="error-text">{errors.user_name}</span>}
-      <br />
+    <>
+      <Header />
+      <div style={containerStyle}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <img src="/img/bodydoc.png" alt="Logo" style={logoStyle} />
+        </div>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Place a New Order</h2>
 
-      <label htmlFor="doctor_name">Doctor Name:</label>
-      <input
-        type="text"
-        id="doctor_name"
-        className={errors.doctor_name ? "error-border" : ""}
-        value={doctor_name}
-        onChange={(e) => setDoctorName(e.target.value)}
-        required
-      />
-      {errors.doctor_name && <span className="error-text">{errors.doctor_name}</span>}
-      <br />
+        <form onSubmit={handleSubmit} noValidate style={formStyle}>
+          <label htmlFor="user_name" style={labelStyle}>User Name:</label>
+          <input
+            type="text"
+            id="user_name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            style={{ ...inputStyle, ...(errors.userName ? errorBorderStyle : {}) }}
+          />
+          {errors.userName && <span style={errorTextStyle}>{errors.userName}</span>}
 
-      <label htmlFor="c_date">Date:</label>
-      <input
-        type="date"
-        id="c_date"
-        className={errors.c_date ? "error-border" : ""}
-        value={c_date}
-        onChange={(e) => setDate(e.target.value)}
-        required
-      />
-      {errors.c_date && <span className="error-text">{errors.c_date}</span>}
-      <br />
+          <label htmlFor="doctor_name" style={labelStyle}>Doctor Name:</label>
+          <input
+            type="text"
+            id="doctor_name"
+            value={doctorName}
+            onChange={(e) => setDoctorName(e.target.value)}
+            style={{ ...inputStyle, ...(errors.doctorName ? errorBorderStyle : {}) }}
+          />
+          {errors.doctorName && <span style={errorTextStyle}>{errors.doctorName}</span>}
 
-      <label htmlFor="prescription">Upload Prescription:</label>
-      <input
-        type="file"
-        id="prescription"
-        accept=".pdf,.jpg,.png"
-        className={errors.prescription ? "error-border" : ""}
-        onChange={handleFileUpload}
-        required
-      />
-      {errors.prescription && <span className="error-text">{errors.prescription}</span>}
-      <br />
+          <label htmlFor="c_date" style={labelStyle}>Consultation Date:</label>
+          <input
+            type="date"
+            id="c_date"
+            value={cDate}
+            onChange={(e) => setCDate(e.target.value)}
+            style={{ ...inputStyle, ...(errors.cDate ? errorBorderStyle : {}) }}
+          />
+          {errors.cDate && <span style={errorTextStyle}>{errors.cDate}</span>}
 
-      <button type="submit">Submit</button>
-    </form>
+          <label htmlFor="prescription" style={labelStyle}>Prescription (PDF only):</label>
+          <input
+            type="file"
+            id="prescription"
+            accept="application/pdf"
+            onChange={(e) => setPrescriptionFile(e.target.files[0])}
+            style={{ ...inputStyle, ...(errors.prescription ? errorBorderStyle : {}) }}
+          />
+          {errors.prescription && <span style={errorTextStyle}>{errors.prescription}</span>}
+
+          <button
+            type="submit"
+            style={isHovering ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+            Submit
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Button onClick={() => navigate("/order-display")}>View My Orders</Button>
+        </div>
+      </div>
+    </>
   );
 };
 
