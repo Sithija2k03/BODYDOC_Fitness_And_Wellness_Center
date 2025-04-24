@@ -18,7 +18,7 @@ function EditProfile() {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8070/user/profile", {
+        const response = await axios.get("http://localhost:4000/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -49,7 +49,7 @@ function EditProfile() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:8070/user/update/${formData._id}`, formData, {
+      await axios.put(`http://localhost:4000/user/update/${formData._id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Profile updated successfully!");

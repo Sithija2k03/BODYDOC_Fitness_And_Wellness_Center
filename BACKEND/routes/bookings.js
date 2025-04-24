@@ -134,5 +134,25 @@ router.route("/search/:name").get(async (req, res) => {
 
 
 
+// Get bookings by specific user ID
+router.get("/bookings/:id", async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const bookings = await Booking.find({ User: userId }); // Replace 'user' with your actual key
+  
+      if (!bookings || bookings.length === 0) {
+        return res.status(404).json({ message: "No bookings found for this user" });
+      }
+  
+      res.status(200).json(bookings);
+    } catch (error) {
+      console.error("Error fetching user's bookings:", error);
+      res.status(500).json({ message: "Error fetching user's bookings", error: error.message });
+    }
+  });
+
+ 
+  
+  
 
 module.exports = router;
