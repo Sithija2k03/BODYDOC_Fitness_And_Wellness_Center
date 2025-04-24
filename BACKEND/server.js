@@ -32,8 +32,22 @@ app.use(bodyParser.json());
 const URL = process.env.MONGODB_URL;
 mongoose.connect(process.env.MONGODB_URL)
 
+
+const supplierRouter = require("./routes/suppliers.js");
+app.use("/supplier", supplierRouter);
+
+const pharmacyItemRouter = require("./routes/pharmacyItems.js");
+app.use("/pharmacy", pharmacyItemRouter);
+
+ const gymEquipmentRouter = require("./routes/gymEquipments.js");
+ app.use("/gym", gymEquipmentRouter);
+
+// const inventorySummariesRouter = require("./routes/inventorySummaries.js");
+// app.use("/inventorySummaries", inventorySummariesRouter);
+
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+
 
 
 // Fix JWT user issue (ensure it's defined)

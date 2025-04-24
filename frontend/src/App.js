@@ -10,6 +10,7 @@ import Register from "./Register/Register";
 import Login from "./Login/Login";
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
+import AdminLayout from "./AdminLayout"; // Uses <Outlet />
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Incomes from "./Components/Incomes/Incomes";
@@ -17,6 +18,13 @@ import Expenses from "./Components/Expenses/Expenses";
 import Salary from "./Components/Salaries/salaries";
 import Inventory from "./Components/Inventory/Inventory";
 import Supplier from "./Components/Suppliers/Supplier";
+import EditSupplier from "./Components/Form/EditSupplier";
+import Pharmacy from "./Components/pharmacy/Pharmacy"; // Added Pharmacy Items Page
+import GymEquipment from "./Components/GymEquipment/GymEquipment"; // Added Gym Equipment Page
+//import GymEquipment from "./pages/GymEquipment"; // Added Gym Equipment Page
+import Navigation from "./Components/Navigation/Navigation"; // Added Navigation
+import { GlobalProvider } from './context/globalContext';
+import navItems from "./utils/navItems";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
 import ResultDisplay from './Components/ResultDisplay';
@@ -32,16 +40,21 @@ const App = () => {
   const user = JSON.parse(localStorage.getItem('user'));  // Get user data from localStorage
   const token = localStorage.getItem('token');  // Get token from localStorage
 
-  if (!token || user?.role !== 'admin') {
-    return <Navigate to="/login" />;  // Redirect to login if not logged in or not admin
+  if (!token || user?.role !== "admin") {
+    return <Navigate to="/login" />;
   }
 
-  return children;  // Render the children if user is authenticated and an admin
+  return children;
 };
 
-  return (
+  return (  
+    
+    <GlobalProvider>
+    <Router>
+
     <Router>
       <div className="app">
+
 
         <Routes>
           {/* Public Routes */}
@@ -53,13 +66,31 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
-
-          {/* E-Pharmacy Routes */}
+            
+             {/* E-Pharmacy Routes */}
           <Route path="/addAppointment" element={<AppointmentForm />} />
             {/* <Route path="/appointment" element={<Appoinment />} /> Appointment List Page */}
             {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
-            <Route path="/appointment-layout" element={<AppoinmentLayout />} />
-            <Route path="/appointment-display" element={<AppoinmentList/>} />
+           <Route path="/appointment-layout" element={<AppoinmentLayout />} />
+           <Route path="/appointment-display" element={<AppoinmentList/>} />
+
+          <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
+          <Route path="/pharmacy-items" element={<Pharmacy />} />
+          <Route path="/gymEquipment" element={<GymEquipment />} />
+
+          {/* Pharmacy and Gym Equipment Pages */}
+         
+          {/* <Route path="/gym-equipment" element={<GymEquipment />} /> */}
+
+          {/* Protected Admin Routes */}
+          <Route
+            path="/admin/*"
+            element={
+              <PrivateRoute>
+                <AdminLayout />
+              </PrivateRoute>
+            }
+          >
 
           {/* Fitness & Nutrition Routes */}
           <Route 
@@ -78,13 +109,22 @@ const App = () => {
             </PrivateRoute>
           }>
             <Route index element={<Dashboard />} /> {/* Default admin page */}
+
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="incomes" element={<Incomes />} />
             <Route path="expenses" element={<Expenses />} />
             <Route path="salaries" element={<Salary />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="suppliers" element={<Supplier />} />
+
+            <Route path="supplier" element={<Supplier />} />
           </Route>
+
+          {/* Redirect unknown routes to Home */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </GlobalProvider>
 
           {/* Redirect if no route matches */}
           <Route path="*" element={<Navigate to="/" />} />
@@ -92,9 +132,8 @@ const App = () => {
 
       </div>
     </Router>
+
   );
 };
 
 export default App;
-
-

@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import avatar_m from '../../img/avatar_m.png';
-import { navItems } from '../../utils/navItems';
+import navItems from '../../utils/navItems';
 
 function Navigation({ active, setActive }) {
     const [inventoryOpen, setInventoryOpen] = useState(false);
-    const navigate = useNavigate(); // Initialize navigate function
+    const navigate = useNavigate(); 
     const [userName, setUserName] = useState('');
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             const userObj = JSON.parse(storedUser); 
-            setUserName(userObj.fullName); // Access fullName from the parsed object
+            setUserName(userObj.fullName); 
         }
     }, []);
-    
 
-    const handleNavClick = (id) => {
+    const handleNavClick = (id, path = null) => {
         if (id === 6) {
             setInventoryOpen(!inventoryOpen);
         } else {
             setActive(id);
-            setInventoryOpen(false); // Close dropdown if another menu item is clicked
+            setInventoryOpen(false); 
+            if (path) {
+                navigate(path);
+            }
         }
     };
 
-    // Logout Function
     const handleLogout = () => {
-        localStorage.removeItem('authToken'); // Clear stored authentication token
-        localStorage.removeItem('userName'); // Clear user name
-        navigate('/login'); // Redirect user to login page
+        localStorage.removeItem('authToken'); 
+        localStorage.removeItem('userName'); 
+        navigate('/login'); 
     };
 
     return (
@@ -47,7 +48,7 @@ function Navigation({ active, setActive }) {
                 {navItems.map((item) => (
                     <React.Fragment key={item.id}>
                         <li
-                            onClick={item.id === 8 ? handleLogout : () => handleNavClick(item.id)}
+                            onClick={item.id === 8 ? handleLogout : () => handleNavClick(item.id, item.path)}
                             className={active === item.id ? 'active' : ''}
                         >
                             {item.icon}
@@ -56,8 +57,8 @@ function Navigation({ active, setActive }) {
                         </li>
                         {item.id === 6 && inventoryOpen && (
                             <ul className="dropdown-menu">
-                                <li onClick={() => setActive(61)}>Pharmacy Items</li>
-                                <li onClick={() => setActive(62)}>Gym Equipment</li>
+                                <li onClick={() => handleNavClick(61, '/pharmacy-items')}>Pharmacy Items</li>
+                                <li onClick={() => handleNavClick(62, '/gymEquipment')}>Gym Equipment</li>
                             </ul>
                         )}
                     </React.Fragment>
