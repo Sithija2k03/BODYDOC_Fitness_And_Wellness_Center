@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Header from './Login/Header';
+import { PrivateRoute } from './PrivateRoute'; // Create a separate file for PrivateRoute component to keep the code clean.
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
@@ -9,6 +11,7 @@ import Login from "./Login/Login";
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
 import AdminLayout from "./AdminLayout"; // Uses <Outlet />
+import AdminLayout from "./AdminLayout";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Incomes from "./Components/Incomes/Incomes";
 import Expenses from "./Components/Expenses/Expenses";
@@ -22,11 +25,20 @@ import GymEquipment from "./Components/GymEquipment/GymEquipment"; // Added Gym 
 import Navigation from "./Components/Navigation/Navigation"; // Added Navigation
 import { GlobalProvider } from './context/globalContext';
 import navItems from "./utils/navItems";
+import Nutrition from './Components/Nutrition/Nutrition';
+import WorkOut from './Components/Workout/Workout';
+import ResultDisplay from './Components/ResultDisplay';
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
+import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
+import AppoinmentList from './Components/Appoinment/Appoinment'
 
-// PrivateRoute to protect admin routes
-const PrivateRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = localStorage.getItem("token");
+const App = () => {
+  const [workoutResult, setWorkoutResult] = React.useState(null);
+  const [nutritionResult, setNutritionResult] = React.useState(null);
+
+  const PrivateRoute = ({ children }) => {
+  const user = JSON.parse(localStorage.getItem('user'));  // Get user data from localStorage
+  const token = localStorage.getItem('token');  // Get token from localStorage
 
   if (!token || user?.role !== "admin") {
     return <Navigate to="/login" />;
@@ -35,11 +47,15 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-const App = () => {
-  return (
+  return (  
+    
     <GlobalProvider>
-      <Router>
-       
+    <Router>
+
+    <Router>
+      <div className="app">
+
+
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -50,6 +66,14 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/user-profile" element={<UserProfile />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+            
+             {/* E-Pharmacy Routes */}
+          <Route path="/addAppointment" element={<AppointmentForm />} />
+            {/* <Route path="/appointment" element={<Appoinment />} /> Appointment List Page */}
+            {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
+           <Route path="/appointment-layout" element={<AppoinmentLayout />} />
+           <Route path="/appointment-display" element={<AppoinmentList/>} />
+
           <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
           <Route path="/pharmacy-items" element={<Pharmacy />} />
           <Route path="/gymEquipment" element={<GymEquipment />} />
@@ -67,13 +91,32 @@ const App = () => {
               </PrivateRoute>
             }
           >
-            <Route index element={<Dashboard />} />
+
+          {/* Fitness & Nutrition Routes */}
+          <Route 
+            path="/nutrition-plan" 
+            element={<Nutrition setResult={setNutritionResult} />} 
+          />
+          <Route 
+            path="/workout-plan" 
+            element={<WorkOut setResult={setWorkoutResult} />} 
+          />
+
+          {/* Admin Routes - Protected by PrivateRoute */}
+          <Route path="/admin/*" element={
+            <PrivateRoute>
+              <AdminLayout /> {/* Admin layout wrapper */}
+            </PrivateRoute>
+          }>
+            <Route index element={<Dashboard />} /> {/* Default admin page */}
+
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="incomes" element={<Incomes />} />
             <Route path="expenses" element={<Expenses />} />
             <Route path="salaries" element={<Salary />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="suppliers" element={<Supplier />} />
+
             <Route path="supplier" element={<Supplier />} />
           </Route>
 
@@ -82,6 +125,14 @@ const App = () => {
         </Routes>
       </Router>
     </GlobalProvider>
+
+          {/* Redirect if no route matches */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+
+      </div>
+    </Router>
+
   );
 };
 
