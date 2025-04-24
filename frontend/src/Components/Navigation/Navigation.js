@@ -4,10 +4,14 @@ import styled from 'styled-components';
 import avatar_m from '../../img/avatar_m.png';
 import navItems from '../../utils/navItems';
 
-function Navigation({ active, setActive }) {
+function Navigation({ active: externalActive, setActive: externalSetActive }) {
     const [inventoryOpen, setInventoryOpen] = useState(false);
+    const [internalActive, setInternalActive] = useState(1); // fallback default
     const navigate = useNavigate(); 
     const [userName, setUserName] = useState('');
+
+    const active = externalActive ?? internalActive;
+    const setActive = externalSetActive ?? setInternalActive;
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
