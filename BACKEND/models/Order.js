@@ -3,30 +3,27 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    order_id: {
-        type: String,
-        unique: true, // Ensure no duplicates
+    Or_id : {
+        type : String,
+        unique:true
     },
-    item_id: {
-        type: String,
-        required: true
+    user_name : {
+        type : String,
+        required : true
     },
-    supplier_name: {
-        type: String,
-        required: true
+    doctor_name : {
+        type : String,
+        required : true
     },
-    quality: {
-        type: String,
-        required: true,
-        enum: ["Good", "Near Expiry", "Expired", "Damaged", "Low Stock"], // Allowed values
-        default: "Good"
+    c_date : {
+        type : Date,
+        required : true
     },
-    total: {
-        type: Number,
-        required: true
+    prescription : {
+        type : String,
+        required : true
     }
 });
-
 // Pre-save middleware to auto-generate order_id
 orderSchema.pre("save", async function (next) {
     const doc = this;
@@ -54,6 +51,7 @@ orderSchema.pre("save", async function (next) {
     }
 });
 
-const Order = mongoose.model("Order",orderSchema);
+
+const Order = mongoose.model("Order",orderSchema );
 
 module.exports = Order;

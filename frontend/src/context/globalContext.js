@@ -14,6 +14,8 @@ export const GlobalProvider = ({ children }) => {
     const [pharmacyItems, setPharmacyItems] = React.useState([]);
     const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
+     const [appointments, setAppointments] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     
@@ -315,15 +317,46 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
-    
-    
+    //E Pharmacy Section
+    // Add a new appointment
+    const addAppointment = async (newAppointment) => {
+        try {
+          const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
+          console.log("Added appointment response:", response.data);
+      
+          // Make sure you're adding just the appointment object
+          setAppointments([...appointments, response.data.appointment]);
+        } catch (err) {
+          console.error("Error adding appointment:", err);
+          setError("Failed to add appointment.");
+        }
+      };
 
-
-   
+      //getAppointments
+      const getAppointments = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await axios.get(`${API_URL}appoinments/`);
+          setAppointments(res.data);
+        } catch (err) {
+          setError('Failed to fetch appointments');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
     
-    
-    
-
+      // Delete an appointment
+      const deleteAppointment = async (id) => {
+        try {
+          await axios.delete(`${API_URL}appoinments/delete/${id}`);
+          setAppointments(appointments.filter(appointment => appointment._id !== id)); // Use _id for MongoDB
+        } catch (err) {
+          console.error("Error deleting appointment:", err);
+          setError("Failed to delete appointment.");
+        }
+      };
 
 
     return (
@@ -353,12 +386,20 @@ export const GlobalProvider = ({ children }) => {
             getSuppliers, 
             addSupplier,
             deleteSupplier,
+
             updateSupplier,
             deletePharmacyItem,
             gymEquipment,
             getGymEquipment,
             addGymEquipment,
             deleteGymEquipment,
+
+            appointments, 
+            loading,
+            addAppointment, 
+            getAppointments,
+            deleteAppointment,
+
             error,
             setError
         }}>
