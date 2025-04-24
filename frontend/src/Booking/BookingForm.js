@@ -31,7 +31,7 @@ const BookingForm = () => {
             // On success, redirect to the bookings page (or show a success message)
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/user-profile"); 
+                navigate("/booking-list");  // Redirect to the booking list page
             }
         } catch (err) {
             console.error("Error while adding booking", err);

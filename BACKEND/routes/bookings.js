@@ -150,6 +150,9 @@ router.get("/bookings/:id", async (req, res) => {
       res.status(500).json({ message: "Error fetching user's bookings", error: error.message });
     }
   });
+
+ 
+  
   
 
 module.exports = router;

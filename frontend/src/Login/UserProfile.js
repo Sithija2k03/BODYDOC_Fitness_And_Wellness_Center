@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Header from "./Header"; 
+import Header from "./Header";
 import { FiLogOut } from "react-icons/fi";
 
 function UserProfile() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
-  const [bookings, setBookings] = useState([]); // ✅ New state for bookings
+  const [bookings, setBookings] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,13 +34,12 @@ function UserProfile() {
     fetchUserProfile();
   }, [navigate]);
 
-  // ✅ Fetch bookings when activeTab changes to "bookings"
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         if (activeTab === "bookings" && user?._id) {
           const token = localStorage.getItem("token");
-          const response = await axios.get(`http://localhost:8070/booking/user/${user._id}`, {
+          const response = await axios.get(`http://localhost:4000/booking/user/${user._id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setBookings(response.data);
@@ -59,10 +58,10 @@ function UserProfile() {
     if (window.confirm("Are you sure you want to delete your profile?")) {
       try {
         const token = localStorage.getItem("token");
-        await axios.delete(`http://localhost:8070/user/delete/${user.id}`, {
+        await axios.delete(`http://localhost:4000/user/delete/${user._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        localStorage.clear(); 
+        localStorage.clear();
         navigate("/register");
       } catch (error) {
         console.error("Error deleting profile:", error);
@@ -128,7 +127,7 @@ function UserProfile() {
                   {bookings.map((booking) => (
                     <li key={booking._id} style={{ marginBottom: "10px" }}>
                       <strong>Facility:</strong> {booking.facility_type} <br />
-                      <strong>Date:</strong> {booking.date} <br />
+                      <strong>Date:</strong> {new Date(booking.date).toLocaleDateString()} <br />
                       <strong>Time Slot:</strong> {booking.time_slot} <br />
                       <strong>Status:</strong> {booking.status}
                       <hr />
@@ -158,120 +157,65 @@ function UserProfile() {
   );
 }
 
-// Internal CSS
-
 const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column", // Ensure the header is positioned on top of everything
-    width: "100%", 
-  },
+  container: { display: "flex", flexDirection: "column", width: "100%" },
   profileContainer: {
-    display: "flex",
-    flexDirection: "row",
-    width: "90%",
-    marginTop: "100px",
-    marginLeft: "75px",
+    display: "flex", flexDirection: "row", width: "90%",
+    marginTop: "100px", marginLeft: "75px"
   },
   sideNav: {
-    width: "300px",
-    background: "#fff",
-    padding: "20px",
-    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)",
-    borderRadius: "10px",
-    marginRight: "20px",
+    width: "300px", background: "#fff", padding: "20px",
+    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)", borderRadius: "10px",
+    marginRight: "20px"
   },
   profileHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    marginBottom: "20px",
+    display: "flex", alignItems: "center", gap: "15px",
+    marginBottom: "20px"
   },
   profileIcon: {
-    width: "80px",
-    height: "80px",
-    borderRadius: "50%",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
+    width: "80px", height: "80px", borderRadius: "50%",
+    backgroundSize: "cover", backgroundPosition: "center",
     backgroundColor: "#f0f0f0",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)"
   },
-  userName: {
-    fontSize: "18px",
-    fontWeight: "500",
-    color: "#333",
-  },
+  userName: { fontSize: "18px", fontWeight: "500", color: "#333" },
   editBtn: {
-    padding: "12px 20px",
-    backgroundColor: "#4CAF50", // Fresh green
-    color: "white",
-    borderRadius: "8px",
-    cursor: "pointer",
-    marginBottom: "15px",
-    fontSize: "16px",
-    fontWeight: "500",
-    textAlign: "center",
-    border: "none",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-    transition: "all 0.3s ease", // Smooth transition for hover effect
+    padding: "12px 20px", backgroundColor: "#4CAF50", color: "white",
+    borderRadius: "8px", cursor: "pointer", marginBottom: "15px",
+    fontSize: "16px", fontWeight: "500", textAlign: "center",
+    border: "none", boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+    transition: "all 0.3s ease"
   },
   deleteBtn: {
-    padding: "12px 20px",
-    backgroundColor: "#FF5722", // Rich, vibrant red
-    color: "white",
-    borderRadius: "8px",
-    cursor: "pointer",
-    marginBottom: "25px",
-    marginLeft: "25px",
-    fontSize: "16px",
-    fontWeight: "500",
-    textAlign: "center",
-    border: "none",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-    transition: "all 0.3s ease", // Smooth transition for hover effect
+    padding: "12px 20px", backgroundColor: "#FF5722", color: "white",
+    borderRadius: "8px", cursor: "pointer", marginBottom: "25px",
+    marginLeft: "25px", fontSize: "16px", fontWeight: "500",
+    textAlign: "center", border: "none",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", transition: "all 0.3s ease"
   },
   navLinks: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    marginBottom: "20px",
+    display: "flex", flexDirection: "column", gap: "10px",
+    marginBottom: "20px"
   },
   navBtn: {
-    padding: "10px",
-    backgroundColor: "#f4f4f4",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    textAlign: "left",
-    width: "100%",
-    transition: "background-color 0.3s",
+    padding: "10px", backgroundColor: "#f4f4f4", border: "none",
+    borderRadius: "8px", cursor: "pointer", fontSize: "16px",
+    textAlign: "left", width: "100%", transition: "background-color 0.3s"
   },
   logoutBtn: {
-    padding: "10px",
-    backgroundColor: "#FF5722", // Red background for logout icon
-    color: "white",
-    borderRadius: "50%",
-    cursor: "pointer",
-    border: "none",
-    marginTop: "30px",
-    transition: "all 0.3s ease",
+    padding: "10px", backgroundColor: "#FF5722", color: "white",
+    borderRadius: "50%", cursor: "pointer", border: "none",
+    marginTop: "30px", transition: "all 0.3s ease"
   },
   profileContent: {
-    flex: 1,
-    padding: "20px",
+    flex: 1, padding: "20px",
     background: "linear-gradient(145deg, #B3E5FC, #FFEBEE)",
     borderRadius: "20px",
-    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)",
-    textAlign: "left",
+    boxShadow: "0px 15px 40px rgba(0, 0, 0, 0.1)", textAlign: "left"
   },
   profileDetails: {
-    fontSize: "18px",
-    color: "#333",
-    marginBottom: "30px",
-  },
+    fontSize: "18px", color: "#333", marginBottom: "30px"
+  }
 };
-
-
 
 export default UserProfile;
