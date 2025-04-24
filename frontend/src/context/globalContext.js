@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
+
 const API_URL = 'http://localhost:4000/';
 
 const GlobalContext = React.createContext();
@@ -11,9 +12,12 @@ export const GlobalProvider = ({ children }) => {
     const [salaries, setSalaries] = React.useState([]);
     const [error, setError] = React.useState(null);
     const [pharmacyItems, setPharmacyItems] = React.useState([]);
+    const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
+     const [appointments, setAppointments] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
-
+    
     // Income section
     const addIncome = async (income) => {
         try {
@@ -155,36 +159,114 @@ export const GlobalProvider = ({ children }) => {
     };
   
     // Inventory Section
+    //add parmacy items
     const getPharmacyItems = async () => {
-      try {
-        const response = await axios.get(`${API_URL}pharmacy/`);
-        setPharmacyItems(response.data);
-        setError(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch pharmacy items');
-      }
+        setLoading(true); // Start loading
+        try {
+          const response = await axios.get(`${API_URL}pharmacy/`);
+          setPharmacyItems(response.data);
+          setError(null);
+          setSuccess(null);
+        } catch (err) {
+          setError(err.response?.data?.error || 'Failed to fetch pharmacy items');
+        } finally {
+          setLoading(false); // End loading
+        }
+      };
+      
+      const addPharmacyItem = async (item) => {
+        try {
+          console.log("Pharmacy Item Payload:", item);
+          const response = await axios.post(`${API_URL}pharmacy/add`, item);
+          if (!response.data || !response.data.item) {
+            throw new Error("Invalid response from server");
+          }
+          setPharmacyItems((prev) => [...prev, response.data.item]);
+          setError(null);
+          setSuccess("Pharmacy item added successfully");
+        } catch (err) {
+          console.error("Add Pharmacy Item Error:", err.response || err.message);
+          setError(err.response?.data?.error || "Failed to add pharmacy item");
+        }
+      };
+      
+      const deletePharmacyItem = async (itemNumber) => {
+        try {
+            await axios.delete(`${API_URL}pharmacy/delete/${itemNumber}`);
+            setPharmacyItems((prev) =>
+                prev.filter((item) => item.itemNumber !== itemNumber)
+            );
+            setError(null);
+            setSuccess("Pharmacy item deleted successfully");
+        } catch (err) {
+            console.error("Delete Pharmacy Item Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to delete pharmacy item");
+        }
+    }; 
+    
+    
+
+    //Gym Equipment Section
+    const getGymEquipment = async () => {
+        setLoading(true); // Start loading
+        try {
+            const response = await axios.get(`${API_URL}gym/`);
+            setGymEquipment(response.data);
+            setError(null);
+            setSuccess(null);
+        } catch (err) {
+            console.error("Get Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || 'Failed to fetch gym equipment');
+        } finally {
+            setLoading(false); // End loading
+        }
     };
-  
-    const addPharmacyItem = async (item) => {
-      try {
-        const response = await axios.post(`${API_URL}pharmacy/add`, item);
-        setPharmacyItems((prev) => [...prev, response.data.item]);
-        setError(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to add pharmacy item');
-      }
+
+    const addGymEquipment = async (equipment) => {
+        try {
+            console.log("Gym Equipment Payload:", equipment);
+            const response = await axios.post(`${API_URL}gym/add`, equipment);
+            if (!response.data || !response.data.equipment) {
+                throw new Error("Invalid response from server");
+            }
+            setGymEquipment((prev) => [...prev, response.data.equipment]);
+            setError(null);
+            setSuccess("Gym equipment added successfully");
+        } catch (err) {
+            console.error("Add Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to add gym equipment");
+        }
     };
-  
+
+    const deleteGymEquipment = async (equipmentId) => {
+        try {
+            await axios.delete(`${API_URL}gym/delete/${equipmentId}`);
+            setGymEquipment((prev) =>
+                prev.filter((item) => item.equipmentId !== equipmentId)
+            );
+            setError(null);
+            setSuccess("Gym equipment deleted successfully");
+        } catch (err) {
+            console.error("Delete Gym Equipment Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to delete gym equipment");
+        }
+    };
+
+
+// Supplier Section
     const getSuppliers = async () => {
-      try {
-        const response = await axios.get(`${API_URL}supplier/get`);
-        setSuppliers(response.data);
-        setError(null);
-        setSuccess(null);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch suppliers');
-      }
-    };
+        setLoading(true); // Start loading
+        try {
+          const response = await axios.get(`${API_URL}supplier/get`);
+          setSuppliers(response.data);
+          setError(null);
+          setSuccess(null);
+        } catch (err) {
+          setError(err.response?.data?.error || 'Failed to fetch suppliers');
+        } finally {
+          setLoading(false);  // End loading
+        }
+      };
   
     const addSupplier = async (supplier) => {
       try {
@@ -214,6 +296,68 @@ export const GlobalProvider = ({ children }) => {
       }
     };
 
+    const updateSupplier = async (supplier_id, updatedData) => {
+        try {
+            await axios.put(`${API_URL}supplier/update/${supplier_id}`, updatedData, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            setSuppliers((prev) =>
+                prev.map((supplier) =>
+                    supplier.supplier_id === supplier_id ? { ...supplier, ...updatedData } : supplier
+                )
+            );
+
+            setError(null);
+            setSuccess("Supplier updated successfully!");
+        } catch (err) {
+            console.error("Update Supplier Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to update supplier");
+        }
+    };
+
+    //E Pharmacy Section
+    // Add a new appointment
+    const addAppointment = async (newAppointment) => {
+        try {
+          const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
+          console.log("Added appointment response:", response.data);
+      
+          // Make sure you're adding just the appointment object
+          setAppointments([...appointments, response.data.appointment]);
+        } catch (err) {
+          console.error("Error adding appointment:", err);
+          setError("Failed to add appointment.");
+        }
+      };
+
+      //getAppointments
+      const getAppointments = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await axios.get(`${API_URL}appoinments/`);
+          setAppointments(res.data);
+        } catch (err) {
+          setError('Failed to fetch appointments');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+    
+      // Delete an appointment
+      const deleteAppointment = async (id) => {
+        try {
+          await axios.delete(`${API_URL}appoinments/delete/${id}`);
+          setAppointments(appointments.filter(appointment => appointment._id !== id)); // Use _id for MongoDB
+        } catch (err) {
+          console.error("Error deleting appointment:", err);
+          setError("Failed to delete appointment.");
+        }
+      };
+
+
     return (
         <GlobalContext.Provider value={{ 
             addIncome, 
@@ -241,6 +385,20 @@ export const GlobalProvider = ({ children }) => {
             getSuppliers, 
             addSupplier,
             deleteSupplier,
+
+            updateSupplier,
+            deletePharmacyItem,
+            gymEquipment,
+            getGymEquipment,
+            addGymEquipment,
+            deleteGymEquipment,
+
+            appointments, 
+            loading,
+            addAppointment, 
+            getAppointments,
+            deleteAppointment,
+
             error,
             setError
         }}>

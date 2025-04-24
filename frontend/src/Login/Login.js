@@ -36,7 +36,7 @@ function Login() {
   
       // Get role from response and navigate accordingly
       const userRole = response.data.role;  // Directly accessing role from response
-      if (userRole === 'admin' || userRole === 'doctor' ) {
+      if (userRole === 'admin' ) {
         navigate('/admin/dashboard');  // Admin goes to the dashboard
       } else {
         navigate('/user-profile');  // Other roles go to the user profile

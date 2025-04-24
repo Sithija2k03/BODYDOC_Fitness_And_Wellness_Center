@@ -11,7 +11,15 @@ const pharmacyItemSchema = new Schema({
     supplierName: { type: String, required: true },
     supplierId: { type: Number, required: true },
     orderQty: { type: Number, required: true, min: 0 },
-    orderDate: { type: Date, default: Date.now }, // Automatically set to current date/time
+    orderDate: { type: Date, default: Date.now },
+    unitPrice: { type: Number, required: true },
+    totalAmount: { type: Number } // Will be calculated automatically
+});
+
+// Middleware to calculate totalAmount before saving
+pharmacyItemSchema.pre("save", function(next) {
+    this.totalAmount = this.orderQty * this.unitPrice;
+    next();
 });
 
 const PharmacyItem = mongoose.model("PharmacyItem", pharmacyItemSchema);

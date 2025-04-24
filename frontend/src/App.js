@@ -1,84 +1,7 @@
-// import './App.css';
-// import styled from 'styled-components';
-// import bg from './img/bg.jpg';
-// import {MainLayout} from './styles/Layouts';
-// import Orb from './Components/Orb/Orb';
-// import Navigation from './Components/Navigation/Navigation';
-// import React, { useState } from 'react';
-// import Dashboard from './Components/Dashboard/Dashboard';
-// import Incomes from './Components/Incomes/Incomes';
-// import Expenses from './Components/Expenses/Expenses';
-// import Salary from './Components/Salaries/salaries';
-// import Inventory from './Components/Inventory/Inventory';
-// import { useGlobalContext } from './context/globalContext';
-// import Supplier from './Components/Suppliers/Supplier';
-
-// function App() {
-
-//   const [active, setActive] = React.useState(1)
-
-//   const global = useGlobalContext();
-//   console.log(global);
-
-//   const displayData = () => {
-//     switch (active) {
-//       case 1:
-//         return <Dashboard />
-//       case 2:
-//         return <Dashboard />
-//       case 3:
-//         return <Incomes />
-//       case 4:
-//         return <Expenses />
-//       case 5:
-//         return <Salary /> 
-//       case 6:
-//         return <Inventory/>
-//       case 7:
-//         return <Supplier/>
-//       default:
-//         return <Dashboard />
-//     }
-//   }
-
-//   const orbMemo = React.useMemo(() => {
-//     return <Orb />;
-//   }, []);
-
-//   return (
-//     <AppStyled bg={bg} className="App">
-//      {orbMemo}
-//       <MainLayout>
-//          <Navigation active={active} setActive={setActive} />
-//          <main>
-//              {displayData()}
-//          </main>
-//       </MainLayout>
-//     </AppStyled>
-//   );
-// }
-
-// const AppStyled = styled.div` 
-// height: 100vh;
-// background-image: url(${props => props.bg});
-// position: relative;
-// main{
-//   flex: 1;
-//   background: rgba(252, 246, 249, 0.78);
-//   border: 3px solid #FFFFFF;
-//   backdrop-filter: blur(5px);
-//   border-radius: 30px;
-//   overflow: auto;
-//   overflow-x: hidden;
-//   &::-webkit-scrollbar{
-//     width: 0;
-//   }
-// `;
-
-// export default App;
 import React from "react";
-import styled from 'styled-components';
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; // Import Navigate for redirects
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Header from './Login/Header';
+import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Rename import to avoid redefinition
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
@@ -87,7 +10,7 @@ import Register from "./Register/Register";
 import Login from "./Login/Login";
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
-import AdminLayout from "./AdminLayout"; // Import AdminLayout
+import AdminLayout from "./AdminLayout"; // Only one import
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Incomes from "./Components/Incomes/Incomes";
 import Expenses from "./Components/Expenses/Expenses";
@@ -97,18 +20,26 @@ import Supplier from "./Components/Suppliers/Supplier";
 import BookingForm from "./Booking/BookingForm";
 import BookingList from "./Booking/BookingList";
 import EditBooking from "./Booking/EditBooking";
+import EditSupplier from "./Components/Form/EditSupplier";
+import Pharmacy from "./Components/pharmacy/Pharmacy";
+import GymEquipment from "./Components/GymEquipment/GymEquipment";
+import Navigation from "./Components/Navigation/Navigation";
+import { GlobalProvider } from './context/globalContext';
+import navItems from "./utils/navItems";
+import Nutrition from './Components/Nutrition/Nutrition';
+import WorkOut from './Components/Workout/Workout';
+import ResultDisplay from './Components/ResultDisplay';
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
+import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
+import AppoinmentList from './Components/Appoinment/Appoinment';
 
-// PrivateRoute to protect admin routes
-const PrivateRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user'));  // Get user data from localStorage
-  const token = localStorage.getItem('token');  // Get token from localStorage
+const App = () => {
+  const [workoutResult, setWorkoutResult] = React.useState(null);
+  const [nutritionResult, setNutritionResult] = React.useState(null);
 
-  if (!token || user?.role !== 'admin') {
-    return <Navigate to="/login" />;  // Redirect to login if not logged in or not admin
-  }
-
-  return children;  // Render the children if user is authenticated and an admin
-};
+  const PrivateRoute = ({ children }) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
 
 const App = () => {
   return (
@@ -127,28 +58,70 @@ const App = () => {
         <Route path="/booking-list" element={<BookingList />} />
         <Route path="/edit-booking/:id" element={<EditBooking />} />
 
-        {/* Admin Routes - Protected by PrivateRoute */}
-        <Route path="/admin/*" element={
-          <PrivateRoute>
-            <AdminLayout />  {/* Admin layout wrapper */}
-          </PrivateRoute>
-        }>
-          <Route index element={<Dashboard />} /> {/* Default admin page */}
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="incomes" element={<Incomes />} />
-          <Route path="expenses" element={<Expenses />} />
-          <Route path="salaries" element={<Salary />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="suppliers" element={<Supplier />} />
-        </Route>
+    if (!token || user?.role !== "admin") {
+      return <Navigate to="/login" />;
+    }
 
-        {/* Redirect if no route matches */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+    return children;
+  };
+
+  return (
+    <GlobalProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/membership" element={<Membership />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
+
+            {/* E-Pharmacy Routes */}
+            <Route path="/addAppointment" element={<AppointmentForm />} />
+            <Route path="/appointment-layout" element={<AppoinmentLayout />} />
+            <Route path="/appointment-display" element={<AppoinmentList />} />
+
+            <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
+            <Route path="/pharmacy-items" element={<Pharmacy />} />
+            <Route path="/gymEquipment" element={<GymEquipment />} />
+
+            {/* Fitness & Nutrition Routes */}
+            <Route 
+              path="/nutrition-plan" 
+              element={<Nutrition setResult={setNutritionResult} />} 
+            />
+            <Route 
+              path="/workout-plan" 
+              element={<WorkOut setResult={setWorkoutResult} />} 
+            />
+
+            {/* Protected Admin Routes */}
+            <Route path="/admin/*" element={
+              <PrivateRoute>
+                <AdminLayout />
+              </PrivateRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="incomes" element={<Incomes />} />
+              <Route path="expenses" element={<Expenses />} />
+              <Route path="salaries" element={<Salary />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="suppliers" element={<Supplier />} />
+              <Route path="supplier" element={<Supplier />} />
+            </Route>
+
+            {/* Fallback Route */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </div>
+      </Router>
+    </GlobalProvider>
   );
 };
 
 export default App;
-
-

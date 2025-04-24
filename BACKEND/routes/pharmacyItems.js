@@ -3,7 +3,6 @@ const PharmacyItem = require("../models/pharmacyItem");
 const Supplier = require("../models/supplier");
 const OrderSummary = require("../models/orderSummary");
 
-
 // Create a new pharmacy item (POST)
 router.route("/add").post(async (req, res) => {
     try {
@@ -16,9 +15,9 @@ router.route("/add").post(async (req, res) => {
             supplierName,
             supplierId,
             orderQty,
+            unitPrice, // Accept unitPrice
         } = req.body;
 
-        // Validate required fields
         if (
             !itemNumber ||
             !itemName ||
@@ -27,7 +26,8 @@ router.route("/add").post(async (req, res) => {
             reorderLevel === undefined ||
             !supplierName ||
             !supplierId ||
-            orderQty === undefined
+            orderQty === undefined ||
+            unitPrice === undefined
         ) {
             return res.status(400).json({ error: "All fields are required" });
         }
@@ -41,10 +41,11 @@ router.route("/add").post(async (req, res) => {
             supplierName,
             supplierId: Number(supplierId),
             orderQty: Number(orderQty),
-            orderDate: new Date(), // Explicitly set to current date/time
+            unitPrice: Number(unitPrice), // Set unit price
+            orderDate: new Date(),
         });
 
-        await newItem.save();
+        await newItem.save(); // totalAmount will be automatically set in schema
         res.status(201).json({ message: "Item added successfully", item: newItem });
     } catch (err) {
         console.error("Error adding item:", err);
@@ -74,9 +75,27 @@ router.route("/").get(async (req, res) => {
 router.route("/update/:itemNum").put(async (req, res) => {
     try {
         const itemNumber = Number(req.params.itemNum);
-        const { itemName, itemCategory, availableStockQty, reorderLevel, supplierName, supplierId, orderQty } = req.body;
+        const {
+            itemName,
+            itemCategory,
+            availableStockQty,
+            reorderLevel,
+            supplierName,
+            supplierId,
+            orderQty,
+            unitPrice,
+        } = req.body;
 
-        if (!itemName && !itemCategory && availableStockQty === undefined && reorderLevel === undefined && !supplierName && supplierId === undefined && orderQty === undefined) {
+        if (
+            !itemName &&
+            !itemCategory &&
+            availableStockQty === undefined &&
+            reorderLevel === undefined &&
+            !supplierName &&
+            supplierId === undefined &&
+            orderQty === undefined &&
+            unitPrice === undefined
+        ) {
             return res.status(400).json({ error: "At least one field is required to update" });
         }
 
@@ -90,6 +109,15 @@ router.route("/update/:itemNum").put(async (req, res) => {
         if (orderQty !== undefined) {
             updateData.orderQty = Number(orderQty);
             updateData.orderDate = new Date();
+        }
+        if (unitPrice !== undefined) updateData.unitPrice = Number(unitPrice);
+
+        // If either orderQty or unitPrice changes, recalculate totalAmount
+        if (orderQty !== undefined || unitPrice !== undefined) {
+            const item = await PharmacyItem.findOne({ itemNumber });
+            const finalOrderQty = orderQty !== undefined ? Number(orderQty) : item.orderQty;
+            const finalUnitPrice = unitPrice !== undefined ? Number(unitPrice) : item.unitPrice;
+            updateData.totalAmount = finalOrderQty * finalUnitPrice;
         }
 
         const updatedItem = await PharmacyItem.findOneAndUpdate(
@@ -136,11 +164,10 @@ router.route("/update/:itemNum").put(async (req, res) => {
     }
 });
 
-// Delete a pharmacy item by itemNumber (DELETE) - Unchanged
+// Delete a pharmacy item by itemNumber (DELETE)
 router.route("/delete/:itemNum").delete(async (req, res) => {
     try {
         const itemNumber = Number(req.params.itemNum);
-
         const deletedItem = await PharmacyItem.findOneAndDelete({ itemNumber });
 
         if (!deletedItem) {
@@ -153,9 +180,5 @@ router.route("/delete/:itemNum").delete(async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-
-
-
 
 module.exports = router;
