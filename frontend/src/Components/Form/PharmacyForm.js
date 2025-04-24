@@ -19,17 +19,7 @@ function PharmacyForm({ onClose }) {
         supplierId: ''
     });
 
-    const [errors, setErrors] = useState({
-        itemNumber: '',
-        itemName: '',
-        itemCategory: '',
-        availableStockQty: '',
-        reorderLevel: '',
-        orderQty: '',
-        unitPrice: '',
-        supplierName: '',
-        supplierId: ''
-    });
+    const [errors, setErrors] = useState({ ...inputState });
 
     const {
         itemNumber, itemName, itemCategory, availableStockQty,
@@ -95,7 +85,7 @@ function PharmacyForm({ onClose }) {
             ...prev,
             [name]: error
         }));
-        setGlobalError(''); // Clear global error
+        setGlobalError('');
     };
 
     const handleSubmit = async (e) => {
@@ -116,10 +106,16 @@ function PharmacyForm({ onClose }) {
 
         setErrors(newErrors);
 
-        // Check if any errors exist
         if (Object.values(newErrors).some(error => error)) {
             alert("Please fix the errors before submitting.");
             return;
+        }
+
+        for (let key in inputState) {
+            if (inputState[key] === '') {
+                alert("Please fill all fields before submitting.");
+                return;
+            }
         }
 
         const payload = {
@@ -137,6 +133,7 @@ function PharmacyForm({ onClose }) {
         try {
             await addPharmacyItem(payload);
             onClose && onClose();
+
             setInputState({
                 itemNumber: '',
                 itemName: '',
@@ -148,6 +145,7 @@ function PharmacyForm({ onClose }) {
                 supplierName: '',
                 supplierId: ''
             });
+
             setErrors({
                 itemNumber: '',
                 itemName: '',
@@ -167,98 +165,19 @@ function PharmacyForm({ onClose }) {
     return (
         <FormStyled onSubmit={handleSubmit}>
             {globalError && <p className="error global-error">{globalError}</p>}
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={itemNumber}
-                    placeholder="Item Number"
-                    onChange={handleInput('itemNumber')}
-                    min="1"
-                />
-                {errors.itemNumber && <p className="error">{errors.itemNumber}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="text"
-                    value={itemName}
-                    placeholder="Item Name"
-                    onChange={handleInput('itemName')}
-                />
-                {errors.itemName && <p className="error">{errors.itemName}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="text"
-                    value={itemCategory}
-                    placeholder="Category"
-                    onChange={handleInput('itemCategory')}
-                />
-                {errors.itemCategory && <p className="error">{errors.itemCategory}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={availableStockQty}
-                    placeholder="Available Stock Qty"
-                    onChange={handleInput('availableStockQty')}
-                    min="0"
-                    max="100000"
-                />
-                {errors.availableStockQty && <p className="error">{errors.availableStockQty}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={reorderLevel}
-                    placeholder="Reorder Level"
-                    onChange={handleInput('reorderLevel')}
-                    min="0"
-                    max="10000"
-                />
-                {errors.reorderLevel && <p className="error">{errors.reorderLevel}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={orderQty}
-                    placeholder="Order Quantity"
-                    onChange={handleInput('orderQty')}
-                    min="1"
-                    max="10000"
-                />
-                {errors.orderQty && <p className="error">{errors.orderQty}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={unitPrice}
-                    placeholder="Unit Price"
-                    step="0.01"
-                    onChange={handleInput('unitPrice')}
-                    min="0.01"
-                    max="10000"
-                />
-                {errors.unitPrice && <p className="error">{errors.unitPrice}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="text"
-                    value={supplierName}
-                    placeholder="Supplier Name"
-                    onChange={handleInput('supplierName')}
-                />
-                {errors.supplierName && <p className="error">{errors.supplierName}</p>}
-            </div>
-            <div className="input-group">
-                <input
-                    type="number"
-                    value={supplierId}
-                    placeholder="Supplier ID"
-                    onChange={handleInput('supplierId')}
-                    min="1"
-                />
-                {errors.supplierId && <p className="error">{errors.supplierId}</p>}
-            </div>
+            {Object.keys(inputState).map((field) => (
+                <div className="input-group" key={field}>
+                    <input
+                        type={field === "unitPrice" ? "number" : field.toLowerCase().includes("id") || field.toLowerCase().includes("qty") || field.toLowerCase().includes("level") || field === "itemNumber" ? "number" : "text"}
+                        step={field === "unitPrice" ? "0.01" : "1"}
+                        value={inputState[field]}
+                        placeholder={field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                        onChange={handleInput(field)}
+                        min={field === "unitPrice" ? "0.01" : "0"}
+                    />
+                    {errors[field] && <p className="error">{errors[field]}</p>}
+                </div>
+            ))}
 
             <div className="submit-btn">
                 <Button
@@ -277,66 +196,31 @@ function PharmacyForm({ onClose }) {
 const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 400px;
     gap: 1rem;
-    margin-left: 5px;
     padding: 1rem;
-    align-items: flex-start;
 
     .input-group {
-        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 0.3rem;
     }
 
     input {
-        font-family: inherit;
-        font-size: 0.85rem;
-        outline: none;
-        padding: 0.6rem;
-        border-radius: 6px;
+        padding: 0.8rem;
+        font-size: 1rem;
         border: 1px solid #ccc;
-        background: #fff;
-        color: rgba(34, 34, 96, 0.9);
-        width: 100%;
+        border-radius: 8px;
+        outline: none;
+    }
 
-        &::placeholder {
-            color: rgba(34, 34, 96, 0.4);
-        }
-
-        &[type="number"]::-webkit-inner-spin-button,
-        &[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        &[type="number"] {
-            -moz-appearance: textfield;
-        }
+    .error {
+        color: red;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
     }
 
     .submit-btn {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-
-        button {
-            width: 200px;
-            padding: 0.6rem;
-            font-size: 0.9rem;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.06);
-            border-radius: 8px;
-            gap: 1.6rem;
-            &:hover {
-                background: var(--color-green) !important;
-            }
-        }
+        margin-top: 1rem;
     }
-
-
 `;
 
 export default PharmacyForm;

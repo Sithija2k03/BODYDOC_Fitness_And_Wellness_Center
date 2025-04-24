@@ -6,6 +6,7 @@ import { plus } from '../../utils/icons';
 
 function EquipmentForm({ onClose }) {
     const { addGymEquipment, error: globalError, setError: setGlobalError } = useGlobalContext();
+    
 
     const [inputState, setInputState] = useState({
         equipmentId: '',
@@ -13,6 +14,7 @@ function EquipmentForm({ onClose }) {
         equipmentCategory: '',
         lastMaintenanceDate: ''
     });
+
 
     const [errors, setErrors] = useState({
         equipmentId: '',
@@ -27,6 +29,7 @@ function EquipmentForm({ onClose }) {
         equipmentCategory,
         lastMaintenanceDate
     } = inputState;
+
 
     // Validation functions
     const validateEquipmentId = (value) => {
@@ -53,12 +56,14 @@ function EquipmentForm({ onClose }) {
         return "";
     };
 
+
     const handleInput = (name) => (e) => {
         const value = e.target.value;
         setInputState(prev => ({
             ...prev,
             [name]: value
         }));
+
 
         // Validate input on change
         let error = '';
@@ -77,6 +82,7 @@ function EquipmentForm({ onClose }) {
             [name]: error
         }));
         setGlobalError(''); // Clear global error on input change
+        setError('');
     };
 
     const handleSubmit = async (e) => {
@@ -96,6 +102,12 @@ function EquipmentForm({ onClose }) {
         if (Object.values(newErrors).some(error => error)) {
             alert("Please fix the errors before submitting.");
             return;
+        // Validate that all fields are filled
+        for (let key in inputState) {
+            if (inputState[key] === '') {
+                alert("Please fill all fields before submitting.");
+                return;
+            }
         }
 
         const payload = {
@@ -122,7 +134,7 @@ function EquipmentForm({ onClose }) {
             });
         } catch (err) {
             setGlobalError(err.response?.data?.error || "Failed to add gym equipment");
-        }
+        } 
     };
 
     return (
@@ -166,6 +178,31 @@ function EquipmentForm({ onClose }) {
                 />
                 {errors.lastMaintenanceDate && <p className="error">{errors.lastMaintenanceDate}</p>}
             </div>
+            {error && <p className="error">{error}</p>}
+            <input
+                type="number"
+                value={equipmentId}
+                placeholder="Equipment ID"
+                onChange={handleInput('equipmentId')}
+            />
+            <input
+                type="text"
+                value={equipmentName}
+                placeholder="Equipment Name"
+                onChange={handleInput('equipmentName')}
+            />
+            <input
+                type="text"
+                value={equipmentCategory}
+                placeholder="Category"
+                onChange={handleInput('equipmentCategory')}
+            />
+            <input
+                type="date"
+                value={lastMaintenanceDate}
+                placeholder="Last Maintenance Date"
+                onChange={handleInput('lastMaintenanceDate')}
+            />
 
             <div className="submit-btn">
                 <Button
@@ -179,6 +216,7 @@ function EquipmentForm({ onClose }) {
             </div>
         </FormStyled>
     );
+}
 }
 
 const FormStyled = styled.form`
@@ -243,7 +281,11 @@ const FormStyled = styled.form`
         }
     }
 
-
+    .error {
+        color: red;
+        font-size: 0.85rem;
+        margin: 0;
+    }
 `;
 
 export default EquipmentForm;

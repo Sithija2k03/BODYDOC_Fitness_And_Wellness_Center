@@ -24,25 +24,18 @@ function EditSupplier() {
         supplyCategory: ''
     });
 
-    // Fetch suppliers if not loaded
     useEffect(() => {
         if (suppliers.length === 0) {
             getSuppliers();
         }
     }, [suppliers, getSuppliers]);
 
-    // Update form when supplierId or suppliers change
     useEffect(() => {
-        console.log('Suppliers:', suppliers);
-        console.log('Supplier ID from URL:', supplierId);
-
         if (suppliers.length > 0 && supplierId) {
             const foundSupplier = suppliers.find(s =>
                 s.supplier_id.toString() === supplierId.toString() ||
                 s.manual_id?.toString() === supplierId.toString()
             );
-
-            console.log('Found Supplier:', foundSupplier);
 
             if (foundSupplier) {
                 setSupplier({
@@ -50,16 +43,14 @@ function EditSupplier() {
                     supplier_name: foundSupplier.supplier_name,
                     contact: foundSupplier.contact,
                     credits: foundSupplier.credits.toString(),
-                    supplyCategory: foundSupplier.supplyCategory || 'both' // Default for backward compatibility
+                    supplyCategory: foundSupplier.supplyCategory || 'both'
                 });
             } else {
-                console.error('Supplier not found for ID:', supplierId);
                 setError('Supplier not found');
             }
         }
     }, [suppliers, supplierId, setError]);
 
-    // Validation functions
     const validateName = (value, fieldName) => {
         if (!value) return `${fieldName} is required`;
         if (value.length > 50) return `${fieldName} cannot exceed 50 characters`;
@@ -97,17 +88,11 @@ function EditSupplier() {
         const { name, value } = e.target;
         setSupplier({ ...supplier, [name]: value });
 
-        // Validate input on change
         let error = '';
-        if (name === 'supplier_name') {
-            error = validateName(value, "Supplier Name");
-        } else if (name === 'contact') {
-            error = validateContact(value);
-        } else if (name === 'credits') {
-            error = validateCredits(value);
-        } else if (name === 'supplyCategory') {
-            error = validateSupplyCategory(value);
-        }
+        if (name === 'supplier_name') error = validateName(value, "Supplier Name");
+        else if (name === 'contact') error = validateContact(value);
+        else if (name === 'credits') error = validateCredits(value);
+        else if (name === 'supplyCategory') error = validateSupplyCategory(value);
 
         setErrors(prev => ({
             ...prev,
@@ -119,7 +104,6 @@ function EditSupplier() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate all fields
         const newErrors = {
             supplier_name: validateName(supplier.supplier_name, "Supplier Name"),
             contact: validateContact(supplier.contact),
@@ -129,13 +113,11 @@ function EditSupplier() {
 
         setErrors(newErrors);
 
-        // Check if any errors exist
         if (Object.values(newErrors).some(err => err)) {
             alert("Please fix the errors before submitting.");
             return;
         }
 
-        // Ensure correct supplier ID
         const correctId = supplier.supplier_id || supplierId;
         if (!correctId || !/^\d+$/.test(correctId)) {
             setError("Invalid supplier ID");
@@ -158,15 +140,8 @@ function EditSupplier() {
         }
     };
 
-    // Show loading state
-    if (loading) {
-        return <div>Loading suppliers...</div>;
-    }
-
-    // Handle errors
-    if (globalError) {
-        return <div>Error: {globalError}</div>;
-    }
+    if (loading) return <div>Loading suppliers...</div>;
+    if (globalError) return <div>Error: {globalError}</div>;
 
     return (
         <EditSupplierStyled>
@@ -252,53 +227,28 @@ const EditSupplierStyled = styled.div`
         text-align: center;
     }
 
-    form {
-        display: flex;
-        flex-direction: column;
-    }
-
     .input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        margin-top: 10px;
+        margin-bottom: 1rem;
     }
 
     label {
-        font-weight: 500;
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
     }
 
     input, select {
-        padding: 10px;
-        border: 1px solid #ddd;
+        width: 100%;
+        padding: 0.5rem;
         border-radius: 5px;
-        font-size: 0.9rem;
+        border: 1px solid #ccc;
     }
 
-    select {
-        color: rgba(34, 34, 96, 0.9);
-        &:invalid {
-            color: rgba(34, 34, 96, 0.4);
-        }
+    .error {
+        color: red;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
     }
-
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    input[type="number"] {
-        -moz-appearance: textfield;
-    }
-
-    button {
-        margin-top: 20px;
-        padding: 10px;
-        border-radius: 5px;
-    }
-
-    
 `;
 
 export default EditSupplier;

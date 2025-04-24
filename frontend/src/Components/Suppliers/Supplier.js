@@ -10,12 +10,16 @@ import Modal from '../Modal/Modal';
 import { useNavigate } from "react-router-dom";
 import jsPDF from 'jspdf'; // Import jsPDF
 import 'jspdf-autotable'; // Import autoTable plugin
+import { plus } from '../../utils/icons';
+import Modal from '../Modal/Modal'; // Import Modal
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 function Supplier() {
     const { addSupplier, getSuppliers, suppliers, deleteSupplier, error, success, setSuccess } = useGlobalContext();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const navigate = useNavigate();
+    const navigate = useNavigate();// Initialize useNavigate
+
 
     useEffect(() => {
         getSuppliers();
@@ -166,6 +170,22 @@ function Supplier() {
                                         <td colSpan="6">No suppliers match your search</td>
                                     </tr>
                                 )}
+                                {safeSuppliers.map((supplier) => {
+                                    const { _id, supplier_id, supplier_name, contact, credits, supplyCategory } = supplier;
+                                    return (
+                                        <tr key={_id}>
+                                            <td>{supplier_id}</td>
+                                            <td>{supplier_name}</td>
+                                            <td>{contact}</td>
+                                            <td>{credits}</td>
+                                            <td>{supplyCategory}</td>
+                                            <td>
+                                                <button className="edit-btn" onClick={() => navigate(`/edit-supplier/${supplier_id}`)}> Edit</button>
+                                                <button className="delete-btn" onClick={() => deleteSupplier(supplier_id)}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     ) : (

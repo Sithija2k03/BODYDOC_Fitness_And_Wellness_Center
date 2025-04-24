@@ -10,12 +10,19 @@ import Navigation from '../../Components/Navigation/Navigation';
 import jsPDF from 'jspdf'; // Import jsPDF
 import autoTable from 'jspdf-autotable'; // Import autoTable directly
 
+import { plus } from '../../utils/icons';
+import Modal from '../Modal/Modal';
+import GymEquipmentForm from '../Form/EquipmentForm';
+import Navigation from '../../Components/Navigation/Navigation';
+import GymEquipmentItem from '../../Components/GymEquipment/GymEquipmentItems';
+
 function GymEquipment() {
     const {
-        gymEquipment = [],
-        getGymEquipment = () => {},
-        addGymEquipment = () => {},
-        deleteGymEquipment = () => {},
+        gymEquipment = [], // Placeholder: Update globalContext.js to include gymEquipment state
+        getGymEquipment = () => {}, // Placeholder: Add to globalContext.js
+        addGymEquipment = () => {}, // Placeholder: Add to globalContext.js
+        deleteGymEquipment = () => {}, // Placeholder: Add to globalContext.js
+
         error,
         success,
         setSuccess

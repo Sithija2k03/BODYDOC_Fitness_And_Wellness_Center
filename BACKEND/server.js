@@ -6,17 +6,22 @@ const connectDB = require('./db/db');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+
 const User = require("./models/user.js");
+const Helth = require("./models/helth.js");
+
 const userRouter = require("./routes/users.js");
 const membershipRouter = require("./routes/membershiproutes.js");
 const staffRouter = require("./routes/staffroutes.js");
 const bookingRouter = require("./routes/bookings.js");
 const transactionRouter = require("./routes/transactions.js");
-const supplierRouter = require("./routes/suppliers.js");
 const appoinmentRouter = require("./routes/appoinment.js");
 const orderRouter = require("./routes/order.js");
+const supplierRouter = require("./routes/suppliers.js");
+const pharmacyItemRouter = require("./routes/pharmacyItems.js");
+const gymEquipmentRouter = require("./routes/gymEquipments.js");
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const Helth = require("./models/helth.js");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,30 +34,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-const URL = process.env.MONGODB_URL;
 mongoose.connect(process.env.MONGODB_URL)
-
-
-const supplierRouter = require("./routes/suppliers.js");
-app.use("/supplier", supplierRouter);
-
-const pharmacyItemRouter = require("./routes/pharmacyItems.js");
-app.use("/pharmacy", pharmacyItemRouter);
-
- const gymEquipmentRouter = require("./routes/gymEquipments.js");
- app.use("/gym", gymEquipmentRouter);
-
-// const inventorySummariesRouter = require("./routes/inventorySummaries.js");
-// app.use("/inventorySummaries", inventorySummariesRouter);
-
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-
-
-// Fix JWT user issue (ensure it's defined)
-const sampleUser = { _id: "1234567890" }; // Dummy user for testing
-const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });  
+// Dummy JWT user for testing
+const sampleUser = { _id: "1234567890" };
+const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 // Register Routes
 app.use("/user", userRouter);
@@ -60,21 +48,21 @@ app.use("/membership", membershipRouter);
 app.use("/staff", staffRouter);
 app.use("/booking", bookingRouter);
 app.use("/transactions", transactionRouter);
-app.use("/supplier", supplierRouter);
 app.use("/appoinments", appoinmentRouter);
 app.use("/order", orderRouter);
+app.use("/supplier", supplierRouter);
+app.use("/pharmacy", pharmacyItemRouter);
+app.use("/gym", gymEquipmentRouter);
 
-
-// AI Response Parsing Function
+// AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
   try {
     const result = await model.generateContent(prompt);
     let textResponse = result?.candidates?.[0]?.content?.parts?.map(part => part.text).join("\n") || "";
-    if (!textResponse) return { error: "⚠️ No response generated." };
+    if (!textResponse) return { error: "⚠ No response generated." };
 
     console.log("Raw AI Response:", textResponse);
     
-    // Extract table rows from Markdown format
     const lines = textResponse.split("\n").filter(line => line.trim());
     const tableData = [];
     let headers = [];
@@ -83,7 +71,7 @@ const getGeminiResponseStructured = async (model, prompt) => {
       if (line.includes("|") && !line.includes("---")) {
         const parts = line.split("|").map(part => part.trim()).filter(Boolean);
         if (!headers.length) {
-          headers = parts; // First row = table headers
+          headers = parts;
         } else {
           const row = {};
           headers.forEach((header, index) => {
@@ -97,7 +85,7 @@ const getGeminiResponseStructured = async (model, prompt) => {
     return tableData.length > 0 ? tableData : { rawText: textResponse };
   } catch (error) {
     console.error("❌ Error generating AI response:", error);
-    return { error: "⚠️ AI response failed." };
+    return { error: "⚠ AI response failed." };
   }
 };
 
@@ -106,7 +94,7 @@ app.post('/api/ai/workout', async (req, res) => {
   const { fitnessGoal, age, weight, userId } = req.body;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const prompt = `Create a structured **4-week workout plan** for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}.
+    const prompt = `Create a structured *4-week workout plan* for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}.
 - Format response STRICTLY as a Markdown Table:
   | Day | Exercise | Sets | Reps | Notes |
   | --- | -------- | ---- | ---- | ----- |
@@ -130,11 +118,11 @@ app.post('/api/ai/nutrition', async (req, res) => {
   const { fitnessGoal, age, weight, userId } = req.body;
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const prompt = `Create a personalized **nutrition plan** for a ${age}-year-old, ${weight}kg individual.
+    const prompt = `Create a personalized *nutrition plan* for a ${age}-year-old, ${weight}kg individual.
 - Format response STRICTLY as a Markdown Table:
   | Meal | Food | Calories | Protein (g) | Carbs (g) | Fats (g) |
   | ---- | ---- | -------- | ----------- | --------- | -------- |
-- Include **Breakfast, Lunch, Dinner, Snacks**, and nutrient breakdown.`;
+- Include *Breakfast, Lunch, Dinner, Snacks*, and nutrient breakdown.`;
     
     const nutritionPlan = await getGeminiResponseStructured(model, prompt);
     if (nutritionPlan.error) return res.status(400).json({ message: "Error generating nutrition plan", error: nutritionPlan.error });
@@ -153,4 +141,3 @@ app.post('/api/ai/nutrition', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
