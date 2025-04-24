@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";  // Import Axios to send requests to the backend
-import { useNavigate } from "react-router-dom";  // To navigate after form submission
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Header from "../Login/Header"; // Make sure this path is correct based on your folder structure
 
 const BookingForm = () => {
     const [formData, setFormData] = useState({
@@ -11,27 +12,20 @@ const BookingForm = () => {
         status: "",
     });
 
-    const [error, setError] = useState(null);  // To handle error states
-    const navigate = useNavigate();  // To navigate to another page
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
-    // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            // Send the booking data to the backend API (Replace the URL with your backend URL)
             const response = await axios.post("http://localhost:4000/booking/add", formData);
-
-            // On success, redirect to the bookings page (or show a success message)
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/booking-list");  // Redirect to the booking list page
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -41,6 +35,8 @@ const BookingForm = () => {
 
     return (
         <div>
+            <Header />
+
             <style>
                 {`
                 .booking-form-container {
@@ -104,6 +100,7 @@ const BookingForm = () => {
                 }
                 `}
             </style>
+
             <div className="booking-form-container">
                 <h2>Online Booking Form</h2>
                 
@@ -172,8 +169,6 @@ const BookingForm = () => {
                             value={formData.status}
                             onChange={handleInputChange}
                             required
-
-                           
                         />
                     </div>
 

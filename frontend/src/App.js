@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from './Login/Header';
-import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Rename import to avoid redefinition
+import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Keep this as your main route guard
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
@@ -10,7 +10,7 @@ import Register from "./Register/Register";
 import Login from "./Login/Login";
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
-import AdminLayout from "./AdminLayout"; // Only one import
+import AdminLayout from "./AdminLayout";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Incomes from "./Components/Incomes/Incomes";
 import Expenses from "./Components/Expenses/Expenses";
@@ -29,7 +29,7 @@ import navItems from "./utils/navItems";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
 import ResultDisplay from './Components/ResultDisplay';
-import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm";
 import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment';
 
@@ -40,23 +40,6 @@ const App = () => {
   const PrivateRoute = ({ children }) => {
     const user = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
-
-const App = () => {
-  return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/membership" element={<Membership />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/user-profile" element={<UserProfile />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/booking" element={<BookingForm />} />
-        <Route path="/booking-list" element={<BookingList />} />
-        <Route path="/edit-booking/:id" element={<EditBooking />} />
 
     if (!token || user?.role !== "admin") {
       return <Navigate to="/login" />;
@@ -70,6 +53,7 @@ const App = () => {
       <Router>
         <div className="app">
           <Routes>
+
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -79,12 +63,16 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/booking" element={<BookingForm />} />
+            <Route path="/booking-list" element={<BookingList />} />
+            <Route path="/edit-booking/:id" element={<EditBooking />} />
 
             {/* E-Pharmacy Routes */}
             <Route path="/addAppointment" element={<AppointmentForm />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
 
+            {/* Supplier & Inventory */}
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
             <Route path="/gymEquipment" element={<GymEquipment />} />
@@ -101,9 +89,9 @@ const App = () => {
 
             {/* Protected Admin Routes */}
             <Route path="/admin/*" element={
-              <PrivateRoute>
+              <RouteGuard>
                 <AdminLayout />
-              </PrivateRoute>
+              </RouteGuard>
             }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
@@ -112,11 +100,11 @@ const App = () => {
               <Route path="salaries" element={<Salary />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="suppliers" element={<Supplier />} />
-              <Route path="supplier" element={<Supplier />} />
             </Route>
 
             {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" />} />
+
           </Routes>
         </div>
       </Router>
