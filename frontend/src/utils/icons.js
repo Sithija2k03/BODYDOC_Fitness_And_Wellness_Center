@@ -32,3 +32,4 @@ export const search = <i className="fa-solid fa-magnifying-glass"></i>
 export const inventory =<i className="fa-solid fa-boxes-stacked"></i>
 export const truck = <i className="fa-solid fa-truck"></i>
 export const fileText = <i className="fa-solid fa-file-pdf"></i>
+export const doctor = <i className="fa-solid fa-user-doctor"></i>

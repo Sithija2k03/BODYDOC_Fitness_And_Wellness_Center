@@ -128,8 +128,8 @@ const DashboardStyled = styled.div`
     .chart-container {
         grid-column: 1; /* Occupy 1 full column */
         height: 100%;
-        width: 100%;
-        max-width: 700px;
+        width: 800px; /* Set a fixed width for the chart container */
+        max-width: 1000px;
         overflow: auto;
         background-color: #FCF6F9;
         border-radius: 10px;

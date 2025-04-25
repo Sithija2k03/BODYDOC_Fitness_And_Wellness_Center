@@ -54,6 +54,28 @@ app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
 
+// In server.js, add a test route
+app.get("/test-email", async (req, res) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
+    });
+    await transporter.sendMail({
+      from: process.env.GMAIL_USER,
+      to: "test@example.com",
+      subject: "Test Email",
+      text: "This is a test email."
+    });
+    res.json({ message: "Email sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Email failed", error: error.message });
+  }
+});
+
 // AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
   try {

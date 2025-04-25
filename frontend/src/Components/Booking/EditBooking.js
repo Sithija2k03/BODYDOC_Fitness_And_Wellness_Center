@@ -8,6 +8,7 @@ const EditBooking = () => {
 
   const [formData, setFormData] = useState({
     Name: "",
+    email: "", // Added email field
     facility_type: "",
     date: "",
     time_slot: "",
@@ -25,6 +26,7 @@ const EditBooking = () => {
 
         setFormData({
           Name: booking.Name || "",
+          email: booking.email || "", // Added email field
           facility_type: booking.facility_type || "",
           date: booking.date?.slice(0, 10) || "", // Format date
           time_slot: booking.time_slot || "",
@@ -56,7 +58,7 @@ const EditBooking = () => {
     try {
       await axios.put(`http://localhost:4000/booking/update/${id}`, formData);
       alert("Booking updated successfully!");
-      navigate("/booking-list");
+      navigate("/bookings");
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking.");
@@ -136,6 +138,17 @@ const EditBooking = () => {
           <div className="form-group">
             <label>Name</label>
             <input type="text" name="Name" value={formData.Name} onChange={handleChange} required />
+          </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">

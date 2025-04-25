@@ -15,6 +15,7 @@ export const GlobalProvider = ({ children }) => {
     const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
      const [appointments, setAppointments] = React.useState([]);
+     const [bookings, setBookings] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
     
@@ -398,6 +399,9 @@ export const GlobalProvider = ({ children }) => {
             addAppointment, 
             getAppointments,
             deleteAppointment,
+
+            bookings,
+            setBookings,
 
             error,
             setError

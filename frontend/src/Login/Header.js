@@ -4,7 +4,6 @@ import "./Header.css"; // Custom CSS
 import { Link } from "react-router-dom";
 
 function Header() {
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isAiDropdownOpen, setAiDropdownOpen] = useState(false); 
   
   // Get the current route
