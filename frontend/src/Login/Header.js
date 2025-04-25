@@ -38,7 +38,7 @@ function Header() {
               </ul>
             )}
           </li>
-          <li><a href="#">Medicare & Clinic</a></li>
+          <li><a href="/appointment-layout">Medicare & Clinic</a></li>
           <li><a href="#">Pharmacy</a></li>
             <li
                       className="dropdown"

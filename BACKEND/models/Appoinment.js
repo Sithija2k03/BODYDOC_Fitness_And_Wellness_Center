@@ -24,11 +24,11 @@ const appoinmentSchema = new Schema({
         required: true,
         enum: ["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM"]
     },
-    status: {
-        type: String,
-        required: true,
-        enum: ["Pending", "Confirmed", "Cancelled", "Completed"]
-    }
+    // status: {
+    //     type: String,
+    //     required: true,
+    //     enum: ["Pending", "Confirmed", "Cancelled", "Completed"]
+    // }
 });
 
 // Auto-generate appoinment_id before saving a new consultation
