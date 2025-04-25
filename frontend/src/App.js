@@ -25,7 +25,6 @@ import { GlobalProvider } from './context/globalContext';
 import navItems from "./utils/navItems";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
-import ResultDisplay from './Components/ResultDisplay';
 import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
 import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment';
