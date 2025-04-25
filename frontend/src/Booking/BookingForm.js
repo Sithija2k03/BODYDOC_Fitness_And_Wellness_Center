@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";  // Import Axios to send requests to the backend
-import { useNavigate } from "react-router-dom";  // To navigate after form submission
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
     const [formData, setFormData] = useState({
@@ -11,27 +11,44 @@ const BookingForm = () => {
         status: "",
     });
 
-    const [error, setError] = useState(null);  // To handle error states
-    const navigate = useNavigate();  // To navigate to another page
+    const [error, setError] = useState(null);
+    const [nameError, setNameError] = useState("");
+    const navigate = useNavigate();
 
-    // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === "Name") {
+            const onlyLetters = /^[A-Za-z\s]*$/;
+            if (!onlyLetters.test(value)) {
+                setNameError("Name can only contain letters and spaces.");
+                return;
+            } else {
+                setNameError("");
+            }
+        }
+
         setFormData({ ...formData, [name]: value });
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+
+        const selectedDate = new Date(formData.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate <= today) {
+            setError("Please select a future date.");
+            return;
+        }
 
         try {
-            // Send the booking data to the backend API (Replace the URL with your backend URL)
             const response = await axios.post("http://localhost:4000/booking/add", formData);
-
-            // On success, redirect to the bookings page (or show a success message)
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/booking-list");  // Redirect to the booking list page
+                navigate("/booking-list");
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -44,74 +61,89 @@ const BookingForm = () => {
             <style>
                 {`
                 .booking-form-container {
-                    max-width: 400px;
-                    margin: 50px auto;
-                    padding: 20px;
-                    background: #f4f4f4;
-                    border-radius: 10px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    max-width: 500px;
+                    margin: 60px auto;
+                    padding: 30px;
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 }
 
                 h2 {
                     text-align: center;
-                    color: #333;
+                    margin-bottom: 25px;
+                    color: #2c3e50;
                 }
 
                 .form-group {
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                 }
 
                 label {
                     display: block;
-                    font-weight: bold;
-                    margin-bottom: 5px;
+                    margin-bottom: 8px;
+                    font-weight: 600;
+                    color: #333;
                 }
 
                 input, select {
                     width: 100%;
-                    padding: 10px;
+                    height: 45px;
+                    padding: 0 12px;
                     border: 1px solid #ccc;
-                    border-radius: 5px;
+                    border-radius: 8px;
                     font-size: 16px;
+                    box-sizing: border-box;
+                    transition: border-color 0.3s;
                 }
 
                 input:focus, select:focus {
-                    border-color: #007bff;
+                    border-color: #3498db;
                     outline: none;
                 }
 
                 .submit-button {
                     width: 100%;
-                    padding: 10px;
-                    background-color: #28a745;
+                    height: 50px;
+                    background-color: #3498db;
                     color: white;
                     border: none;
-                    border-radius: 5px;
+                    border-radius: 8px;
                     font-size: 16px;
+                    font-weight: bold;
                     cursor: pointer;
-                    transition: background 0.3s;
+                    transition: background-color 0.3s;
                 }
 
                 .submit-button:hover {
-                    background-color: #218838;
+                    background-color: #2980b9;
                 }
 
                 .error-message {
-                    color: red;
+                    color: #e74c3c;
                     text-align: center;
-                    margin-bottom: 10px;
+                    margin-bottom: 15px;
+                    font-size: 15px;
                     font-weight: bold;
+                }
+
+                .field-error {
+                    color: #e74c3c;
+                    font-size: 14px;
+                    margin-top: 5px;
                 }
                 `}
             </style>
+
             <div className="booking-form-container">
-                <h2>Online Booking Form</h2>
-                
+                <h2>Facility Booking</h2>
+
                 {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="name">Name</label>
+                        <label htmlFor="name">Full Name</label>
                         <input
                             type="text"
                             id="name"
@@ -120,6 +152,7 @@ const BookingForm = () => {
                             onChange={handleInputChange}
                             required
                         />
+                        {nameError && <div className="field-error">{nameError}</div>}
                     </div>
 
                     <div className="form-group">
@@ -131,7 +164,7 @@ const BookingForm = () => {
                             onChange={handleInputChange}
                             required
                         >
-                            <option value="">Select Facility</option>
+                            <option value="">-- Select Facility --</option>
                             <option value="Gym">Gym</option>
                             <option value="Swimming Pool">Swimming Pool</option>
                             <option value="Badminton Court">Badminton Court</option>
@@ -140,7 +173,7 @@ const BookingForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="date">Date</label>
+                        <label htmlFor="date">Booking Date</label>
                         <input
                             type="date"
                             id="date"
@@ -172,12 +205,10 @@ const BookingForm = () => {
                             value={formData.status}
                             onChange={handleInputChange}
                             required
-
-                           
                         />
                     </div>
 
-                    <button type="submit" className="submit-button">Book Now</button>
+                    <button type="submit" className="submit-button">Confirm Booking</button>
                 </form>
             </div>
         </div>

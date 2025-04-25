@@ -26,7 +26,7 @@ const EditBooking = () => {
         setFormData({
           Name: booking.Name || "",
           facility_type: booking.facility_type || "",
-          date: booking.date?.slice(0, 10) || "", // Format date
+          date: booking.date?.slice(0, 10) || "",
           time_slot: booking.time_slot || "",
           status: booking.status || "",
         });
@@ -67,80 +67,110 @@ const EditBooking = () => {
 
   return (
     <>
-      <style>
-        {`
-          .booking-form-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: #f4f4f4;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          }
+      <style>{`
+        .edit-booking-container {
+          max-width: 500px;
+          margin: 60px auto;
+          padding: 30px;
+          background-color: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-          .booking-form-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-          }
+        .edit-booking-container h2 {
+          text-align: center;
+          margin-bottom: 25px;
+          color: #2c3e50;
+          font-size: 24px;
+        }
 
-          .form-group {
-            margin-bottom: 15px;
-          }
+        .form-group {
+          margin-bottom: 18px;
+        }
 
-          .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: #444;
-          }
+        label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #34495e;
+          font-size: 15px;
+        }
 
-          .form-group input,
-          .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-          }
+        input,
+        select {
+          width: 100%;
+          height: 45px;
+          padding: 10px 12px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          font-size: 15px;
+          color: #333;
+          box-sizing: border-box;
+          transition: border-color 0.3s ease;
+        }
 
-          .submit-button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-          }
+        input:focus,
+        select:focus {
+          border-color: #3498db;
+          outline: none;
+        }
 
-          .submit-button:hover {
-            background-color: #218838;
-          }
+        .submit-button {
+          width: 100%;
+          height: 50px;
+          background-color: #3498db;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
 
-          .error-message {
-            color: red;
-            text-align: center;
-            margin-bottom: 15px;
-          }
-        `}
-      </style>
+        .submit-button:hover {
+          background-color: #2980b9;
+        }
 
-      <div className="booking-form-container">
+        .error-message {
+          color: #e74c3c;
+          background-color: #fdecea;
+          border: 1px solid #f5c6cb;
+          padding: 10px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          font-size: 14px;
+          text-align: center;
+        }
+      `}</style>
+
+      <div className="edit-booking-container">
         <h2>Edit Booking</h2>
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Name</label>
-            <input type="text" name="Name" value={formData.Name} onChange={handleChange} required />
+            <label htmlFor="Name">Full Name</label>
+            <input
+              type="text"
+              name="Name"
+              id="Name"
+              value={formData.Name}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Facility Type</label>
-            <select name="facility_type" value={formData.facility_type} onChange={handleChange} required>
+            <label htmlFor="facility_type">Facility Type</label>
+            <select
+              name="facility_type"
+              id="facility_type"
+              value={formData.facility_type}
+              onChange={handleChange}
+              required
+            >
               <option value="">Select Facility</option>
               <option value="Gym">Gym</option>
               <option value="Swimming Pool">Swimming Pool</option>
@@ -150,21 +180,44 @@ const EditBooking = () => {
           </div>
 
           <div className="form-group">
-            <label>Date</label>
-            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+            <label htmlFor="date">Booking Date</label>
+            <input
+              type="date"
+              name="date"
+              id="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Time Slot</label>
-            <input type="time" name="time_slot" value={formData.time_slot} onChange={handleChange} required />
+            <label htmlFor="time_slot">Time Slot</label>
+            <input
+              type="time"
+              name="time_slot"
+              id="time_slot"
+              value={formData.time_slot}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Status</label>
-            <input type="text" name="status" value={formData.status} onChange={handleChange} required />
+            <label htmlFor="status">Status</label>
+            <input
+              type="text"
+              name="status"
+              id="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          <button type="submit" className="submit-button">Update Booking</button>
+          <button type="submit" className="submit-button">
+            Update Booking
+          </button>
         </form>
       </div>
     </>

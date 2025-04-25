@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -8,27 +8,56 @@ function Register() {
     email: '',
     password: '',
     gender: 'male',
-    dateOfBirth: '',
+    dateofBirth: '',
     phone: '',
-    role: 'member' 
+    role: 'member'
+  });
+
+  const [errors, setErrors] = useState({
+    fullName: '',
+    email: ''
   });
 
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Hook to navigate programmatically
+  const navigate = useNavigate();
 
-  // Handle input changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validate Full Name
+    if (name === 'fullName') {
+      const onlyLetters = /^[A-Za-z\s]*$/;
+      if (!onlyLetters.test(value)) {
+        setErrors(prev => ({ ...prev, fullName: 'Full name can only contain letters and spaces.' }));
+      } else {
+        setErrors(prev => ({ ...prev, fullName: '' }));
+      }
+    }
+
+    // Validate Email
+    if (name === 'email') {
+      if (!value.includes('@')) {
+        setErrors(prev => ({ ...prev, email: 'Email must contain "@" symbol.' }));
+      } else {
+        setErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
+
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    // Optionally, stop form submission if any validation errors exist
+    if (errors.fullName || errors.email) {
+      setMessage('Please fix the errors before submitting.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:4000/user/add', formData);
       setMessage(response.data.message);
-      // Navigate to the login page after successful registration
       navigate('/login');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Registration failed');
@@ -42,31 +71,30 @@ function Register() {
         {message && <p style={styles.message}>{message}</p>}
         <form onSubmit={handleSubmit}>
           <label style={styles.label}>Full Name</label>
-          <input type="text" name="fullName" placeholder="Enter Full Name" required style={styles.input} onChange={handleChange} />
+          <input type="text" name="fullName" placeholder="Enter Full Name" required style={styles.input} onChange={handleInputChange} />
+          {errors.fullName && <p style={styles.error}>{errors.fullName}</p>}
 
           <label style={styles.label}>Email</label>
-          <input type="email" name="email" placeholder="Enter Email" required style={styles.input} onChange={handleChange} />
+          <input type="email" name="email" placeholder="Enter Email" required style={styles.input} onChange={handleInputChange} />
+          {errors.email && <p style={styles.error}>{errors.email}</p>}
 
           <label style={styles.label}>Password</label>
-          <input type="password" name="password" placeholder="Enter Password" required style={styles.input} onChange={handleChange} />
+          <input type="password" name="password" placeholder="Enter Password" required style={styles.input} onChange={handleInputChange} />
 
           <label style={styles.label}>Gender</label>
-          <select name="gender" required style={styles.input} onChange={handleChange} value={formData.gender}>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
+          <select name="gender" required style={styles.input} onChange={handleInputChange} value={formData.gender}>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
           </select>
- 
-          
-          
-          <label style={styles.label}>Date of Birth</label>
-          <input type="date" name="dateofBirth" required style={styles.input} onChange={handleChange} />
 
+          <label style={styles.label}>Date of Birth</label>
+          <input type="date" name="dateofBirth" required style={styles.input} onChange={handleInputChange} />
 
           <label style={styles.label}>Phone</label>
-          <input type="text" name="phone" placeholder="Enter Phone" required style={styles.input} onChange={handleChange} />
+          <input type="text" name="phone" placeholder="Enter Phone" required style={styles.input} onChange={handleInputChange} />
 
           <label style={styles.label}>Role</label>
-          <select name="role" required style={styles.input} onChange={handleChange} value={formData.role}>
+          <select name="role" required style={styles.input} onChange={handleInputChange} value={formData.role}>
             <option value="member">Member</option>
             <option value="admin">Admin</option>
             <option value="doctor">Doctor</option>
@@ -89,7 +117,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    background: 'linear-gradient(135deg,rgba(229, 220, 220, 0.79), #FAD0C4)', // Soft gradient background
+    background: 'linear-gradient(135deg,rgba(229, 220, 220, 0.79), #FAD0C4)',
   },
   form: {
     background: 'rgba(255, 255, 255, 0.9)',
@@ -97,7 +125,7 @@ const styles = {
     borderRadius: '15px',
     boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.2)',
     width: '400px',
-    backdropFilter: 'blur(8px)', // Glassmorphism effect
+    backdropFilter: 'blur(8px)',
   },
   heading: {
     textAlign: 'center',
@@ -114,6 +142,12 @@ const styles = {
     marginBottom: '10px',
     fontWeight: 'bold',
   },
+  error: {
+    color: 'red',
+    fontSize: '12px',
+    marginTop: '4px',
+    marginBottom: '10px',
+  },
   label: {
     display: 'block',
     textAlign: 'left',
@@ -125,6 +159,7 @@ const styles = {
   input: {
     width: '100%',
     padding: '12px',
+    marginBottom: '10px',
     border: 'none',
     borderRadius: '8px',
     fontSize: '14px',
@@ -132,11 +167,6 @@ const styles = {
     backdropFilter: 'blur(5px)',
     transition: '0.3s',
     boxShadow: 'inset 0px 0px 5px rgba(0, 0, 0, 0.1)',
-  },
-  inputFocus: {
-    outline: 'none',
-    border: '2px solid #FF758C',
-    boxShadow: '0px 0px 8px rgba(255, 117, 140, 0.8)',
   },
   button: {
     marginTop: '15px',
@@ -150,12 +180,7 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     transition: '0.3s',
-  },
-  buttonHover: {
-    background: 'linear-gradient(135deg, #FF5A79, #FF6492)',
-    boxShadow: '0px 4px 10px rgba(255, 91, 121, 0.5)',
-  },
+  }
 };
-
 
 export default Register;

@@ -115,8 +115,8 @@ function UserProfile() {
               <h3>Profile Information</h3>
               <p><strong>Email:</strong> {user.email}</p>
               <p><strong>Phone:</strong> {user.phone}</p>
+              <p><strong>Gender:</strong> {user.gender}</p>
               <p><strong>Role:</strong> {user.role}</p>
-              <p><strong>Membership Status:</strong> {user.membershipStatus}</p>
             </div>
           )}
           {activeTab === "bookings" && (
