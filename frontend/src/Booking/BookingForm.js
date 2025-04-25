@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+
+import Header from "../Login/Header"; // Make sure this path is correct based on your folder structure
+
+
 const BookingForm = () => {
     const [formData, setFormData] = useState({
         Name: "",
@@ -12,7 +16,9 @@ const BookingForm = () => {
     });
 
     const [error, setError] = useState(null);
+
     const [nameError, setNameError] = useState("");
+
     const navigate = useNavigate();
 
     const handleInputChange = (e) => {
@@ -33,6 +39,7 @@ const BookingForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         setError(null);
 
         const selectedDate = new Date(formData.date);
@@ -44,11 +51,15 @@ const BookingForm = () => {
             return;
         }
 
+
         try {
             const response = await axios.post("http://localhost:4000/booking/add", formData);
             if (response.status === 201) {
                 alert("Booking Successful!");
+ 
                 navigate("/booking-list");
+
+
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -58,6 +69,8 @@ const BookingForm = () => {
 
     return (
         <div>
+            <Header />
+
             <style>
                 {`
                 .booking-form-container {
