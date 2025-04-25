@@ -18,6 +18,7 @@ export const GlobalProvider = ({ children }) => {
      const [orders, setOrders] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
+
     
     // Income section
     const addIncome = async (income) => {

@@ -1,98 +1,6 @@
-// const router = require("express").Router();
-// let Supplier = require("../models/supplier");
-
-// // Route to add a new supplier
-// router.route("/add").post((req, res) => {
-//     // const supplier_id = Number(req.body.supplieId);
-//     // const supplier_name = req.body.supplieName;
-//     // const contact = req.body.supplierContact;
-//     // const credits = Number(req.body.supplierCredite);
-//     const {supplier_id, supplier_name, contact, credits} = req.body;
-
-//     const newSupplier = new Supplier({
-//         supplier_id,
-//         supplier_name,
-//         contact,
-//         credits
-
-//     })
-
-//     newSupplier.save()
-//     .then(() => {
-//         res.json("Supplier Added");
-//     })
-//     .catch((err) => {
-//         console.error("Error adding supplier:", err);
-//         res.status(500).json({ error: err.message });
-//     });
-
-// })
-
-
-// router.route("/").get((req, res) =>{
-//     Supplier.find().then((suppliers) =>{
-//         res.json(suppliers);
-//     }).catch((err) => {
-//         console.log(err);
-//     })
-// })
-
-
-// router.route("/update/:supid").put(async (req, res) => {
-//     let supplierID = req.params.supid;
-//     const {supplier_name, contact, credits} = req.body;
-
-
-//     const updateSupplier = {
-//         supplier_name,
-//         contact,
-//         credits
-//     }
-
-//     try {
-//         const update = await Supplier.findOneAndUpdate(
-//             { supplierID: updateSupplier },
-//             updateSupplier,
-//             { new: true }
-//         );
-
-//         if (!update) {
-//             return res.status(404).json({ message: "Supplier not found" });
-//         }
-
-//         res.status(200).json({ message: "Supplier updated", supplier: update });
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-
-//     })
-
-
-
-// router.route("/delete/:supid").delete(async (req, res) => {
-//     let supplierID = req.params.supid;
-
-//     await Supplier.findByIdAndDelete(supplierID)
-//     .then(() => {
-//         res.status(200).send({status: "User deleted"});
-//     }).catch((err) => {
-//         console.log(err.massage);
-//         res.status(500).send({status: "Error with delete data", erroe: err.massage})
-//     })
-// })
-
-
-
-
-// module.exports = router;
-
-
-
-
 const router = require("express").Router();
 const Supplier = require("../models/supplier");
 const SupplierSummary = require("../models/supplierSummary");
-
 
 // Create a new supplier (POST)
 router.route("/add").post(async (req, res) => {
@@ -145,11 +53,11 @@ router.route("/get").get(async (req, res) => {
 // Update a supplier by supplier_id (PUT)
 router.route("/update/:supid").put(async (req, res) => {
     try {
-        const supplierId = Number(req.params.supid); 
-        const { supplier_name, contact, credits } = req.body;
+        const supplierId = Number(req.params.supid);
+        const { supplier_name, contact, credits, supplyCategory } = req.body;
 
-      
-        if (!supplier_name && !contact && credits === undefined) {
+        // Validate that at least one field is provided
+        if (!supplier_name && !contact && credits === undefined && !supplyCategory) {
             return res.status(400).json({ error: "At least one field is required to update" });
         }
 
@@ -157,11 +65,12 @@ router.route("/update/:supid").put(async (req, res) => {
         if (supplier_name) updateData.supplier_name = supplier_name;
         if (contact) updateData.contact = contact;
         if (credits !== undefined) updateData.credits = Number(credits);
+        if (supplyCategory) updateData.supplyCategory = supplyCategory; // Handle supplyCategory
 
         const updatedSupplier = await Supplier.findOneAndUpdate(
             { supplier_id: supplierId },
             updateData,
-            { new: true, runValidators: true } 
+            { new: true, runValidators: true }
         );
 
         if (!updatedSupplier) {
@@ -178,7 +87,7 @@ router.route("/update/:supid").put(async (req, res) => {
 // Delete a supplier by supplier_id (DELETE)
 router.route("/delete/:supid").delete(async (req, res) => {
     try {
-        const supplierId = Number(req.params.supid); // Convert to Number
+        const supplierId = Number(req.params.supid);
 
         const deletedSupplier = await Supplier.findOneAndDelete({ supplier_id: supplierId });
 
@@ -192,7 +101,5 @@ router.route("/delete/:supid").delete(async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-
 
 module.exports = router;
