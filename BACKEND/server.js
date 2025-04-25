@@ -17,6 +17,8 @@ const appoinmentRouter = require("./routes/appoinment.js");
 const orderRouter = require("./routes/order.js");
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Helth = require("./models/helth.js");
+const path = require('path');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +51,7 @@ app.use("/transactions", transactionRouter);
 app.use("/supplier", supplierRouter);
 app.use("/appoinments", appoinmentRouter);
 app.use("/order", orderRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // AI Response Parsing Function

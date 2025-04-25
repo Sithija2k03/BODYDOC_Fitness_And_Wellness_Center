@@ -25,6 +25,8 @@ import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment'
 import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
+import OrderEdit from "./Components/Order/OrderEdit";
+import AppoinmentEdit from "./Components/Appoinment/AppoinmentEdit";
 
 
 const App = () => {
@@ -58,14 +60,16 @@ const App = () => {
           <Route path="/edit-profile" element={<EditProfile />} />
 
           {/* E-Pharmacy Routes */}
-          <Route path="/addAppointment" element={<AppointmentForm />} />
-            {/* <Route path="/order" element={<GloabalOrders/>} /> Appointment List Page */}
+            <Route path="/addAppointment" element={<AppointmentForm />} />
+            <Route path="/appointment-edit/:id" element={<AppoinmentEdit />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList/>} />
 
           {/* Order Routes */}
             <Route path="/addOrder" element={<OrderForm/>} />
             <Route path="/order-display" element={<Order/>} />
+            <Route path="/order-edit/:id" element={<OrderEdit />} />
+
           {/* Fitness & Nutrition Routes */}
           <Route 
             path="/nutrition-plan" 

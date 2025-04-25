@@ -1,4 +1,4 @@
-import React from 'react';
+import React , { createContext, useContext , useState} from 'react';
 import axios from 'axios';
 
 // Ensure API_URL matches your backend
@@ -241,12 +241,26 @@ export const GlobalProvider = ({ children }) => {
     const deleteAppointment = async (id) => {
         try {
             await axios.delete(`${API_URL}appoinments/delete/${id}`);
-            setAppointments(appointments.filter(appointment => appointment._id !== id));
+            setAppointments(appointments.filter(appoinment => appoinment._id !== id));
         } catch (err) {
             console.error("Error deleting appointment:", err);
             setError("Failed to delete appointment.");
         }
     };
+
+    const updateAppoinment = async (id, formData) => {
+        try {
+            const data = await axios.put(`${API_URL}appoinments/update/${id}`,formData);
+          setAppointments(appointments.map(app => (app.id === id ? { id, ...data.data } : app)));
+          return data;
+        } catch (err) {
+          const errorMessage = err.response?.data?.error || 'Failed to update appointment';
+          setError(errorMessage);
+          console.error('Update error:', err.response || err);
+          throw err;
+        }
+      };
+    
 
     // Order Section
     const addOrder = async (newOrder) => {
@@ -343,11 +357,13 @@ export const GlobalProvider = ({ children }) => {
             addAppointment, 
             getAppointments,
             deleteAppointment,
+            updateAppoinment,
             error,
             setError,
             addOrder,
             getOrders,
             deleteOrder,
+        
             orders
         }}>
             {children}

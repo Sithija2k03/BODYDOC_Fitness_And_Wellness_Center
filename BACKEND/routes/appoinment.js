@@ -11,19 +11,13 @@ router.post("/add", async (req, res) => {
     const doctor_name = req.body.doctor_name;
     const date = Date(req.body.date);
     const time_slot = req.body.time_slot;
-    // const status = req.body.status;
+
     
     // Validate time_slot
     const validTimeSlots = ["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM"];
     if (!validTimeSlots.includes(time_slot)) {
         return res.status(400).json({ error: "Invalid time slot selected" });
     }
-
-    // // Validate status
-    // const validStatuses = ["Pending", "Confirmed", "Cancelled", "Completed"];
-    // if (!validStatuses.includes(status)) {
-    //     return res.status(400).json({ error: "Invalid status selected" });
-    // }
     
     const newAppoinment = new Appoinment({
         appoinment_id,
@@ -31,7 +25,7 @@ router.post("/add", async (req, res) => {
         doctor_name,
         date :new Date(date),
         time_slot,
-        // status
+
     })
 
     // this object newAppoinment send to the database
@@ -46,7 +40,7 @@ router.post("/add", async (req, res) => {
 
 
 //data fatch
-//http://localhost:8070/appoinment
+//http://localhost:4000/appoinment
 router.route("/").get((req,res)=>{
     //data take where the appoinment table inserted
     Appoinment.find().then((appoinment)=>{
@@ -60,7 +54,7 @@ router.route("/").get((req,res)=>{
 
 
 //update
-//http://localhost:8070/appoinment/update/id
+//http://localhost:4000/appoinment/update/id
 router.route("/update/:id").put(async(req,res) => {
     let appoinmentId = req.params.id;
     const {appoinment_id,user_name,doctor_name,date,time_slot} = req.body;
@@ -70,8 +64,7 @@ router.route("/update/:id").put(async(req,res) => {
         user_name,
         doctor_name,
         date,
-        time_slot,
-        // status
+        time_slot
     }
     const update = await Appoinment.findByIdAndUpdate(appoinmentId,updateAppoinment).then(() =>{
         res.status(200).send({status: "Appoinment updated"})
@@ -85,7 +78,7 @@ router.route("/update/:id").put(async(req,res) => {
 
 
 //delete part
-//(http//localhost:8070/appoinment/delete/id
+//(http//localhost:4000/appoinment/delete/id
 router.route("/delete/:id").delete(async(req,res) => {
     let appoinmentId = req.params.id;
 
@@ -93,7 +86,7 @@ router.route("/delete/:id").delete(async(req,res) => {
         res.status(200).send({status: "Appoinment deleted"});
     }).catch((err) => {
         console.log(err.message);
-        res.status(500).send({status: "Error with delete user", error: err.message});
+        res.status(500).send({status: 'Failed to delete appointment', error: err.message});
     })
 })
 
