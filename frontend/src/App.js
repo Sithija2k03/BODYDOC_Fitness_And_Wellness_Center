@@ -32,6 +32,9 @@ import BookingForm from "./Components/Booking/BookingForm";
 import BookingList from "./Components/Booking/BookingList";
 import EditBooking from "./Components/Booking/EditBooking";
 import Bookings from "./Components/Booking/Bookings";
+import OrderForm from './Components/Order/OrderForm';
+import Order from "./Components/Order/Order";
+import OrderEdit from "./Components/Order/OrderEdit";
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -70,6 +73,12 @@ const App = () => {
             <Route path="/addAppointment" element={<AppointmentForm />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
+
+            {/* Order Routes */}
+            <Route path="/addOrder" element={<OrderForm/>} />
+            <Route path="/order-display" element={<Order/>} />
+            <Route path="/order-edit" element={<OrderEdit/>} />
+          {/* Fitness & Nutrition Routes */}
 
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />

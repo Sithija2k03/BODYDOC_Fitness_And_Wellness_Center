@@ -34,7 +34,7 @@ function OrderItem({ id, userName, doctorName, cDate, prescription,onDelete}) {
         <div><strong>Doctor:</strong> {doctorName}</div>
         <div><strong>Consultation Date:</strong> {cDate}</div>
         <a 
-          href={`http://localhost:4000/${prescription}`} 
+          href={`http://localhost:4000/uploads/${prescription}`} 
           target="_blank" 
           rel="noopener noreferrer"
         >

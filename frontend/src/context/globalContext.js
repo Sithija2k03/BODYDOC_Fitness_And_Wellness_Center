@@ -15,6 +15,7 @@ export const GlobalProvider = ({ children }) => {
     const [suppliers, setSuppliers] = React.useState([]);
      const [appointments, setAppointments] = React.useState([]);
      const [bookings, setBookings] = React.useState([]);
+     const [orders, setOrders] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
     

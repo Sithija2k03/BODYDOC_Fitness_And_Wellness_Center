@@ -57,7 +57,6 @@ function AppointmentsList() {
 
 const AppointmentsListStyled = styled.div`
   padding: 2rem;
-  background: #f9f9f9;
   min-height: 100vh;
 
   h2 {
