@@ -21,16 +21,13 @@ function Login() {
   };
 
   // Handle form submission
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     try {
       const response = await axios.post('http://localhost:4000/user/login', formData);
+      console.log('Login response:', response.data);
   
-      // Log the response to check if you get the expected data
-      console.log('Login response:', response);
-  
-      // Save user data and token
       localStorage.setItem('user', JSON.stringify(response.data));
       localStorage.setItem('token', response.data.token);
   
@@ -39,13 +36,50 @@ function Login() {
       if (userRole === 'admin' ) {
         navigate('/admin/dashboard');  // Admin goes to the dashboard
       } else {
-        navigate('/user-profile');  // Other roles go to the user profile
+        console.log('Navigating to /user-profile');
+        navigate('/user-profile');
       }
     } catch (error) {
       console.error('Login error:', error);
       setMessage(error.response?.data?.message || 'Login failed');
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  
+  //   try {
+  //     const response = await axios.post('http://localhost:4000/user/login', formData);
+  
+  //     // Log the response to check if you get the expected data
+  //     //console.log('Login response:', response);
+  //     console.log('Login response:', JSON.stringify(response.data, null, 2));
+  
+  //     // Save user data and token
+  //     localStorage.setItem('user', JSON.stringify(response.data));
+  //     localStorage.setItem('token', response.data.token);
+  
+  //     // Get role from response and navigate accordingly
+
+  //     const userRole = response.data.role ? response.data.role.toLowerCase() : null;
+  //     console.log('User role:', userRole);
+  //     if (userRole === 'admin' || userRole === 'doctor') {
+  //       navigate('/admin/dashboard');
+  //     } else {
+  //       navigate('/user-profile');
+  //     }
+      
+  //     // const userRole = response.data.role;  // Directly accessing role from response
+  //     // if (userRole === 'admin' || userRole === 'doctor' ) {
+  //     //   navigate('/admin/dashboard');  // Admin goes to the dashboard
+  //     // } else {
+  //     //   navigate('/user-profile');  // Other roles go to the user profile
+  //     // }
+  //   } catch (error) {
+  //     console.error('Login error:', error);
+  //     setMessage(error.response?.data?.message || 'Login failed');
+  //   }
+  // };
   
   return (
     <div style={styles.container}>
