@@ -10,9 +10,7 @@ import Modal from '../Modal/Modal';
 import { useNavigate } from "react-router-dom";
 import jsPDF from 'jspdf'; // Import jsPDF
 import 'jspdf-autotable'; // Import autoTable plugin
-import { plus } from '../../utils/icons';
-import Modal from '../Modal/Modal'; // Import Modal
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+
 
 function Supplier() {
     const { addSupplier, getSuppliers, suppliers, deleteSupplier, error, success, setSuccess } = useGlobalContext();
