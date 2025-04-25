@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGlobalContext } from '../../context/globalContext';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../AppoinmentLayout/Button";
 import Header from '../../Login/Header';
+import axios from 'axios';
+
+
 
 const containerStyle = {
   width: '400px',
@@ -62,18 +65,30 @@ const errorBorderStyle = {
   border: '1px solid red',
 };
 
-const AppointmentForm = () => {
+const AppoinmentEdit = () => {
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    const { addAppointment } = useGlobalContext();
+    const { state } = useLocation();
+    const location = useLocation();
+    const [userName, setUserName] = useState(state?.userName || '');
+    const [doctorName, setDoctorName] = useState(state?.doctorName || '');
+    const [timeSlot, setTimeSlot] = useState(state?.timeSlot || '');
+    const [date, setDate] = useState(state?.date || '');
+    const [errors, setErrors] = useState({});
+    const [isHovering, setIsHovering] = useState(false);
 
-  const [userName, setUserName] = useState('');
-  const [doctorName, setDoctorName] = useState('');
-  const [timeSlot, setTimeSlot] = useState('');
-  const [date, setDate] = useState('');
-  const [errors, setErrors] = useState({});
-  const [isHovering, setIsHovering] = useState(false);
-
-  const { addAppointment } = useGlobalContext();
+  useEffect(() => {
+      if (location.state) {
+        console.log("Location State:", location.state);
+        const { userName, doctorName, timeSlot, date } = location.state;
+        setUserName(userName || '');
+        setDoctorName(doctorName || '');
+        setTimeSlot(timeSlot || '');
+        setDate(date ? new Date(date).toISOString().split('T')[0] : '');
+        
+      }
+  }, [location.state]);
 
   const validateForm = () => {
     let errors = {};
@@ -119,33 +134,42 @@ const AppointmentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { isValid, errors } = validateForm();
     if (!isValid) {
       setErrors(errors);
       return;
     }
-
-    const formData = {
+  
+    const payload = {
       user_name: userName,
       doctor_name: doctorName,
-      date,
+      date: date,
       time_slot: timeSlot,
     };
-
+  
     try {
-      await addAppointment(formData);
+      if (state?.id) {
+        // Updating existing appointment
+        await axios.put(`http://localhost:4000/appoinments/update/${state.id}`, payload);
+      } else {
+        // Adding new appointment
+        await axios.post(`http://localhost:4000/appoinments/add`, payload);
+      }
+  
       setUserName('');
       setDoctorName('');
       setTimeSlot('');
       setDate('');
       setErrors({});
-      alert("Appointment booked successfully!");
+      alert('Appointment saved successfully!');
+      navigate('/appointment-display');
+  
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert("Failed to book appointment. Please try again.");
+      console.error('Error saving appointment:', error);
+      alert('Failed to save appointment. Please try again.');
     }
   };
+  
 
   return (
     <>
@@ -223,16 +247,16 @@ const AppointmentForm = () => {
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
-          Submit
+        Update
         </button>
       </form>
 
       <div style={{ textAlign: 'center' }}>
-      <Button onClick={() => navigate("/appointment-display")}>View My Appointments</Button>
+      <Button onClick={() => navigate("/appoinment-display")}>View My Appointments</Button>
       </div>
     </div>
     </>
   );
 };
 
-export default AppointmentForm;
+export default AppoinmentEdit;

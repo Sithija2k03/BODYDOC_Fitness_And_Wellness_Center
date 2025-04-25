@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../context/globalContext';
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from '../../Login/Header';
 import Button from '../AppoinmentLayout/Button';
 
@@ -62,37 +62,30 @@ const buttonHoverStyle = {
 };
 
 const OrderForm = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { addOrder } = useGlobalContext();
 
-  const [userName, setUserName] = useState('');
-  const [doctorName, setDoctorName] = useState('');
-  const [prescriptionFile, setPrescriptionFile] = useState(null);
-  const [cDate, setCDate] = useState('');
-  const [existingPrescriptionName, setExistingPrescriptionName] = useState('');
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const { addOrder } = useGlobalContext();
+  const location = useLocation();
+
+  const [userName, setUserName] = useState(state?.userName || '');
+  const [doctorName, setDoctorName] = useState(state?.doctorName || '');
+  const [prescriptionFile, setPrescriptionFile] = useState(null); // Changed to store file
+  const [cDate, setCDate] = useState(state?.cDate || '');
+  const [existingPrescriptionName, setExistingPrescriptionName] = useState(state?.prescription || ''); // To retain the existing prescription file name
   const [errors, setErrors] = useState({});
   const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/orders/${id}`);
-        const data = await res.json();
-        setUserName(data.user_name || '');
-        setDoctorName(data.doctor_name || '');
-        setCDate(data.c_date || '');
-        setExistingPrescriptionName(data.prescription || '');
-      } catch (error) {
-        console.error("Error fetching order:", error);
-        alert("Failed to fetch order data.");
-      }
-    };
-
-    if (id) {
-      fetchOrder();
+    if (location.state) {
+      console.log("Location State:", location.state);
+      const { userName, doctorName, cDate, prescription } = location.state;
+      setUserName(userName || '');
+      setDoctorName(doctorName || '');
+      setCDate(cDate ? new Date(cDate).toISOString().split('T')[0] : '');
+      setExistingPrescriptionName(prescription || ''); // Set existing prescription file name
     }
-  }, [id]);
+  }, [location.state]);
 
   const validateForm = () => {
     let errors = {};
@@ -105,6 +98,7 @@ const OrderForm = () => {
     } else if (invalidChars.test(userName)) {
       errors.userName = "User Name cannot contain @, !, #, %, ^, &, *, or numbers!";
       isValid = false;
+      alert("Invalid username! Please do not use special characters or numbers.");
     }
 
     if (!doctorName.trim()) {
@@ -113,6 +107,7 @@ const OrderForm = () => {
     } else if (invalidChars.test(doctorName)) {
       errors.doctorName = "Doctor Name cannot contain @, !, #, %, ^, &, *, or numbers!";
       isValid = false;
+      alert("Invalid doctorName! Please do not use special characters or numbers.");
     }
 
     if (!cDate) {
@@ -126,7 +121,7 @@ const OrderForm = () => {
       }
     }
 
-    if (!prescriptionFile && !existingPrescriptionName) {
+    if (!prescriptionFile && !existingPrescriptionName) {  // Check if there’s no file uploaded and no existing file name
       errors.prescription = "Prescription PDF file is required!";
       isValid = false;
     } else if (prescriptionFile && !prescriptionFile.name.toLowerCase().endsWith('.pdf')) {
@@ -145,21 +140,32 @@ const OrderForm = () => {
       return;
     }
 
+    // Create FormData to handle file upload
     const formData = new FormData();
     formData.append('user_name', userName);
     formData.append('doctor_name', doctorName);
     formData.append('c_date', cDate);
+
+    // If a new prescription file is selected, append it, otherwise append the existing file
     if (prescriptionFile) {
       formData.append('prescription', prescriptionFile);
+    } else {
+      formData.append('prescription', existingPrescriptionName); // Append the existing prescription file
     }
 
     try {
-      await addOrder(formData, id); // Assume backend handles update if ID is passed
-      alert("Order updated successfully!");
-      navigate("/order-display");
+      await addOrder(formData);
+      setUserName('');
+      setDoctorName('');
+      setCDate('');
+      setPrescriptionFile(null);
+      setErrors({});
+      alert("Order placed successfully!");
+      // Reset the file input
+      document.getElementById('prescription').value = null;
     } catch (error) {
       console.error("Error submitting order:", error);
-      alert("Failed to update order. Please try again.");
+      alert("Failed to place order. Please try again.");
     }
   };
 
@@ -170,9 +176,7 @@ const OrderForm = () => {
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <img src="/img/bodydoc.png" alt="Logo" style={logoStyle} />
         </div>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
-          {id ? 'Edit Order' : 'Place a New Order'}
-        </h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Place a New Order</h2>
 
         <form onSubmit={handleSubmit} noValidate style={formStyle}>
           <label htmlFor="user_name" style={labelStyle}>User Name:</label>
@@ -213,9 +217,6 @@ const OrderForm = () => {
             onChange={(e) => setPrescriptionFile(e.target.files[0])}
             style={{ ...inputStyle, ...(errors.prescription ? errorBorderStyle : {}) }}
           />
-          {existingPrescriptionName && (
-            <p style={{ fontSize: '14px' }}>Current file: {existingPrescriptionName}</p>
-          )}
           {errors.prescription && <span style={errorTextStyle}>{errors.prescription}</span>}
 
           <button
@@ -224,7 +225,7 @@ const OrderForm = () => {
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
-            {id ? 'Update Order' : 'Place Order'}
+            Update
           </button>
         </form>
 

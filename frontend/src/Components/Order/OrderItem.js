@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-function AppointmentItem({ id, userName, doctorName, timeSlot, date, onDelete }) {
+function OrderItem({ id, userName, doctorName, cDate, prescription,onDelete}) {
+
   const navigate = useNavigate(); // delete part
 
   const handleDelete = () => {
@@ -17,23 +18,32 @@ function AppointmentItem({ id, userName, doctorName, timeSlot, date, onDelete })
 
   const handleEdit = () => {
     // Pass the order data to the OrderEdit form
-    navigate(`/appointment-edit/${id}`, {
-      state: { id, userName, doctorName, timeSlot, date },
+    navigate(`/order-edit/${id}`, {
+      state: { id, userName, doctorName, cDate, prescription },
     });
   };
 
 
-    return (
-    <AppointmentCard>
+  return (
+    <OrderCard>
       <div className="header">
-        <h3>Appointment #{id}</h3>
+        <h3>Order #{}</h3>
       </div>
       <div className="info">
         <div><strong>User:</strong> {userName}</div>
         <div><strong>Doctor:</strong> {doctorName}</div>
-        <div><strong>Date:</strong> {date}</div>
-        <div><strong>Time Slot:</strong> {timeSlot}</div>
+        <div><strong>Consultation Date:</strong> {cDate}</div>
+        <a 
+          href={`http://localhost:4000/${prescription}`} 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+        View
+       </a>
+
+       
       </div>
+
 
         {/* edit part and delete part */}
         <div className="actions">
@@ -43,19 +53,19 @@ function AppointmentItem({ id, userName, doctorName, timeSlot, date, onDelete })
         <button className="delete-btn" onClick={handleDelete}>
           Delete
         </button>
-
       </div>
-    </AppointmentCard>
+      
+    </OrderCard>
   );
 }
 
-const AppointmentCard = styled.div`
+const OrderCard = styled.div`
   background-color: #fff;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.08);
   transition: transform 0.2s ease;
-  border-left: 6px solid #4a90e2;
+  border-left: 6px solid #F56692;
 
   &:hover {
     transform: translateY(-3px);
@@ -72,46 +82,47 @@ const AppointmentCard = styled.div`
 
   .info {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0.7rem;
 
     div {
       font-size: 0.95rem;
       color: #333;
+      word-wrap: break-word;
     }
-}
+  }
     .actions {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-  
-      button {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background-color 0.2s;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+
+    .edit-btn {
+      background-color: #4a90e2;
+      color: white;
+
+      &:hover {
+        background-color: #357abd;
       }
-  
-      .edit-btn {
-        background-color: #4a90e2;
-        color: white;
-        
-        &:hover {
-          background-color: #357abd;
-        }
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+
+      &:hover {
+        background-color: #c0392b;
       }
-  
-      .delete-btn {
-        background-color: #e74c3c;
-        color: white;
-        
-        &:hover {
-          background-color: #c0392b;
-        }
-      }
-      }
+    }
+  }
 `;
 
-export default AppointmentItem;
+export default OrderItem;

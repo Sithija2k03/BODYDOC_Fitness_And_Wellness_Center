@@ -25,7 +25,7 @@ function Header() {
 
           <li><a href="/booking">Online Booking</a></li>
           <li><a href="/appointment-layout">Medicare & Clinic</a></li>
-          <li><a href="#">Pharmacy</a></li>
+          <li><a href="/addOrder">Pharmacy</a></li>
             <li
                       className="dropdown"
                       onMouseEnter={() => setAiDropdownOpen(true)}

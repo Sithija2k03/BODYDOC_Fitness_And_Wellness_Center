@@ -1,6 +1,5 @@
-import React from 'react';
+import React , { createContext, useContext , useState} from 'react';
 import axios from 'axios';
-
 
 const API_URL = 'http://localhost:4000/';
 
@@ -24,8 +23,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             const response = await axios.post(`${API_URL}transactions/add-income`, income);
             setIncomes((prevIncomes) => [...prevIncomes, response.data]);
-    
-            await getIncomes();  // Ensures latest incomes are fetched after adding
+            await getIncomes();
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
@@ -44,7 +42,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteIncome = async (id) => {
         try {
             await axios.delete(`${API_URL}transactions/delete-income/${id}`);
-            getIncomes();  // Refresh the income list after deletion
+            getIncomes();
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
@@ -62,7 +60,6 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
-
         getExpenses();
     };
 
@@ -79,7 +76,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteExpense = async (id) => {
         try {
             await axios.delete(`${API_URL}transactions/delete-expense/${id}`);
-            getExpenses();  // Refresh the expense list after deletion
+            getExpenses();
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
@@ -103,7 +100,6 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
-
         getSalaries();
     };
 
@@ -120,7 +116,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteSalary = async (id) => {
         try {
             await axios.delete(`${API_URL}transactions/salary-delete/${id}`);
-            getSalaries();  // Refresh the salary list after deletion
+            getSalaries();
         } catch (error) {
             setError(error.response?.data?.message || "Something went wrong");
         }
@@ -129,7 +125,6 @@ export const GlobalProvider = ({ children }) => {
     const updateSalaryStatus = async (salaryId, newStatus) => {
         try {
             const response = await axios.patch(`${API_URL}transactions/update-status/${salaryId}`, { status: newStatus });
-    
             if (response.data.salary) {
                 setSalaries((prevSalaries) =>
                     prevSalaries.map((salary) =>
@@ -143,12 +138,11 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-    // Function to fetch employee by role
     const getEmployeeByRole = async (role) => {
         try {
             const response = await axios.get(`${API_URL}getEmployeeByRole?role=${role}`);
             if (response.data) {
-                return response.data.data; // Return the employee data
+                return response.data.data;
             } else {
                 console.error("Employee not found for role:", role);
                 return null;
@@ -270,31 +264,31 @@ export const GlobalProvider = ({ children }) => {
       };
   
     const addSupplier = async (supplier) => {
-      try {
-        console.log("Supplier Payload:", supplier);
-        const response = await axios.post(`${API_URL}supplier/add`, supplier);
-        if (!response.data || !response.data.supplier) {
-          throw new Error("Invalid response from server");
+        try {
+            console.log("Supplier Payload:", supplier);
+            const response = await axios.post(`${API_URL}supplier/add`, supplier);
+            if (!response.data || !response.data.supplier) {
+                throw new Error("Invalid response from server");
+            }
+            setSuppliers((prev) => [...prev, response.data.supplier]);
+            setError(null);
+            setSuccess("Supplier added successfully");
+        } catch (err) {
+            console.error("Add Supplier Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to add supplier");
         }
-        setSuppliers((prev) => [...prev, response.data.supplier]);
-        setError(null);
-        setSuccess("Supplier added successfully");
-      } catch (err) {
-        console.error("Add Supplier Error:", err.response || err.message);
-        setError(err.response?.data?.error || "Failed to add supplier");
-      }
     };
   
     const deleteSupplier = async (supplier_id) => {
-      try {
-        await axios.delete(`${API_URL}supplier/delete/${supplier_id}`);
-        setSuppliers((prev) => prev.filter((supplier) => supplier.supplier_id !== supplier_id));
-        setError(null);
-        setSuccess("Supplier deleted successfully"); // Set success message
-      } catch (err) {
-        console.error("Delete Supplier Error:", err.response || err.message);
-        setError(err.response?.data?.error || "Failed to delete supplier");
-      }
+        try {
+            await axios.delete(`${API_URL}supplier/delete/${supplier_id}`);
+            setSuppliers((prev) => prev.filter((supplier) => supplier.supplier_id !== supplier_id));
+            setError(null);
+            setSuccess("Supplier deleted successfully");
+        } catch (err) {
+            console.error("Delete Supplier Error:", err.response || err.message);
+            setError(err.response?.data?.error || "Failed to add supplier");
+        }
     };
 
     const updateSupplier = async (supplier_id, updatedData) => {
@@ -321,42 +315,114 @@ export const GlobalProvider = ({ children }) => {
     // Add a new appointment
     const addAppointment = async (newAppointment) => {
         try {
-          const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
-          console.log("Added appointment response:", response.data);
-      
-          // Make sure you're adding just the appointment object
-          setAppointments([...appointments, response.data.appointment]);
+            const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
+            console.log("Added appointment response:", response.data);
+            setAppointments([...appointments, response.data.appointment]);
         } catch (err) {
-          console.error("Error adding appointment:", err);
-          setError("Failed to add appointment.");
+            console.error("Error adding appointment:", err);
+            setError("Failed to add appointment.");
         }
-      };
+    };
 
-      //getAppointments
-      const getAppointments = async () => {
+    const getAppointments = async () => {
         setLoading(true);
         setError(null);
         try {
-          const res = await axios.get(`${API_URL}appoinments/`);
-          setAppointments(res.data);
+            const res = await axios.get(`${API_URL}appoinments/`);
+            setAppointments(res.data);
         } catch (err) {
-          setError('Failed to fetch appointments');
+            setError('Failed to fetch appointments');
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-      
+    };
     
-      // Delete an appointment
-      const deleteAppointment = async (id) => {
+    const deleteAppointment = async (id) => {
         try {
-          await axios.delete(`${API_URL}appoinments/delete/${id}`);
-          setAppointments(appointments.filter(appointment => appointment._id !== id)); // Use _id for MongoDB
+            await axios.delete(`${API_URL}appoinments/delete/${id}`);
+            setAppointments(appointments.filter(appoinment => appoinment._id !== id));
         } catch (err) {
-          console.error("Error deleting appointment:", err);
-          setError("Failed to delete appointment.");
+            console.error("Error deleting appointment:", err);
+            setError("Failed to delete appointment.");
+        }
+    };
+
+    const updateAppoinment = async (id, formData) => {
+        try {
+            const data = await axios.put(`${API_URL}appoinments/update/${id}`,formData);
+          setAppointments(appointments.map(app => (app.id === id ? { id, ...data.data } : app)));
+          return data;
+        } catch (err) {
+          const errorMessage = err.response?.data?.error || 'Failed to update appointment';
+          setError(errorMessage);
+          console.error('Update error:', err.response || err);
+          throw err;
         }
       };
+    
+
+    // Order Section
+    const addOrder = async (newOrder) => {
+      try {
+          // Log the FormData content for debugging
+          console.log("Sending FormData to backend:");
+          for (let pair of newOrder.entries()) {
+              console.log(`${pair[0]}: ${pair[1]}`);
+          }
+
+          const response = await axios.post(`${API_URL}order/add`, newOrder, {
+              headers: {
+                  'Content-Type': 'multipart/form-data',
+              },
+          });
+
+          console.log("Added order response:", response.data);
+
+          // Ensure the response contains the expected data
+          if (!response.data || !response.data.data) {
+              throw new Error("Invalid response from backend: missing order data");
+          }
+
+          // Update the orders state with the new order
+          setOrders((prevOrders) => [...prevOrders, response.data.data]);
+      } catch (err) {
+          console.error("Error adding order:", err);
+          // Log more details about the error
+          if (err.response) {
+              console.error("Response data:", err.response.data);
+              console.error("Response status:", err.response.status);
+              console.error("Response headers:", err.response.headers);
+          } else if (err.request) {
+              console.error("No response received:", err.request);
+          } else {
+              console.error("Error setting up request:", err.message);
+          }
+          setError(err.response?.data?.error || err.message || "Failed to add order.");
+      }
+  };
+
+    const getOrders = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await axios.get(`${API_URL}order/`);
+            setOrders(res.data);
+        } catch (err) {
+            setError('Failed to fetch orders');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const deleteOrder = async (id) => {
+        try {
+            await axios.delete(`${API_URL}order/delete/${id}`);
+            setOrders(orders.filter(order => order._id !== id));
+        } catch (err) {
+            console.error("Error deleting order:", err);
+            setError("Failed to delete order.");
+        }
+    };
 
 
     return (
@@ -404,7 +470,12 @@ export const GlobalProvider = ({ children }) => {
             setBookings,
 
             error,
-            setError
+            setError,
+            addOrder,
+            getOrders,
+            deleteOrder,
+        
+            orders
         }}>
             {children}
         </GlobalContext.Provider>
