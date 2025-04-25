@@ -6,6 +6,8 @@ import Orb from './Components/Orb/Orb';
 import Navigation from './Components/Navigation/Navigation';
 import React, { useState } from 'react';
 import Dashboard from './Components/Dashboard/Dashboard';
+import Bookings from './Components/Booking/Bookings';
+import AppoinmentList from './Components/Appoinment/Appoinment';
 import Incomes from './Components/Incomes/Incomes';
 import Expenses from './Components/Expenses/Expenses';
 import Salary from './Components/Salaries/salaries';
@@ -13,6 +15,7 @@ import Inventory from './Components/Inventory/Inventory';
 import { GlobalProvider } from './context/globalContext'; // Import GlobalProvider
 import Supplier from './Components/Suppliers/Supplier';
 import Login from './Login/Login'; // Import Login component
+import AdminAppointments from './Components/Appoinment/AdminAppointments';
 
 function App() {
   const [active, setActive] = React.useState(1);
@@ -23,6 +26,10 @@ function App() {
         return <Dashboard />;
       case 2:
         return <Dashboard />;
+      case 9:
+        return <Bookings />;
+      case 10:
+        return <AdminAppointments />;
       case 3:
         return <Incomes />;
       case 4:

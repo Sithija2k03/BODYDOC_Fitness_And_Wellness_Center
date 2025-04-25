@@ -8,6 +8,7 @@ const EditBooking = () => {
 
   const [formData, setFormData] = useState({
     Name: "",
+    email: "", // Added email field
     facility_type: "",
     date: "",
     time_slot: "",
@@ -25,6 +26,7 @@ const EditBooking = () => {
 
         setFormData({
           Name: booking.Name || "",
+          email: booking.email || "", // Added email field
           facility_type: booking.facility_type || "",
           date: booking.date?.slice(0, 10) || "",
           time_slot: booking.time_slot || "",
@@ -56,7 +58,7 @@ const EditBooking = () => {
     try {
       await axios.put(`http://localhost:4000/booking/update/${id}`, formData);
       alert("Booking updated successfully!");
-      navigate("/booking-list");
+      navigate("/bookings");
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking.");
@@ -163,6 +165,7 @@ const EditBooking = () => {
           </div>
 
           <div className="form-group">
+
             <label htmlFor="facility_type">Facility Type</label>
             <select
               name="facility_type"
@@ -171,6 +174,21 @@ const EditBooking = () => {
               onChange={handleChange}
               required
             >
+
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Facility Type</label>
+            <select name="facility_type" value={formData.facility_type} onChange={handleChange} required>
+
               <option value="">Select Facility</option>
               <option value="Gym">Gym</option>
               <option value="Swimming Pool">Swimming Pool</option>

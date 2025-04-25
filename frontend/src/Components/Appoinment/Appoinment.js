@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Header from '../../Login/Header';
 
 function AppointmentsList() {
-  const { appointments, getAppointments, loading, error } = useGlobalContext();
+  const { appointments, getAppointments, loading, error,deleteAppointment } = useGlobalContext();
 
   useEffect(() => {
     getAppointments();
@@ -30,6 +30,9 @@ function AppointmentsList() {
               doctorName={appointment.doctor_name}
               timeSlot={appointment.time_slot}
               date={appointment.date}
+
+              //delete part
+              onDelete={() => deleteAppointment(appointment._id)}
             />
           ))
         ) : (

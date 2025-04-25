@@ -1,4 +1,4 @@
-import { transactions, incomes, expenses, dashboard, salary, logout, inventory, truck } from './icons';
+import { transactions, incomes, expenses, dashboard, salary, logout, inventory, truck,users, booking, doctor } from './icons';
 const navItems = [
     {
         id: 1,
@@ -8,9 +8,21 @@ const navItems = [
     },
     {
         id: 2,
-        title: 'View Transactions',
-        icon: transactions,
+        title: 'Registered Users',
+        icon: users,
         link: '/transactions'
+    },
+    {
+        id: 9,
+        title: 'Facility Bookings',
+        icon: booking,
+        link: '/bookings'
+    },
+    {
+        id: 10,
+        title: 'Appointments',
+        icon: doctor,
+        link: '/appointment-display'
     },
     {
         id: 3,
@@ -40,7 +52,7 @@ const navItems = [
         id: 7,
         title: 'Suppliers',
         icon: truck,
-        link: '/suppliers'
+        link: '/supplier'
     },
     {
         id: 8,

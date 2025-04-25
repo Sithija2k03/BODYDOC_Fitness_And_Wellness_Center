@@ -1,25 +1,34 @@
 import React, { useState } from "react";
 import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 
 
 import Header from "../Login/Header"; // Make sure this path is correct based on your folder structure
 
+// import { useNavigate } from "react-router-dom";
+import Header from "../../Login/Header"; // Make sure this path is correct based on your folder structure
+
+
 
 const BookingForm = () => {
     const [formData, setFormData] = useState({
         Name: "",
+        email: "", // Added email field
         facility_type: "",
         date: "",
         time_slot: "",
-        status: "",
     });
 
     const [error, setError] = useState(null);
 
+
     const [nameError, setNameError] = useState("");
 
     const navigate = useNavigate();
+
+    // const navigate = useNavigate();
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +62,11 @@ const BookingForm = () => {
 
 
         try {
-            const response = await axios.post("http://localhost:4000/booking/add", formData);
+            const response = await axios.post("http://localhost:4000/booking/add-book", formData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Added Authorization header
+                },
+            });
             if (response.status === 201) {
                 alert("Booking Successful!");
  
@@ -169,6 +182,18 @@ const BookingForm = () => {
                     </div>
 
                     <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
                         <label htmlFor="facility_type">Facility Type</label>
                         <select
                             id="facility_type"
@@ -208,7 +233,6 @@ const BookingForm = () => {
                             required
                         />
                     </div>
-
                     <div className="form-group">
                         <label htmlFor="status">Status</label>
                         <input
@@ -222,6 +246,9 @@ const BookingForm = () => {
                     </div>
 
                     <button type="submit" className="submit-button">Confirm Booking</button>
+
+                    <button type="submit" className="submit-button">Book Now</button>
+
                 </form>
             </div>
         </div>
