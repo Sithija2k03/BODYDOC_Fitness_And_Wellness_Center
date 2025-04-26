@@ -36,7 +36,7 @@ const PublicLayout = () => (
   </div>
 );
 
-// Private Route Component
+// Private Route Component (using the more robust version with error handling)
 const PrivateRoute = ({ children }) => {
   let user = null;
   const token = localStorage.getItem('token');

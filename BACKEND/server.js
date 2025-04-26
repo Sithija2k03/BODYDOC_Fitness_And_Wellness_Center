@@ -2,12 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const { readdirSync } = require('fs');
 require('dotenv').config();
-const connectDB = require('./db/db');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+
+// Models
 const User = require("./models/user.js");
 const Helth = require("./models/helth.js");
+
+// Routes
 const userRouter = require("./routes/users.js");
 const membershipRouter = require("./routes/membershiproutes.js");
 const staffRouter = require("./routes/staffroutes.js");
@@ -18,15 +21,17 @@ const orderRouter = require("./routes/order.js");
 const supplierRouter = require("./routes/suppliers.js");
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 const gymEquipmentRouter = require("./routes/gymEquipments.js");
+const bmiRouter = require("./routes/bmiRoute.js");
+
+// Google Generative AI
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const Helth = require("./models/helth.js");
-const bmiRouter = require('./routes/bmiRoute.js');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' })); 
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -36,12 +41,9 @@ mongoose.connect(process.env.MONGODB_URL)
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-
-// Dummy JWT user for testing
+// Dummy JWT user for testing (defined once)
 const sampleUser = { _id: "1234567890" };
 const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-
 
 // Register Routes
 app.use("/user", userRouter);
@@ -54,18 +56,7 @@ app.use("/order", orderRouter);
 app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
-
-
-
-// AI Response Parsing Helper
-const bmiRoute = require("./routes/bmiRoute");
-app.use("/api/bmi", bmiRoute);
-
-
-// AI Response Parsing Helper
-const bmiRoute = require("./routes/bmiRoute");
-app.use("/api/bmi", bmiRoute);
-
+app.use("/api/bmi", bmiRouter);
 
 // AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
@@ -83,12 +74,6 @@ const getGeminiResponseStructured = async (model, prompt) => {
 
     console.log("Parsed AI Response:", textResponse);
 
-
-    // Extract table rows from Markdown format
-
-    console.log("Raw AI Response:", textResponse);
-    
-
     const lines = textResponse.split("\n").filter(line => line.trim());
     const tableData = [];
     let headers = [];
@@ -97,19 +82,7 @@ const getGeminiResponseStructured = async (model, prompt) => {
       if (line.includes("|") && !line.includes("---")) {
         const parts = line.split("|").map(part => part.trim()).filter(Boolean);
         if (!headers.length) {
-
-          headers = parts;
-
           headers = parts; // First row = table headers
-          // Validate headers
-          const expectedHeaders = ['Day', 'Exercise', 'Sets', 'Reps', 'Notes'];
-          if (!expectedHeaders.every(h => headers.includes(h))) {
-            console.warn('Invalid table headers:', headers);
-            return;
-          }
-
-
-          headers = parts;
         } else {
           const row = {};
           headers.forEach((header, index) => {
@@ -126,6 +99,7 @@ const getGeminiResponseStructured = async (model, prompt) => {
     return { error: `⚠️ AI response failed: ${error.message}` };
   }
 };
+
 // AI Workout Plan Endpoint
 app.post('/api/ai/workout', async (req, res) => {
   try {
@@ -162,6 +136,7 @@ app.post('/api/ai/workout', async (req, res) => {
   | Week 2: Progression | | | | |
   | ... (continue for all 4 weeks) |
 - Do not include any text outside the table.`;
+
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
     const aiResponse = await getGeminiResponseStructured(model, prompt);
     console.log('Raw AI Response:', JSON.stringify(aiResponse, null, 2));
@@ -303,7 +278,7 @@ function parseMarkdownTable(markdown) {
   return data;
 }
 
-
+// AI Nutrition Plan Endpoint
 app.post('/api/ai/nutrition', async (req, res) => {
   const { fitnessGoal, age, weight, height } = req.body;
 
@@ -379,7 +354,7 @@ app.post('/api/ai/nutrition', async (req, res) => {
     } else if (aiResponse.rawText && typeof aiResponse.rawText === 'string') {
       console.log('AI Response rawText:', aiResponse.rawText);
       const [tableText, tipsText] = aiResponse.rawText.split('\n- ');
-      nutritionPlan = parseMarkdownTable(tableText);
+      nutritionPlan = parseMarkdownTableNutrition(tableText);
       console.log('Parsed nutritionPlan:', JSON.stringify(nutritionPlan, null, 2));
       tips = tipsText ? tipsText.split('\n- ').map(tip => tip.trim()).filter(tip => tip) : [];
       if (tips.length === 0) {
@@ -711,10 +686,10 @@ app.post('/api/ai/nutrition', async (req, res) => {
   }
 });
 
-// Updated parseMarkdownTable function
-function parseMarkdownTable(markdown) {
+// Updated parseMarkdownTable function for Nutrition
+function parseMarkdownTableNutrition(markdown) {
   if (typeof markdown !== 'string') {
-    console.error('parseMarkdownTable: Expected a string, got:', markdown);
+    console.error('parseMarkdownTableNutrition: Expected a string, got:', markdown);
     return [];
   }
 
@@ -750,9 +725,8 @@ function parseMarkdownTable(markdown) {
 
   return data;
 }
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-
