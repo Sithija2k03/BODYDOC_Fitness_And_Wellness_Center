@@ -26,8 +26,9 @@ import NutritionResults from './Components/Nutrition/NutritionResults';
 import BMI from './Components/BMI Calculator/BMI';
 import AppointmentForm from './Components/Appoinment/AppoinmentForm';
 import AppointmentLayout from './Components/AppoinmentLayout/AppoinmentLayout';
-import AppointmentList from './Components/AppoinmentLayout/AppoinmentLayout';
+import AppointmentList from './Components/Appoinment/Appoinment';
 
+// Public Layout Component
 const PublicLayout = () => (
   <div>
     {/* Add Header or Navigation here if needed */}
@@ -35,6 +36,7 @@ const PublicLayout = () => (
   </div>
 );
 
+// Private Route Component
 const PrivateRoute = ({ children }) => {
   let user = null;
   const token = localStorage.getItem('token');

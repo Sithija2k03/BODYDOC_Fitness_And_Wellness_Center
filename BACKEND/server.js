@@ -21,8 +21,6 @@ const gymEquipmentRouter = require("./routes/gymEquipments.js");
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Helth = require("./models/helth.js");
 const bmiRouter = require('./routes/bmiRoute.js');
-
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -44,6 +42,7 @@ const sampleUser = { _id: "1234567890" };
 const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
 
+
 // Register Routes
 app.use("/user", userRouter);
 app.use("/membership", membershipRouter);
@@ -57,16 +56,18 @@ app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
 
 
+
 // AI Response Parsing Helper
-
-
-
 const bmiRoute = require("./routes/bmiRoute");
 app.use("/api/bmi", bmiRoute);
 
 
 // AI Response Parsing Helper
+const bmiRoute = require("./routes/bmiRoute");
+app.use("/api/bmi", bmiRoute);
 
+
+// AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
   try {
     console.log('Generating AI response with prompt:', prompt);
@@ -96,7 +97,9 @@ const getGeminiResponseStructured = async (model, prompt) => {
       if (line.includes("|") && !line.includes("---")) {
         const parts = line.split("|").map(part => part.trim()).filter(Boolean);
         if (!headers.length) {
+
           headers = parts;
+
           headers = parts; // First row = table headers
           // Validate headers
           const expectedHeaders = ['Day', 'Exercise', 'Sets', 'Reps', 'Notes'];
@@ -105,8 +108,8 @@ const getGeminiResponseStructured = async (model, prompt) => {
             return;
           }
 
-          headers = parts;
 
+          headers = parts;
         } else {
           const row = {};
           headers.forEach((header, index) => {
