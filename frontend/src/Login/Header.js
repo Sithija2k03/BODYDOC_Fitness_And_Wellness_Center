@@ -50,6 +50,7 @@ function Header() {
                         <ul className="dropdown-menu">
                           <li><Link to="/nutrition-plan">Nutrition Plan</Link></li>
                           <li><Link to="/workout-plan">Workout Plan</Link></li>
+                          <li><Link to="/BMI">BMI Calculator</Link></li>
                         </ul>
                       )}
                     </li>

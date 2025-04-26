@@ -1,393 +1,324 @@
-// import React from 'react';
-// import { useLocation } from 'react-router-dom';
-// import Header from '../../Login/Header';
+import React, { useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-// function NutritionResults() {
-//   const location = useLocation();
-//   const result = location.state?.result || null;
-//   const nutritionPlan = result?.nutritionPlan || null;
+const NutritionResults = ({ title, data }) => {
+  const printRef = useRef();
 
-//   const containerStyle = {
-//     padding: '20px',
-//     maxWidth: '800px',
-//     margin: '0 auto',
-//     border: '1px solid #ccc',
-//     borderRadius: '5px',
-//     minHeight: '100vh',
-//   };
+  const handleDownloadPDF = async () => {
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const input = printRef.current;
+    const sections = input.querySelectorAll('.nutrition-section');
 
-//   const titleStyle = {
-//     marginBottom: '20px',
-//     color: '#333',
-//     textAlign: 'center',
-//   };
+    for (let i = 0; i < sections.length; i++) {
+      const canvas = await html2canvas(sections[i], { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-//   const tableStyle = {
-//     width: '100%',
-//     borderCollapse: 'collapse',
-//     marginBottom: '20px',
-//   };
+      if (i !== 0) pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    }
 
-//   const thStyle = {
-//     backgroundColor: '#f4f4f4',
-//     padding: '10px',
-//     border: '1px solid #ccc',
-//     textAlign: 'left',
-//     fontWeight: 'bold',
-//   };
+    pdf.save(`${title}.pdf`);
+  };
 
-//   const tdStyle = {
-//     padding: '10px',
-//     border: '1px solid #ccc',
-//     textAlign: 'left',
-//   };
+  const transformToWeeklyFormat = (nutritionData) => {
+    console.log('Transforming nutrition data:', nutritionData); // Debug log
 
-//   const errorStyle = {
-//     color: 'red',
-//     textAlign: 'center',
-//     marginTop: '20px',
-//     fontSize: '16px',
-//   };
+    // Since we know there's only 1 week, we can simplify the structure
+    const week = {
+      section: 'Week 1: Foundation',
+      days: {
+        Monday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Tuesday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Wednesday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Thursday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Friday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Saturday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+        Sunday: { Breakfast: [], Lunch: [], Dinner: [], 'Snack 1': [] },
+      },
+    };
 
-//   if (!nutritionPlan || !Array.isArray(nutritionPlan)) {
-//     return (
-//       <div style={containerStyle}>
-//         <Header />
-//         <h2 style={titleStyle}>Nutrition Plan</h2>
-//         <p style={errorStyle}>No nutrition plan available. Please generate a plan first.</p>
-//       </div>
-//     );
-//   }
+    nutritionData.forEach((item) => {
+      const cleanedMeal = item.Meal.replace(/\*\*/g, '').trim();
 
-//   // Extract totals and meals
-//   const totals = nutritionPlan.find((item) => item.Meal === '**Totals**') || {};
-//   const meals = nutritionPlan.filter((item) => item.Meal !== '**Totals**');
+      // Skip the week header and totals
+      if (cleanedMeal.match(/^Week \d+:/) || cleanedMeal === 'Totals') {
+        if (cleanedMeal.match(/^Week \d+:/)) {
+          week.section = cleanedMeal; // Update section name if needed
+        }
+        return;
+      }
 
-//   // Construct the expected nutritionPlan object
-//   const formattedPlan = {
-//     calories: parseInt(totals.Calories?.replace('~', '') || '0'),
-//     macros: {
-//       protein: parseInt(totals.Protein?.replace('~', '') || '0'),
-//       carbs: parseInt(totals.Carbs?.replace('~', '') || '0'),
-//       fat: parseInt(totals.Fats?.replace('~', '') || '0'),
-//     },
-//     dailyMeals: meals.map((meal) => ({
-//       title: meal.Meal.replace(/\*\*/g, ''), // Remove markdown bold
-//       details: meal.Food,
-//       calories: parseInt(meal.Calories?.replace('~', '') || '0'),
-//     })),
-//     tips: [], // Add tips if the API provides them, or leave as empty
-//   };
+      // Handle meal entries
+      if (cleanedMeal.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+(Breakfast|Lunch|Dinner|Snack)/)) {
+        const [day, mealType] = cleanedMeal.split(/\s+(?=\bBreakfast\b|\bLunch\b|\bDinner\b|\bSnack\b)/);
+        const adjustedMealType = mealType === 'Snack' ? 'Snack 1' : mealType; // Only Snack 1 since backend provides 1 snack
 
-//   return (
-//     <div style={containerStyle}>
-//       <Header />
-//       <h2 style={titleStyle}>Your Personalized Nutrition Plan</h2>
+        const mealEntry = {
+          food: item.Food || '-',
+          calories: item.Calories || '-',
+          protein: item['Protein (g)'] || '-',
+          carbs: item['Carbs (g)'] || '-',
+          fats: item['Fats (g)'] || '-',
+        };
+        week.days[day][adjustedMealType].push(mealEntry);
+      }
+    });
 
-//       {/* Daily Calorie Goal Table */}
-//       <h3>Daily Calorie Goal</h3>
-//       <table style={tableStyle}>
-//         <thead>
-//           <tr>
-//             <th style={thStyle}>Metric</th>
-//             <th style={thStyle}>Value</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           <tr>
-//             <td style={tdStyle}>Total Calories</td>
-//             <td style={tdStyle}>{formattedPlan.calories || 'N/A'} kcal</td>
-//           </tr>
-//         </tbody>
-//       </table>
+    console.log('Transformed weekly data:', week); // Debug log
+    return week;
+  };
 
-//       {/* Macronutrient Breakdown Table */}
-//       <h3>Macronutrient Breakdown</h3>
-//       <table style={tableStyle}>
-//         <thead>
-//           <tr>
-//             <th style={thStyle}>Macronutrient</th>
-//             <th style={thStyle}>Amount (g)</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {formattedPlan.macros ? (
-//             <>
-//               <tr>
-//                 <td style={tdStyle}>Protein</td>
-//                 <td style={tdStyle}>{formattedPlan.macros.protein || 0}g</td>
-//               </tr>
-//               <tr>
-//                 <td style={tdStyle}>Carbohydrates</td>
-//                 <td style={tdStyle}>{formattedPlan.macros.carbs || 0}g</td>
-//               </tr>
-//               <tr>
-//                 <td style={tdStyle}>Fats</td>
-//                 <td style={tdStyle}>{formattedPlan.macros.fat || 0}g</td>
-//               </tr>
-//             </>
-//           ) : (
-//             <tr>
-//               <td style={tdStyle} colSpan="2">
-//                 No macronutrient data available.
-//               </td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
+  const renderWeeklyTable = (weeklyData) => {
+    if (!weeklyData || weeklyData.length === 0) {
+      return <p style={noDataStyle}>No nutrition plan data available.</p>;
+    }
 
-//       {/* Meal Plan Table */}
-//       <h3>Meal Plan</h3>
-//       <table style={tableStyle}>
-//         <thead>
-//           <tr>
-//             <th style={thStyle}>Meal</th>
-//             <th style={thStyle}>Description</th>
-//             <th style={thStyle}>Calories (kcal)</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {formattedPlan.dailyMeals && formattedPlan.dailyMeals.length > 0 ? (
-//             formattedPlan.dailyMeals.map((meal, index) => (
-//               <tr key={index}>
-//                 <td style={tdStyle}>{meal.title || `Meal ${index + 1}`}</td>
-//                 <td style={tdStyle}>{meal.details || 'N/A'}</td>
-//                 <td style={tdStyle}>{meal.calories || 'N/A'}</td>
-//               </tr>
-//             ))
-//           ) : (
-//             <tr>
-//               <td style={tdStyle} colSpan="3">
-//                 No meal plan available.
-//               </td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
+    const week = transformToWeeklyFormat(weeklyData);
+    if (!week || !week.days) {
+      return <p style={noDataStyle}>No weekly nutrition data available.</p>;
+    }
 
-//       {/* Recommendations Table */}
-//       <h3>Additional Recommendations</h3>
-//       <table style={tableStyle}>
-//         <thead>
-//           <tr>
-//             <th style={thStyle}>Recommendation</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {formattedPlan.tips && formattedPlan.tips.length > 0 ? (
-//             formattedPlan.tips.map((rec, index) => (
-//               <tr key={index}>
-//                 <td style={tdStyle}>{rec}</td>
-//               </tr>
-//             ))
-//           ) : (
-//             <tr>
-//               <td style={tdStyle}>No additional recommendations provided.</td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// }
+    const rows = {
+      Breakfast: {},
+      Lunch: {},
+      Dinner: {},
+      'Snack 1': {},
+    };
 
-// export default NutritionResults;
+    Object.keys(week.days).forEach((day) => {
+      Object.keys(rows).forEach((mealType) => {
+        rows[mealType][day] = week.days[day][mealType] || [];
+      });
+    });
 
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import Header from '../../Login/Header';
+    return (
+      <div className="nutrition-section" style={weekContainerStyle}>
+        <h3 style={sectionHeaderStyle}>{week.section}</h3>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={tableHeaderStyle}>Detail</th>
+              {Object.keys(week.days).map((day) => (
+                <th key={day} style={tableHeaderStyle}>{day}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {['Breakfast', 'Lunch', 'Dinner', 'Snack 1'].map((mealType, rowIndex) => (
+              <tr key={mealType} style={rowIndex % 2 === 0 ? evenRowStyle : oddRowStyle}>
+                <td style={tableCellStyle}>{mealType}</td>
+                {Object.keys(week.days).map((day) => (
+                  <td key={day} style={tableCellStyle}>
+                    {rows[mealType][day].length > 0 ? (
+                      rows[mealType][day].map((item, idx) => (
+                        <div key={idx} style={cellContentStyle}>
+                          {item.food !== '-' ? item.food : 'No Meal'}<br />
+                          {item.calories !== '-' && `Calories: ${item.calories}`}<br />
+                          {item.protein !== '-' && `Protein: ${item.protein} g`}<br />
+                          {item.carbs !== '-' && `Carbs: ${item.carbs} g`}<br />
+                          {item.fats !== '-' && `Fats: ${item.fats} g`}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={cellContentStyle}>-</div>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
-function NutritionResults() {
-  const location = useLocation();
-  const result = location.state?.result || null;
-  const nutritionPlan = result?.nutritionPlan || null;
+  const renderTotalsTable = (nutritionData) => {
+    const totals = nutritionData.find((item) => item.Meal === '**Totals**') || {};
+    return (
+      <div className="nutrition-section" style={weekContainerStyle}>
+        <h3 style={sectionHeaderStyle}>Totals (1 Week)</h3> {/* Updated header */}
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={tableHeaderStyle}>Metric</th>
+              <th style={tableHeaderStyle}>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style={evenRowStyle}>
+              <td style={tableCellStyle}>Total Calories</td>
+              <td style={tableCellStyle}>{totals.Calories || '-'} kcal</td>
+            </tr>
+            <tr style={oddRowStyle}>
+              <td style={tableCellStyle}>Total Protein</td>
+              <td style={tableCellStyle}>{totals['Protein (g)'] || '-'} g</td>
+            </tr>
+            <tr style={evenRowStyle}>
+              <td style={tableCellStyle}>Total Carbs</td>
+              <td style={tableCellStyle}>{totals['Carbs (g)'] || '-'} g</td>
+            </tr>
+            <tr style={oddRowStyle}>
+              <td style={tableCellStyle}>Total Fats</td>
+              <td style={tableCellStyle}>{totals['Fats (g)'] || '-'} g</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
+  const renderTipsTable = (tips) => {
+    console.log('Rendering tips:', tips); // Debug log
+    return (
+      <div className="nutrition-section" style={weekContainerStyle}>
+        <h3 style={sectionHeaderStyle}>Additional Recommendations</h3>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th style={tableHeaderStyle}>Recommendation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tips && tips.length > 0 ? (
+              tips.map((tip, index) => (
+                <tr key={index} style={index % 2 === 0 ? evenRowStyle : oddRowStyle}>
+                  <td style={tableCellStyle}>{tip}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td style={tableCellStyle}>No additional tips provided.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // CSS Styles (unchanged)
   const containerStyle = {
-    padding: '20px',
-    maxWidth: '800px',
+    maxWidth: '1200px',
     margin: '0 auto',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    minHeight: '100vh',
+    padding: '20px',
+    fontFamily: "'Arial', sans-serif",
+    color: '#333',
   };
 
   const titleStyle = {
-    marginBottom: '20px',
-    color: '#333',
+    fontSize: '28px',
+    fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: '30px',
+    color: '#2c3e50',
+  };
+
+  const weekContainerStyle = {
+    marginBottom: '40px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    padding: '15px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+  };
+
+  const sectionHeaderStyle = {
+    fontSize: '22px',
+    fontWeight: '600',
+    color: '#34495e',
+    marginBottom: '15px',
+    textAlign: 'left',
   };
 
   const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse',
-    marginBottom: '20px',
+    backgroundColor: '#fff',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    overflow: 'hidden',
   };
 
-  const thStyle = {
-    backgroundColor: '#f4f4f4',
-    padding: '10px',
-    border: '1px solid #ccc',
+  const tableHeaderStyle = {
+    backgroundColor: '#3498db',
+    color: '#fff',
+    padding: '12px 15px',
     textAlign: 'left',
-    fontWeight: 'bold',
-  };
-
-  const tdStyle = {
-    padding: '10px',
-    border: '1px solid #ccc',
-    textAlign: 'left',
-  };
-
-  const errorStyle = {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: '20px',
+    fontWeight: '600',
     fontSize: '16px',
+    borderBottom: '2px solid #2980b9',
   };
 
-  if (!nutritionPlan || !Array.isArray(nutritionPlan)) {
-    return (
-      <div style={containerStyle}>
-        <Header />
-        <h2 style={titleStyle}>Nutrition Plan</h2>
-        <p style={errorStyle}>No nutrition plan available. Please generate a plan first.</p>
-      </div>
-    );
-  }
+  const tableCellStyle = {
+    padding: '10px 15px',
+    borderBottom: '1px solid #ddd',
+    textAlign: 'left',
+    fontSize: '14px',
+    verticalAlign: 'top',
+    minWidth: '120px',
+  };
 
-  // Filter out empty meal entries and extract totals
-  const validMeals = nutritionPlan.filter((item) => item.Meal && item.Meal.trim() !== '');
-  const totals = validMeals.find((item) => item.Meal === '**Totals**') || {};
-  const meals = validMeals.filter((item) => item.Meal !== '**Totals**');
+  const evenRowStyle = {
+    backgroundColor: '#f2f2f2',
+  };
 
-  // Use Food field for total calories since Calories seems incorrect
-  const totalCalories = totals.Food?.replace('~', '') || totals.Calories?.replace('~', '') || '0';
+  const oddRowStyle = {
+    backgroundColor: '#fff',
+  };
 
-  // Construct the expected nutritionPlan object
-  const formattedPlan = {
-    calories: parseInt(totalCalories) || 0,
-    macros: {
-      protein: parseInt(totals['Protein (g)']?.replace('~', '') || '0'),
-      carbs: parseInt(totals['Carbs (g)']?.replace('~', '') || '0'),
-      fat: parseInt(totals['Fats (g)']?.replace('~', '') || '0'),
-    },
-    dailyMeals: meals.map((meal) => ({
-      title: meal.Meal.replace(/\*\*/g, ''),
-      details: meal.Food,
-      calories: parseInt(meal.Calories?.replace('~', '') || '0'),
-    })),
-    tips: [], // Add tips if provided by the API
+  const cellContentStyle = {
+    marginBottom: '5px',
+    lineHeight: '1.5',
+  };
+
+  const noDataStyle = {
+    textAlign: 'center',
+    color: '#7f8c8d',
+    fontSize: '16px',
+    marginTop: '20px',
+  };
+
+  const responsiveTableStyle = {
+    ...tableStyle,
+    display: 'block',
+    overflowX: 'auto',
+  };
+
+  const downloadButtonStyle = {
+    marginBottom: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#2980b9',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '16px',
   };
 
   return (
     <div style={containerStyle}>
-      <Header />
-      <h2 style={titleStyle}>Your Personalized Nutrition Plan</h2>
-
-      {/* Daily Calorie Goal Table */}
-      <h3>Daily Calorie Goal</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Metric</th>
-            <th style={thStyle}>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={tdStyle}>Total Calories</td>
-            <td style={tdStyle}>{formattedPlan.calories ? `${formattedPlan.calories} kcal` : 'N/A'}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Macronutrient Breakdown Table */}
-      <h3>Macronutrient Breakdown</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Macronutrient</th>
-            <th style={thStyle}>Amount (g)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formattedPlan.macros ? (
-            <>
-              <tr>
-                <td style={tdStyle}>Protein</td>
-                <td style={tdStyle}>{formattedPlan.macros.protein ? `${formattedPlan.macros.protein}g` : 'N/A'}</td>
-              </tr>
-              <tr>
-                <td style={tdStyle}>Carbohydrates</td>
-                <td style={tdStyle}>{formattedPlan.macros.carbs ? `${formattedPlan.macros.carbs}g` : 'N/A'}</td>
-              </tr>
-              <tr>
-                <td style={tdStyle}>Fats</td>
-                <td style={tdStyle}>{formattedPlan.macros.fat ? `${formattedPlan.macros.fat}g` : 'N/A'}</td>
-              </tr>
-            </>
-          ) : (
-            <tr>
-              <td style={tdStyle} colSpan="2">
-                No macronutrient data available.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {/* Meal Plan Table */}
-      <h3>Meal Plan</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Meal</th>
-            <th style={thStyle}>Description</th>
-            <th style={thStyle}>Calories (kcal)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formattedPlan.dailyMeals && formattedPlan.dailyMeals.length > 0 ? (
-            formattedPlan.dailyMeals.map((meal, index) => (
-              <tr key={index}>
-                <td style={tdStyle}>{meal.title || `Meal ${index + 1}`}</td>
-                <td style={tdStyle}>{meal.details || 'N/A'}</td>
-                <td style={tdStyle}>{meal.calories ? `${meal.calories} kcal` : 'N/A'}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td style={tdStyle} colSpan="3">
-                No meal plan available.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {/* Recommendations Table */}
-      <h3>Additional Recommendations</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Recommendation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formattedPlan.tips && formattedPlan.tips.length > 0 ? (
-            formattedPlan.tips.map((rec, index) => (
-              <tr key={index}>
-                <td style={tdStyle}>{rec}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td style={tdStyle}>No additional recommendations provided.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <h2 style={titleStyle}>{title}</h2>
+      <button onClick={handleDownloadPDF} style={downloadButtonStyle}>
+        Download as PDF
+      </button>
+      <div ref={printRef}>
+        {data ? (
+          <>
+            <div style={responsiveTableStyle}>
+              {renderWeeklyTable(data.nutritionPlan)}
+            </div>
+            {renderTotalsTable(data.nutritionPlan)}
+            {renderTipsTable(data.tips)}
+          </>
+        ) : (
+          <p style={noDataStyle}>No nutrition plan data available.</p>
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default NutritionResults;

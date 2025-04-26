@@ -99,30 +99,23 @@ router.route("/track-progress/:id").post(async (req, res) => {
 });
 
 // Calculate BMI
-router.route("/calculate-bmi/:id").get(async (req, res) => {
-    const userId = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).send({ status: "Invalid user ID" });
-    }
-
-    try {
-        const user = await Helth.findById(userId);
-        if (!user) {
-            return res.status(404).send({ status: "User not found" });
-        }
-
-        const heightInMeters = user.height / 100;
-        const bmi = (user.weight / (heightInMeters * heightInMeters)).toFixed(2);
-        user.bmi = bmi;
-        await user.save();
-
-        res.status(200).send({ status: "BMI calculated", bmi });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({ status: "Error calculating BMI", error: err.message });
-    }
-});
+// router.route("/calculate-bmi").post(async (req, res) => {
+//     const { height, weight } = req.body;
+  
+//     // Validate input
+//     if (!height || !weight || isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+//       return res.status(400).send({ status: "Invalid height or weight" });
+//     }
+  
+//     try {
+//       const heightInMeters = height / 100;
+//       const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+//       res.status(200).send({ status: "BMI calculated", bmi });
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).send({ status: "Error calculating BMI", error: err.message });
+//     }
+//   });
 
 // // Generate AI workout, nutrition, and recovery plans
 // router.route("/generate-plans/:id").post(async (req, res) => {
