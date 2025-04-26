@@ -21,8 +21,8 @@ const orderRouter = require("./routes/order.js");
 const supplierRouter = require("./routes/suppliers.js");
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 const gymEquipmentRouter = require("./routes/gymEquipments.js");
-
 const pettyCashRoutes = require('./routes/pettyCashRoutes');
+const bankRoutes = require('./routes/bankRoutes');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const bmiRouter = require("./routes/bmiRoute.js");
@@ -46,23 +46,32 @@ mongoose.connect(process.env.MONGODB_URL)
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // Dummy JWT user for testing
+// Dummy JWT user for testing (defined once)
 const sampleUser = { _id: "1234567890" };
 const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-// // Custom middleware to set Content-Type for PDFs
-// app.use('/uploads', (req, res, next) => {
-//   const filePath = path.join(__dirname, 'uploads', req.path);
-//   const ext = path.extname(filePath).toLowerCase();
-//   if (ext === '.pdf') {
-//     res.setHeader('Content-Type', 'application/pdf');
-//   }
-//   next();
-// });
+// Custom middleware to set Content-Type for PDFs
+app.use('/uploads', (req, res, next) => {
+  const filePath = path.join(__dirname, 'uploads', req.path);
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.pdf') {
+    res.setHeader('Content-Type', 'application/pdf');
+  }
+  next();
+});
+
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads/bank-receipts');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // public Routes
+
+// Register Routes
 app.use("/user", userRouter);
 app.use("/membership", membershipRouter);
 app.use("/staff", staffRouter);
@@ -74,6 +83,7 @@ app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
 app.use('/api/petty-cash', pettyCashRoutes);
+app.use('/api/bank', bankRoutes);
 
 // In server.js, add a test route
 app.get("/test-email", async (req, res) => {
@@ -96,6 +106,7 @@ app.get("/test-email", async (req, res) => {
     res.status(500).json({ message: "Email failed", error: error.message });
   }
 });
+app.use("/api/bmi", bmiRouter);
 
 // AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
@@ -263,7 +274,8 @@ app.post('/api/ai/workout', async (req, res) => {
   }
 });
 
-// Parse Markdown Table for Workout Plan
+
+// Update parseMarkdownTable to validate input
 function parseMarkdownTable(markdown) {
   if (typeof markdown !== 'string') {
     console.error('parseMarkdownTable: Expected a string, got:', markdown);
@@ -272,19 +284,36 @@ function parseMarkdownTable(markdown) {
 
   const lines = markdown.trim().split('\n').filter(line => line.trim());
   const data = [];
+  let currentWeek = '';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
+
+    // Handle week headers
+    if (/^Week \d+:/i.test(line)) {
+      currentWeek = line;
+      data.push({
+        Week: currentWeek,
+        Day: currentWeek, // Store week header as a Day for validation
+        Exercise: '',
+        Sets: '',
+        Reps: '',
+        Notes: ''
+      });
+      continue;
+    }
+
     // Skip header or separator rows
     if (line.startsWith('| Day') || line.startsWith('| ---')) continue;
 
     // Parse table rows
     const parts = line.split('|').map(part => part.trim()).filter(part => part);
-    if (parts.length >= 5) {
+    if (parts.length >= 5) { // Expect at least 5 parts (Day, Exercise, Sets, Reps, Notes)
       const day = parts[0];
       // Validate day
-      if (day.match(/^Week \d+:/) || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].includes(day)) {
+      if (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].includes(day) || /^Week \d+:/i.test(day)) {
         data.push({
+          Week: currentWeek,
           Day: day,
           Exercise: parts[1] || '',
           Sets: parts[2] || '',

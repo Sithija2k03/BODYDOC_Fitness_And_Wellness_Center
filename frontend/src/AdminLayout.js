@@ -17,6 +17,7 @@ import Supplier from './Components/Suppliers/Supplier';
 import Login from './Login/Login'; // Import Login component
 import AdminAppointments from './Components/Appoinment/AdminAppointments';
 import PettyCash from './Components/pettyCashBook/PettyCashBook';
+import BankBook from './Components/BankBook/BankBook';
 
 function App() {
   const [active, setActive] = React.useState(1);
@@ -39,6 +40,8 @@ function App() {
         return <PettyCash />;
       case 5:
         return <Salary />;
+      case 12:
+        return <BankBook />;
       case 6:
         return <Inventory />;
       case 7:

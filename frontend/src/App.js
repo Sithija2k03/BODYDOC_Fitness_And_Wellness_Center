@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Header from './Login/Header';
 import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Rename import to avoid redefinition
 import Home from "./Pages/Home";
@@ -35,21 +35,32 @@ import Bookings from "./Components/Booking/Bookings";
 import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
 import OrderEdit from "./Components/Order/OrderEdit";
+import WorkoutResult from "./Components/Workout/WorkoutResult";
+import NutritionResults from "./Components/Nutrition/NutritionResults";
+import BMI from "./Components/BMI Calculator/BMI";
+
+// Private Route Component (using the more robust version with error handling)
+const PrivateRoute = ({ children }) => {
+  let user = null;
+  const token = localStorage.getItem('token');
+
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+  } catch (error) {
+    console.error('Error parsing user from localStorage:', error);
+    return <Navigate to="/login" />;
+  }
+
+  if (!token || user?.role !== 'admin') {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+};
 
 const App = () => {
-  const [workoutResult, setWorkoutResult] = React.useState(null);
-  const [nutritionResult, setNutritionResult] = React.useState(null);
-
-  const PrivateRoute = ({ children }) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const token = localStorage.getItem('token');
-
-    if (!token || user?.role !== "admin") {
-      return <Navigate to="/login" />;
-    }
-
-    return children;
-  };
+  const [workoutResult, setWorkoutResult] = useState(null);
+  const [nutritionResult, setNutritionResult] = useState(null);
 
   return (
     <GlobalProvider>
@@ -68,48 +79,43 @@ const App = () => {
             <Route path="/booking" element={<BookingForm />} />
             {/* <Route path="/booking-list" element={<BookingList />} /> */}
             <Route path="/edit-booking/:id" element={<EditBooking />} />
+            <Route path="/gymEquipment" element={<GymEquipment />} />
+            <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
+            <Route path="/pharmacy-items" element={<Pharmacy />} />
 
             {/* E-Pharmacy Routes */}
             <Route path="/addAppointment" element={<AppointmentForm />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
-
-            {/* Order Routes */}
-            <Route path="/addOrder" element={<OrderForm/>} />
-            <Route path="/order-display" element={<Order/>} />
-            <Route path="/order-edit" element={<OrderEdit/>} />
-          {/* Fitness & Nutrition Routes */}
-
-            <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
-            <Route path="/pharmacy-items" element={<Pharmacy />} />
-            <Route path="/gymEquipment" element={<GymEquipment />} />
+           
+            
 
             {/* Fitness & Nutrition Routes */}
-            <Route 
-              path="/nutrition-plan" 
-              element={<Nutrition setResult={setNutritionResult} />} 
-            />
-            <Route 
-              path="/workout-plan" 
-              element={<WorkOut setResult={setWorkoutResult} />} 
-            />
+            <Route path="/nutrition-plan" element={<Nutrition setResult={setNutritionResult} />} />
+            <Route path="/addOrder" element={<OrderForm />} />
+            <Route path="/order-display" element={<Order />} />
+            <Route path="/order-edit" element={<OrderEdit />} />
+            <Route path="/workout-plan" element={<WorkOut setResult={setWorkoutResult} />} />
+            <Route path="/BMI" element={<BMI />} />
+            <Route path="/result" element={<WorkoutResult result={workoutResult} />} />
+            <Route path="/nutrition-result" element={<NutritionResults result={nutritionResult} />} />
 
             {/* Protected Admin Routes */}
-            <Route path="/admin/*" element={
-              <PrivateRoute>
-                <AdminLayout />
-              </PrivateRoute>
-            }>
+            <Route
+              path="/admin/*"
+              element={
+                <PrivateRoute>
+                  <AdminLayout />
+                </PrivateRoute>
+              }
+            >
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="appointment-display" element={<AppoinmentList />} />
               <Route path="incomes" element={<Incomes />} />
               <Route path="expenses" element={<Expenses />} />
               <Route path="salaries" element={<Salary />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="suppliers" element={<Supplier />} />
-              <Route path="supplier" element={<Supplier />} />
             </Route>
 
             {/* Fallback Route */}

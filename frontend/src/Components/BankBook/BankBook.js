@@ -1,33 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import { jsPDF } from 'jspdf';
 
-// Register Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-function PettyCashBook() {
+function BankBook() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [newTransaction, setNewTransaction] = useState({
-    type: 'outflow',
+    type: 'deposit',
     amount: '',
     description: '',
     category: 'General',
+    bankAccount: 'Main Account',
     receipt: null,
   });
 
-  const adminRole = 'admin'; 
+  const adminRole = 'admin'; // Adjust based on your auth system
 
   // Fetch transactions
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:4000/api/petty-cash', {
+        const response = await axios.get('http://localhost:4000/api/bank', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setTransactions(response.data);
@@ -50,14 +47,14 @@ function PettyCashBook() {
     });
 
     try {
-      const response = await axios.post('http://localhost:4000/api/petty-cash', formData, {
+      const response = await axios.post('http://localhost:4000/api/bank', formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'multipart/form-data',
         },
       });
       setTransactions([response.data.transaction, ...transactions]);
-      setNewTransaction({ type: 'outflow', amount: '', description: '', category: 'General', receipt: null });
+      setNewTransaction({ type: 'deposit', amount: '', description: '', category: 'General', bankAccount: 'Main Account', receipt: null });
       setError(null);
     } catch (err) {
       setError('Failed to add transaction');
@@ -67,7 +64,7 @@ function PettyCashBook() {
   // Update transaction status
   const handleStatusChange = async (id, status) => {
     try {
-      const response = await axios.put(`http://localhost:4000/api/petty-cash/${id}/status`, { status }, {
+      const response = await axios.put(`http://localhost:4000/api/bank/${id}/status`, { status }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setTransactions(transactions.map(t => t._id === id ? response.data.transaction : t));
@@ -80,7 +77,7 @@ function PettyCashBook() {
   // Delete transaction
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/petty-cash/${id}`, {
+      await axios.delete(`http://localhost:4000/api/bank/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setTransactions(transactions.filter(t => t._id !== id));
@@ -91,46 +88,63 @@ function PettyCashBook() {
   };
 
   // Calculate summary
-  const totalInflows = transactions
-    .filter(t => t.type === 'inflow')
+  const totalDeposits = transactions
+    .filter(t => t.type === 'deposit')
     .reduce((sum, t) => sum + t.amount, 0);
-  const totalOutflows = transactions
-    .filter(t => t.type === 'outflow')
+  const totalWithdrawals = transactions
+    .filter(t => t.type === 'withdrawal')
     .reduce((sum, t) => sum + t.amount, 0);
-  const balance = totalInflows - totalOutflows;
-
-  // Prepare pie chart data
-  const categories = [...new Set(transactions.filter(t => t.type === 'outflow').map(t => t.category))];
-  const categoryAmounts = categories.map(category =>
-    transactions
-      .filter(t => t.type === 'outflow' && t.category === category)
-      .reduce((sum, t) => sum + t.amount, 0)
-  );
-  const pieData = {
-    labels: categories,
-    datasets: [
-      {
-        data: categoryAmounts,
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-      },
-    ],
-  };
+  const balance = totalDeposits - totalWithdrawals;
 
   // Filter transactions
   const filteredTransactions = transactions.filter(t =>
     t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchTerm.toLowerCase())
+    t.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.bankAccount.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Generate PDF Bank Statement
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Bank Statement - BODYDOC Fitness', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30);
+    doc.text(`Total Deposits: $${totalDeposits.toFixed(2)}`, 20, 40);
+    doc.text(`Total Withdrawals: $${totalWithdrawals.toFixed(2)}`, 20, 50);
+    doc.text(`Balance: $${balance.toFixed(2)}`, 20, 60);
+
+    doc.setFontSize(14);
+    doc.text('Transactions:', 20, 80);
+
+    let y = 90;
+    filteredTransactions.forEach((t, index) => {
+      if (y > 270) { // Add new page if content exceeds page height
+        doc.addPage();
+        y = 20;
+      }
+      doc.setFontSize(10);
+      doc.text(`${index + 1}. ${t.type.charAt(0).toUpperCase() + t.type.slice(1)}: $${t.amount.toFixed(2)}`, 20, y);
+      doc.text(`   Description: ${t.description}`, 20, y + 5);
+      doc.text(`   Category: ${t.category}`, 20, y + 10);
+      doc.text(`   Bank Account: ${t.bankAccount}`, 20, y + 15);
+      doc.text(`   Date: ${new Date(t.date).toLocaleDateString()}`, 20, y + 20);
+      doc.text(`   Status: ${t.status.charAt(0).toUpperCase() + t.status.slice(1)}`, 20, y + 25);
+      y += 35;
+    });
+
+    doc.save('bank-statement.pdf');
+  };
+
   return (
-    <PettyCashStyled>
-      <h2>Petty Cash Book</h2>
+    <BankBookStyled>
+      <h2>Bank Book</h2>
 
       {/* Search Bar */}
       <SearchBar>
         <input
           type="text"
-          placeholder="Search by description or category..."
+          placeholder="Search by description, category, or bank account..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
         />
@@ -141,13 +155,10 @@ function PettyCashBook() {
         <h3>Summary</h3>
         <div className="summary-details">
           <p><strong>Balance:</strong> ${balance.toFixed(2)}</p>
-          <p><strong>Total Inflows:</strong> ${totalInflows.toFixed(2)}</p>
-          <p><strong>Total Outflows:</strong> ${totalOutflows.toFixed(2)}</p>
+          <p><strong>Total Deposits:</strong> ${totalDeposits.toFixed(2)}</p>
+          <p><strong>Total Withdrawals:</strong> ${totalWithdrawals.toFixed(2)}</p>
         </div>
-        <div className="pie-chart">
-          <h4>Expense Categories</h4>
-          {categories.length > 0 ? <Pie data={pieData} /> : <p>No expenses to display</p>}
-        </div>
+        <button className="generate-pdf" onClick={generatePDF}>Generate PDF Statement</button>
       </SummaryCard>
 
       {/* Add Transaction Form */}
@@ -157,8 +168,8 @@ function PettyCashBook() {
           value={newTransaction.type}
           onChange={e => setNewTransaction({ ...newTransaction, type: e.target.value })}
         >
-          <option value="inflow">Inflow</option>
-          <option value="outflow">Outflow</option>
+          <option value="deposit">Deposit</option>
+          <option value="withdrawal">Withdrawal</option>
         </select>
         <input
           type="number"
@@ -179,18 +190,27 @@ function PettyCashBook() {
           onChange={e => setNewTransaction({ ...newTransaction, category: e.target.value })}
         >
           <option value="General">General</option>
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          <option value="Stationery">Stationery</option>
-          <option value="Cleaning Bills">Cleaning Bills</option>
+          <option value="Membership Fees">Membership Fees</option>
+          <option value="Equipment Purchase">Equipment Purchase</option>
+          <option value="Staff Salaries">Staff Salaries</option>
           <option value="Utilities">Utilities</option>
-          <option value="Maintenance">Maintenance</option>
-          <option value="Medical Supplies">Medical Supplies</option>
+          <option value="Marketing">Marketing</option>
           <option value="Event Expenses">Event Expenses</option>
+          <option value="Loan Repayment">Loan Repayment</option>
+          <option value="Tax Payments">Tax Payments</option>
+        </select>
+        <select
+          value={newTransaction.bankAccount}
+          onChange={e => setNewTransaction({ ...newTransaction, bankAccount: e.target.value })}
+        >
+          <option value="Main Account">Main Account</option>
+          <option value="Savings Account">Savings Account</option>
+          <option value="Payroll Account">Payroll Account</option>
+          <option value="Expense Account">Expense Account</option>
         </select>
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.pdf"
           onChange={e => setNewTransaction({ ...newTransaction, receipt: e.target.files[0] })}
         />
         <button type="submit">Add Transaction</button>
@@ -211,6 +231,7 @@ function PettyCashBook() {
                   <th>Amount</th>
                   <th>Description</th>
                   <th>Category</th>
+                  <th>Bank Account</th>
                   <th>Date</th>
                   <th>Receipt</th>
                   <th>Status</th>
@@ -224,12 +245,24 @@ function PettyCashBook() {
                     <td>${transaction.amount.toFixed(2)}</td>
                     <td>{transaction.description}</td>
                     <td>{transaction.category}</td>
+                    <td>{transaction.bankAccount}</td>
                     <td>{new Date(transaction.date).toLocaleDateString()}</td>
                     <td>
                       {transaction.receipt ? (
-                        <a href={`http://localhost:4000${transaction.receipt}`} target="_blank" rel="noopener noreferrer">
-                          View Receipt
-                        </a>
+                        transaction.receipt.endsWith('.pdf') ? (
+                          <embed
+                            src={`http://localhost:5000${transaction.receipt}`}
+                            type="application/pdf"
+                            width="100px"
+                            height="100px"
+                          />
+                        ) : (
+                          <img
+                            src={`http://localhost:5000${transaction.receipt}`}
+                            alt="Receipt"
+                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                          />
+                        )
                       ) : 'N/A'}
                     </td>
                     <td>
@@ -261,11 +294,11 @@ function PettyCashBook() {
           <p className="status">No transactions found</p>
         )}
       </div>
-    </PettyCashStyled>
+    </BankBookStyled>
   );
 }
 
-const PettyCashStyled = styled.div`
+const BankBookStyled = styled.div`
   padding: 2rem;
   min-height: 100vh;
 
@@ -325,10 +358,11 @@ const PettyCashStyled = styled.div`
   th:nth-child(2), td:nth-child(2) { width: 10%; } /* Amount */
   th:nth-child(3), td:nth-child(3) { width: 20%; } /* Description */
   th:nth-child(4), td:nth-child(4) { width: 15%; } /* Category */
-  th:nth-child(5), td:nth-child(5) { width: 10%; } /* Date */
-  th:nth-child(6), td:nth-child(6) { width: 10%; } /* Receipt */
-  th:nth-child(7), td:nth-child(7) { width: 10%; } /* Status */
-  th:nth-child(8), td:nth-child(8) { width: 15%; } /* Actions */
+  th:nth-child(5), td:nth-child(5) { width: 15%; } /* Bank Account */
+  th:nth-child(6), td:nth-child(6) { width: 10%; } /* Date */
+  th:nth-child(7), td:nth-child(7) { width: 10%; } /* Receipt */
+  th:nth-child(8), td:nth-child(8) { width: 10%; } /* Status */
+  th:nth-child(9), td:nth-child(9) { width: 15%; } /* Actions */
 
   tbody tr:hover {
     background: #f9f9f9;
@@ -427,16 +461,19 @@ const SummaryCard = styled.div`
     color: #333;
   }
 
-  .pie-chart {
-    max-width: 300px;
-    margin: 0 auto;
+  .generate-pdf {
+    padding: 8px 16px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s ease;
   }
 
-  .pie-chart h4 {
-    font-size: 1.2rem;
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 1rem;
+  .generate-pdf:hover {
+    background: #357abd;
   }
 `;
 
@@ -495,4 +532,4 @@ const SearchBar = styled.div`
   }
 `;
 
-export default PettyCashBook;
+export default BankBook;

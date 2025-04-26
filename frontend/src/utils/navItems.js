@@ -43,22 +43,16 @@ const navItems = [
         link: '/petty-cash'
     },
     {
-        id: 12,
-        title: 'Gym Equipment',
-        icon: users,
-        link: '/gymEquipment'
-    },
-    {
-        id: 13,
-        title: 'E-Pharmacy',
-        icon: users,
-        link: '/pharmacy-items'
-    },
-    {
         id: 5,
         title: 'Salary Payments',
         icon: salary,
         link: '/salaries'
+    },
+    {
+        id: 12,
+        title: 'Bank Book',
+        icon: doctor,
+        link: '/bank-book'
     },
     {
         id: 6,
