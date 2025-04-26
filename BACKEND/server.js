@@ -20,6 +20,7 @@ const orderRouter = require("./routes/order.js");
 const supplierRouter = require("./routes/suppliers.js");
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 const gymEquipmentRouter = require("./routes/gymEquipments.js");
+const sensorRoutes= require("./routes/sensors.js");
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
@@ -53,6 +54,7 @@ app.use("/order", orderRouter);
 app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
+app.use("/sensors", sensorRoutes);
 
 // AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
