@@ -11,7 +11,7 @@ const userSchema = new Schema({
   weight: { type: Number },
   height: { type: Number }, // Add height for BMI calculation
   fitnessGoal: { type: String }, // e.g., "Lose weight", "Build muscle"
-  preferences: { type: [String] }, // e.g., ["Yoga", "Weightlifting"]
+  preferences: { type: [String] }, 
   workouts: [{
     date: { type: Date, default: Date.now },
     exercise: { type: String },
