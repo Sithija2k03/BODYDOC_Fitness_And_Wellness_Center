@@ -1,561 +1,252 @@
-
-// import React, { useState } from 'react';
-// import axios from 'axios';
-// import Header from '../../Login/Header';
-// import ResultDisplay from '../ResultDisplay';
-
-// function Nutrition({ setResult }) {
-//   const [formData, setFormData] = useState({
-//     fitnessGoal: '',
-//     age: '',
-//     weight: '',
-//     height: '',
-//     userId: ''
-//   });
-  
-//   const [errors, setErrors] = useState({});
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [nutritionResult, setNutritionResult] = React.useState(null);
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-    
-//     // Clear error for this field when user starts typing
-//     if (errors[name]) {
-//       setErrors({...errors, [name]: null});
-//     }
-//   };
-
-//   const validateForm = () => {
-//     const newErrors = {};
-    
-//     // Validate fitnessGoal
-//     if (!formData.fitnessGoal.trim()) {
-//       newErrors.fitnessGoal = "Fitness goal is required";
-//     } else if (formData.fitnessGoal.length < 3) {
-//       newErrors.fitnessGoal = "Fitness goal should be more descriptive";
-//     }
-    
-//     // Validate age
-//     if (!formData.age) {
-//       newErrors.age = "Age is required";
-//     } else if (isNaN(formData.age) || formData.age < 10 || formData.age > 100) {
-//       newErrors.age = "Age must be between 10 and 100";
-//     }
-    
-//     // Validate weight
-//     if (!formData.weight) {
-//       newErrors.weight = "Weight is required";
-//     } else if (isNaN(formData.weight) || formData.weight < 20 || formData.weight > 300) {
-//       newErrors.weight = "Weight must be between 20 and 300 kg";
-//     }
-    
-//     // Validate height
-//     if (!formData.height) {
-//       newErrors.height = "Height is required";
-//     } else if (isNaN(formData.height) || formData.height < 100 || formData.height > 250) {
-//       newErrors.height = "Height must be between 100 and 250 cm";
-//     }
-    
-//     // Validate userId
-//     if (!formData.userId.trim()) {
-//       newErrors.userId = "User ID is required";
-//     } else if (formData.userId.length < 5) {
-//       newErrors.userId = "User ID must be at least 5 characters";
-//     }
-    
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-    
-//     if (!validateForm()) {
-//       return;
-//     }
-    
-//     setIsSubmitting(true);
-    
-//     try {
-//       const response = await axios.post('http://localhost:5000/api/ai/nutrition', formData);
-//       setResult(response.data);
-//     } catch (error) {
-//       console.error('Error submitting nutrition form:', error.response ? error.response.data : error.message);
-//       setResult({ 
-//         message: 'Error generating nutrition plan', 
-//         error: error.response?.data?.message || error.message 
-//       });
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-
-//   const inputStyle = {
-//     padding: '8px',
-//     fontSize: '16px',
-//     borderRadius: '4px',
-//     border: '1px solid #ccc',
-//     width: '100%'
-//   };
-  
-//   const errorStyle = {
-//     color: 'red',
-//     fontSize: '14px',
-//     marginTop: '4px'
-//   };
-
-//   return (
-//     <div style={{ flex: 1, padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
-//       <Header />
-//       <h2 style={{ marginBottom: '20px' }}>Nutrition Plan Generator</h2>
-//       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-//         <div>
-//           <input 
-//             type="text" 
-//             name="fitnessGoal" 
-//             placeholder="Fitness Goal (e.g., Weight Loss)" 
-//             value={formData.fitnessGoal} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.fitnessGoal ? 'red' : '#ccc'}} 
-//           />
-//           {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
-//         </div>
-        
-//         <div>
-//           <input 
-//             type="number" 
-//             name="age" 
-//             placeholder="Age" 
-//             value={formData.age} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.age ? 'red' : '#ccc'}} 
-//           />
-//           {errors.age && <p style={errorStyle}>{errors.age}</p>}
-//         </div>
-        
-//         <div>
-//           <input 
-//             type="number" 
-//             name="weight" 
-//             placeholder="Weight (kg)" 
-//             value={formData.weight} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.weight ? 'red' : '#ccc'}} 
-//           />
-//           {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
-//         </div>
-        
-//         <div>
-//           <input 
-//             type="number" 
-//             name="height" 
-//             placeholder="Height (cm)" 
-//             value={formData.height} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.height ? 'red' : '#ccc'}} 
-//           />
-//           {errors.height && <p style={errorStyle}>{errors.height}</p>}
-//         </div>
-        
-//         <div>
-//           <input 
-//             type="text" 
-//             name="userId" 
-//             placeholder="User ID" 
-//             value={formData.userId} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.userId ? 'red' : '#ccc'}} 
-//           />
-//           {errors.userId && <p style={errorStyle}>{errors.userId}</p>}
-//         </div>
-        
-//         <button 
-//           type="submit" 
-//           disabled={isSubmitting}
-//           style={{ 
-//             padding: '10px', 
-//             backgroundColor: isSubmitting ? '#cccccc' : '#007bff', 
-//             color: 'white', 
-//             border: 'none', 
-//             borderRadius: '5px', 
-//             cursor: isSubmitting ? 'not-allowed' : 'pointer',
-//             fontSize: '16px'
-//           }}
-//         >
-//           {isSubmitting ? 'Generating...' : 'Generate Nutrition Plan'}
-//         </button>
-//       </form>
-//       {/* Display results below the routed components */}
-//               <div className="results-container">
-//                 {nutritionResult && <ResultDisplay title="Nutrition Plan" data={nutritionResult} />}
-//               </div>
-//     </div>
-//   );
-// }
-
-// export default Nutrition;
-
-
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../../Login/Header';
+import NutritionResults from './NutritionResults';
 
-function Nutrition({ setResult }) {
+function Nutrition() {
   const [formData, setFormData] = useState({
     fitnessGoal: '',
     age: '',
     weight: '',
     height: '',
-    userId: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const [nutritionResult, setNutritionResult] = useState(null);
+
+  const validateForm = (data) => {
+    const newErrors = {};
+
+    if (!data.fitnessGoal.trim()) {
+      newErrors.fitnessGoal = 'Fitness goal is required';
+    } else if (!/^[a-zA-Z\s,.-]{2,50}$/.test(data.fitnessGoal.trim())) {
+      newErrors.fitnessGoal = 'Fitness goal must be 2-50 characters (letters, spaces, commas, periods, or hyphens)';
+    }
+
+    if (!data.age) {
+      newErrors.age = 'Age is required';
+    } else if (!/^\d+$/.test(data.age) || parseInt(data.age) <= 0 || parseInt(data.age) > 120) {
+      newErrors.age = 'Age must be a positive integer between 1 and 120';
+    }
+
+    if (!data.weight) {
+      newErrors.weight = 'Weight is required';
+    } else if (!/^\d*\.?\d*$/.test(data.weight) || parseFloat(data.weight) <= 0 || parseFloat(data.weight) > 500) {
+      newErrors.weight = 'Weight must be a positive number between 0.1 and 500 kg';
+    }
+
+    if (data.height && (!/^\d*\.?\d*$/.test(data.height) || parseFloat(data.height) <= 0 || parseFloat(data.height) > 300)) {
+      newErrors.height = 'Height must be a positive number between 0.1 and 300 cm';
+    }
+
+    return newErrors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: null });
-    setApiError(null);
-  };
+    if (['age', 'weight', 'height'].includes(name)) {
+      if (name !== 'age' && /^\d*\.?\d*$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      } else if (name === 'age' && /^\d*$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.fitnessGoal.trim()) {
-      newErrors.fitnessGoal = "Fitness goal is required";
-    } else if (formData.fitnessGoal.length < 3) {
-      newErrors.fitnessGoal = "Fitness goal should be more descriptive";
-    }
-    if (!formData.age) {
-      newErrors.age = "Age is required";
-    } else if (isNaN(formData.age) || formData.age < 10 || formData.age > 100) {
-      newErrors.age = "Age must be between 10 and 100";
-    }
-    if (!formData.weight) {
-      newErrors.weight = "Weight is required";
-    } else if (isNaN(formData.weight) || formData.weight < 20 || formData.weight > 300) {
-      newErrors.weight = "Weight must be between 20 and 300 kg";
-    }
-    if (!formData.height) {
-      newErrors.height = "Height is required";
-    } else if (isNaN(formData.height) || formData.height < 100 || formData.height > 250) {
-      newErrors.height = "Height must be between 100 and 250 cm";
-    }
-    if (!formData.userId.trim()) {
-      newErrors.userId = "User ID is required";
-    } else if (formData.userId.length < 5) {
-      newErrors.userId = "User ID must be at least 5 characters";
-    }
+    const newErrors = validateForm({ ...formData, [name]: value });
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
+    const validationErrors = validateForm(formData);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setError('Please fix the errors in the form');
       return;
     }
+
     setIsSubmitting(true);
-    setApiError(null);
+    setError(null);
 
     try {
       const response = await axios.post('http://localhost:4000/api/ai/nutrition', formData);
-      console.log('API Response:', response.data); // Log response for debugging
-      setResult(response.data);
-      navigate('/nutrition-result', { state: { result: response.data } }); // Pass result in navigation state
+      if (!response.data) {
+        throw new Error('Invalid response from server: No data');
+      }
+      console.log('Raw Backend Response:', response.data);
+
+      const transformedData = {
+        message: response.data.message || '✅ Nutrition Plan Generated Successfully!',
+        nutritionPlan: response.data.nutritionPlan || [],
+        tips: response.data.tips || [], // Added tips field
+      };
+
+      // Validate nutritionPlan
+      if (!Array.isArray(transformedData.nutritionPlan) || transformedData.nutritionPlan.length === 0) {
+        console.error('Nutrition plan is empty or not an array:', transformedData.nutritionPlan);
+        setError('No nutrition plan data received from the server.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Validate tips
+      if (!Array.isArray(transformedData.tips) || transformedData.tips.length === 0) {
+        console.error('Tips are empty or not an array:', transformedData.tips);
+        setError('No additional recommendations received from the server.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setNutritionResult(transformedData);
+      console.log('Transformed Nutrition Plan:', transformedData);
     } catch (error) {
       console.error('Error submitting nutrition form:', error.response ? error.response.data : error.message);
-      setApiError(error.response?.data?.message || 'Failed to connect to the server. Please try again later.');
+      setError(error.response?.data?.message || error.message || 'Failed to connect to the server. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  useEffect(() => {
+    console.log('nutritionResult updated:', nutritionResult);
+  }, [nutritionResult]);
+
+  // Styles (unchanged)
+  const containerStyle = {
+    flex: 1,
+    padding: '20px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    backgroundColor: '#f9f9f9',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  };
+  const headingStyle = {
+    marginBottom: '20px',
+    color: '#333',
+    textAlign: 'center',
+    fontSize: '24px',
+  };
+  const formStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  };
   const inputStyle = {
-    padding: '8px',
+    padding: '12px',
     fontSize: '16px',
     borderRadius: '4px',
     border: '1px solid #ccc',
-    width: '100%'
+    width: '100%',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.3s ease',
+  };
+  const inputErrorStyle = {
+    borderColor: 'red',
+  };
+  const buttonStyle = {
+    padding: '12px',
+    backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#007bff',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: isSubmitting || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s ease',
+    marginTop: '10px',
   };
   const errorStyle = {
     color: 'red',
-    fontSize: '14px',
-    marginTop: '4px'
+    fontSize: '12px',
+    marginTop: '5px',
   };
-  const apiErrorStyle = {
+  const formErrorStyle = {
     color: 'red',
     fontSize: '14px',
     marginTop: '10px',
-    textAlign: 'center'
+    textAlign: 'center',
   };
 
   return (
-    <div style={{ flex: 1, padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
+    <div style={containerStyle}>
       <Header />
-      <h2 style={{ marginBottom: '20px' }}>Nutrition Plan Generator</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <h2 style={headingStyle}>Nutrition Plan Generator</h2>
+      <form onSubmit={handleSubmit} style={formStyle}>
         <div>
-          <input 
-            type="text" 
-            name="fitnessGoal" 
-            placeholder="Fitness Goal (e.g., Weight Loss)" 
-            value={formData.fitnessGoal} 
-            onChange={handleChange} 
-            style={{...inputStyle, borderColor: errors.fitnessGoal ? 'red' : '#ccc'}} 
+          <input
+            type="text"
+            name="fitnessGoal"
+            placeholder="Fitness Goal (e.g., Weight Loss)"
+            value={formData.fitnessGoal}
+            onChange={handleChange}
+            required
+            style={{ ...inputStyle, ...(errors.fitnessGoal ? inputErrorStyle : {}) }}
           />
           {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
         </div>
         <div>
-          <input 
-            type="number" 
-            name="age" 
-            placeholder="Age" 
-            value={formData.age} 
-            onChange={handleChange} 
-            style={{...inputStyle, borderColor: errors.age ? 'red' : '#ccc'}} 
+          <input
+            type="number"
+            name="age"
+            placeholder="Age"
+            value={formData.age}
+            onChange={handleChange}
+            required
+            min="1"
+            max="120"
+            step="1"
+            style={{ ...inputStyle, ...(errors.age ? inputErrorStyle : {}) }}
           />
           {errors.age && <p style={errorStyle}>{errors.age}</p>}
         </div>
         <div>
-          <input 
-            type="number" 
-            name="weight" 
-            placeholder="Weight (kg)" 
-            value={formData.weight} 
-            onChange={handleChange} 
-            style={{...inputStyle, borderColor: errors.weight ? 'red' : '#ccc'}} 
+          <input
+            type="number"
+            name="weight"
+            placeholder="Weight (kg)"
+            value={formData.weight}
+            onChange={handleChange}
+            required
+            min="0.1"
+            max="500"
+            step="0.1"
+            style={{ ...inputStyle, ...(errors.weight ? inputErrorStyle : {}) }}
           />
           {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
         </div>
         <div>
-          <input 
-            type="number" 
-            name="height" 
-            placeholder="Height (cm)" 
-            value={formData.height} 
-            onChange={handleChange} 
-            style={{...inputStyle, borderColor: errors.height ? 'red' : '#ccc'}} 
+          <input
+            type="number"
+            name="height"
+            placeholder="Height (cm)"
+            value={formData.height}
+            onChange={handleChange}
+            min="0.1"
+            max="300"
+            step="0.1"
+            style={{ ...inputStyle, ...(errors.height ? inputErrorStyle : {}) }}
           />
           {errors.height && <p style={errorStyle}>{errors.height}</p>}
         </div>
-        <div>
-          <input 
-            type="text" 
-            name="userId" 
-            placeholder="User ID" 
-            value={formData.userId} 
-            onChange={handleChange} 
-            style={{...inputStyle, borderColor: errors.userId ? 'red' : '#ccc'}} 
-          />
-          {errors.userId && <p style={errorStyle}>{errors.userId}</p>}
-        </div>
-        <button 
-          type="submit" 
-          disabled={isSubmitting}
-          style={{ 
-            padding: '10px', 
-            backgroundColor: isSubmitting ? '#cccccc' : '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '5px', 
-            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-            fontSize: '16px'
-          }}
+        <button
+          type="submit"
+          style={buttonStyle}
+          disabled={isSubmitting || Object.keys(errors).length > 0}
         >
           {isSubmitting ? 'Generating...' : 'Generate Nutrition Plan'}
         </button>
       </form>
-      {apiError && <p style={apiErrorStyle}>{apiError}</p>}
+      {error && <p style={formErrorStyle}>{error}</p>}
+      {nutritionResult && (
+        <NutritionResults title="Nutrition Plan" data={nutritionResult} />
+      )}
     </div>
   );
 }
 
 export default Nutrition;
-
-
-
-
-
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-// import Header from '../../Login/Header';
-
-// function Nutrition({ setResult }) {
-//   const [formData, setFormData] = useState({
-//     fitnessGoal: '',
-//     age: '',
-//     weight: '',
-//     height: '',
-//     userId: ''
-//   });
-//   const [errors, setErrors] = useState({});
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [apiError, setApiError] = useState(null);
-//   const navigate = useNavigate();
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-//     setErrors({ ...errors, [name]: null });
-//     setApiError(null);
-//   };
-
-//   const validateForm = () => {
-//     const newErrors = {};
-//     if (!formData.fitnessGoal.trim()) {
-//       newErrors.fitnessGoal = "Fitness goal is required";
-//     } else if (formData.fitnessGoal.length < 3) {
-//       newErrors.fitnessGoal = "Fitness goal should be more descriptive";
-//     }
-//     if (!formData.age) {
-//       newErrors.age = "Age is required";
-//     } else if (isNaN(formData.age) || formData.age < 10 || formData.age > 100) {
-//       newErrors.age = "Age must be between 10 and 100";
-//     }
-//     if (!formData.weight) {
-//       newErrors.weight = "Weight is required";
-//     } else if (isNaN(formData.weight) || formData.weight < 20 || formData.weight > 300) {
-//       newErrors.weight = "Weight must be between 20 and 300 kg";
-//     }
-//     if (!formData.height) {
-//       newErrors.height = "Height is required";
-//     } else if (isNaN(formData.height) || formData.height < 100 || formData.height > 250) {
-//       newErrors.height = "Height must be between 100 and 250 cm";
-//     }
-//     if (!formData.userId.trim()) {
-//       newErrors.userId = "User ID is required";
-//     } else if (formData.userId.length < 5) {
-//       newErrors.userId = "User ID must be at least 5 characters";
-//     }
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     if (!validateForm()) {
-//       return;
-//     }
-//     setIsSubmitting(true);
-//     setApiError(null);
-
-//     try {
-//       const response = await axios.post('http://localhost:4000/api/ai/nutrition', formData);
-//       setResult(response.data);
-//       navigate('/nutrition-result');
-//     } catch (error) {
-//       console.error('Error submitting nutrition form:', error.response ? error.response.data : error.message);
-//       setApiError(error.response?.data?.message || 'Failed to connect to the server. Please try again later.');
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-
-//   const inputStyle = {
-//     padding: '8px',
-//     fontSize: '16px',
-//     borderRadius: '4px',
-//     border: '1px solid #ccc',
-//     width: '100%'
-//   };
-//   const errorStyle = {
-//     color: 'red',
-//     fontSize: '14px',
-//     marginTop: '4px'
-//   };
-//   const apiErrorStyle = {
-//     color: 'red',
-//     fontSize: '14px',
-//     marginTop: '10px',
-//     textAlign: 'center'
-//   };
-
-//   return (
-//     <div style={{ flex: 1, padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
-//       <Header />
-//       <h2 style={{ marginBottom: '20px' }}>Nutrition Plan Generator</h2>
-//       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-//         <div>
-//           <input 
-//             type="text" 
-//             name="fitnessGoal" 
-//             placeholder="Fitness Goal (e.g., Weight Loss)" 
-//             value={formData.fitnessGoal} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.fitnessGoal ? 'red' : '#ccc'}} 
-//           />
-//           {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
-//         </div>
-//         <div>
-//           <input 
-//             type="number" 
-//             name="age" 
-//             placeholder="Age" 
-//             value={formData.age} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.age ? 'red' : '#ccc'}} 
-//           />
-//           {errors.age && <p style={errorStyle}>{errors.age}</p>}
-//         </div>
-//         <div>
-//           <input 
-//             type="number" 
-//             name="weight" 
-//             placeholder="Weight (kg)" 
-//             value={formData.weight} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.weight ? 'red' : '#ccc'}} 
-//           />
-//           {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
-//         </div>
-//         <div>
-//           <input 
-//             type="number" 
-//             name="height" 
-//             placeholder="Height (cm)" 
-//             value={formData.height} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.height ? 'red' : '#ccc'}} 
-//           />
-//           {errors.height && <p style={errorStyle}>{errors.height}</p>}
-//         </div>
-//         <div>
-//           <input 
-//             type="text" 
-//             name="userId" 
-//             placeholder="User ID" 
-//             value={formData.userId} 
-//             onChange={handleChange} 
-//             style={{...inputStyle, borderColor: errors.userId ? 'red' : '#ccc'}} 
-//           />
-//           {errors.userId && <p style={errorStyle}>{errors.userId}</p>}
-//         </div>
-//         <button 
-//           type="submit" 
-//           disabled={isSubmitting}
-//           style={{ 
-//             padding: '10px', 
-//             backgroundColor: isSubmitting ? '#cccccc' : '#007bff', 
-//             color: 'white', 
-//             border: 'none', 
-//             borderRadius: '5px', 
-//             cursor: isSubmitting ? 'not-allowed' : 'pointer',
-//             fontSize: '16px'
-//           }}
-//         >
-//           {isSubmitting ? 'Generating...' : 'Generate Nutrition Plan'}
-//         </button>
-//       </form>
-//       {apiError && <p style={apiErrorStyle}>{apiError}</p>}
-//     </div>
-//   );
-// }
-
-// export default Nutrition;
