@@ -16,6 +16,7 @@ import { GlobalProvider } from './context/globalContext'; // Import GlobalProvid
 import Supplier from './Components/Suppliers/Supplier';
 import Login from './Login/Login'; // Import Login component
 import AdminAppointments from './Components/Appoinment/AdminAppointments';
+import PettyCash from './Components/pettyCashBook/PettyCashBook';
 
 function App() {
   const [active, setActive] = React.useState(1);
@@ -34,6 +35,8 @@ function App() {
         return <Incomes />;
       case 4:
         return <Expenses />;
+        case 11:
+        return <PettyCash />;
       case 5:
         return <Salary />;
       case 6:

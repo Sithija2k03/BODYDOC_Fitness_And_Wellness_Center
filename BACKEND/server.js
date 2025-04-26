@@ -20,11 +20,14 @@ const orderRouter = require("./routes/order.js");
 const supplierRouter = require("./routes/suppliers.js");
 const pharmacyItemRouter = require("./routes/pharmacyItems.js");
 const gymEquipmentRouter = require("./routes/gymEquipments.js");
+const pettyCashRoutes = require('./routes/pettyCashRoutes');
+const path = require('path');
+const nodemailer = require('nodemailer');
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 // Middleware
@@ -42,7 +45,20 @@ mongoose.connect(process.env.MONGODB_URL)
 const sampleUser = { _id: "1234567890" };
 const token = jwt.sign({ userId: sampleUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-// Register Routes
+// // Custom middleware to set Content-Type for PDFs
+// app.use('/uploads', (req, res, next) => {
+//   const filePath = path.join(__dirname, 'uploads', req.path);
+//   const ext = path.extname(filePath).toLowerCase();
+//   if (ext === '.pdf') {
+//     res.setHeader('Content-Type', 'application/pdf');
+//   }
+//   next();
+// });
+
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// public Routes
 app.use("/user", userRouter);
 app.use("/membership", membershipRouter);
 app.use("/staff", staffRouter);
@@ -53,6 +69,7 @@ app.use("/order", orderRouter);
 app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
+app.use('/api/petty-cash', pettyCashRoutes);
 
 // In server.js, add a test route
 app.get("/test-email", async (req, res) => {
@@ -205,45 +222,6 @@ app.post('/api/ai/workout', async (req, res) => {
     res.status(500).json({ message: 'Error generating workout plan', error: error.message });
   }
 });
-
-
-
-// // // AI Nutrition Plan Endpoint
-// app.post('/api/ai/nutrition', async (req, res) => {
-//   const { fitnessGoal, age, weight, height, userId } = req.body;
-//   console.log('Nutrition request body:', req.body);
-
-//   try {
-//     // Validate input
-//     if (!fitnessGoal || !age || !weight || !userId) {
-//       return res.status(400).json({ message: "Missing required fields: fitnessGoal, age, weight, userId" });
-//     }
-
-//     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-//     const prompt = `Create a personalized **nutrition plan** for a ${age}-year-old, ${weight}kg individual with a goal of ${fitnessGoal}. Height: ${height || 'unknown'}cm.
-// - Format response STRICTLY as a Markdown Table:
-//   | Meal | Food | Calories | Protein (g) | Carbs (g) | Fats (g) |
-//   | ---- | ---- | -------- | ----------- | --------- | -------- |
-// - Include **Breakfast, Lunch, Dinner, Snacks**, and nutrient breakdown.`;
-
-//     const nutritionPlan = await getGeminiResponseStructured(model, prompt);
-//     if (nutritionPlan.error) {
-//       return res.status(400).json({ message: "Error generating nutrition plan", error: nutritionPlan.error });
-//     }
-
-//     const user = await Helth.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-//     user.nutritionPlan = JSON.stringify(nutritionPlan);
-//     await user.save();
-
-//     res.json({ message: "✅ Nutrition Plan Generated Successfully!", nutritionPlan });
-//   } catch (error) {
-//     console.error('Nutrition endpoint error:', error.message, error.stack);
-//     res.status(500).json({ message: "Error generating nutrition plan", error: error.message });
-//   }
-// });
 
 
 // AI Nutrition Plan Endpoint

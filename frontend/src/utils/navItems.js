@@ -37,6 +37,24 @@ const navItems = [
         link: '/expenses'
     },
     {
+        id: 11,
+        title: 'Petty Cash',
+        icon: doctor,
+        link: '/petty-cash'
+    },
+    {
+        id: 12,
+        title: 'Gym Equipment',
+        icon: users,
+        link: '/gymEquipment'
+    },
+    {
+        id: 13,
+        title: 'E-Pharmacy',
+        icon: users,
+        link: '/pharmacy-items'
+    },
+    {
         id: 5,
         title: 'Salary Payments',
         icon: salary,
