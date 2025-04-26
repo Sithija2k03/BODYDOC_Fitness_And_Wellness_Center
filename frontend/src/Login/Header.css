@@ -1,6 +1,6 @@
 /* General Navbar Styling */
 .navbar {
-    background-color: white; /* Change navbar background to white */
+    background-color: white;
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
@@ -15,11 +15,20 @@
     align-items: center;
 }
 
+/* Logo Styling */
 .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #2c3e50; /* Dark text color for better contrast on a white background */
+    color: #2c3e50;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 60px;
+    width: auto;
+    margin-right: 10px;
 }
 
 /* Navigation Links */
@@ -35,7 +44,7 @@
 
 .nav-links a {
     text-decoration: none;
-    color: #2c3e50; /* Dark text color for better contrast on a white background */
+    color: #2c3e50;
     font-weight: 500;
     transition: 0.3s;
 }
@@ -49,7 +58,7 @@
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: #f2f2f2; /* Lighter background for dropdown */
+    background-color: #f2f2f2;
     list-style: none;
     padding: 10px;
     border-radius: 5px;
@@ -61,9 +70,8 @@
     padding: 8px 12px;
 }
 
-/* Fix Hover Color Issue */
 .dropdown-menu a {
-    color: #2c3e50; /* Dark text color */
+    color: #2c3e50;
     text-decoration: none;
     display: block;
     transition: background 0.3s, color 0.3s;
@@ -74,33 +82,21 @@
     color: white !important;
 }
 
-/* Search Bar */
-.search-bar {
-    display: flex;
-    align-items: center;
-}
-
-.search-bar input {
-    padding: 5px 10px;
-    border: 2px solid #1abc9c;
-    border-radius: 20px;
-    background-color: #f2f2f2; /* Lighter background for the search bar */
-    color: #2c3e50; /* Dark text color */
-}
-
-.search-bar button {
-    background-color: #1abc9c;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 20px;
-    margin-left: 10px;
+/* User Profile */
+.user-profile {
+    margin-left: auto;
     cursor: pointer;
+    position: relative;
 }
 
-.search-bar button:hover {
-    background-color: white;
-    color: #1abc9c;
+.user-profile img {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    transition: 0.3s ease;
+}
+
+.user-profile.active img {
     border: 2px solid #1abc9c;
 }
 
@@ -110,44 +106,9 @@
         flex-direction: column;
         align-items: flex-start;
     }
+
     .nav-links {
         flex-direction: column;
         gap: 10px;
     }
-    .search-bar {
-        margin-top: 10px;
-    }
 }
-
-/* Logo Styling */
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #2c3e50;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
-
-.logo-img {
-    height: 60px; /* Increased the height of the logo image */
-    width: auto;
-    margin-right: 10px;
-}
-
-.user-profile {
-    margin-left: auto; /* Push to the right side */
-    cursor: pointer;
-    position: relative;
-  }
-  
-  .user-profile img {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    transition: 0.3s ease;
-  }
-  
-  .user-profile.active img {
-    border: 2px solid #1abc9c; /* Add a green border when active */
-  }

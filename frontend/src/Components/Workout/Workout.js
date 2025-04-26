@@ -8,7 +8,7 @@ function Workout() {
     fitnessGoal: '',
     age: '',
     weight: '',
-    height: ''
+    height: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +82,7 @@ function Workout() {
 
       const transformedData = {
         message: response.data.message || '✅ Workout Plan Generated Successfully!',
-        workoutPlan: []
+        workoutPlan: [],
       };
 
       if (!Array.isArray(response.data.workoutPlan) || response.data.workoutPlan.length === 0) {
@@ -104,12 +104,11 @@ function Workout() {
           return;
         }
 
-        // Handle week headers (e.g., "Week 1: Foundation" or "Week 1")
-        const cleanedDay = item.Day.replace(/\*\*/g, '').trim(); // Remove Markdown bold markers
+        const cleanedDay = item.Day.replace(/\*\*/g, '').trim();
         if (cleanedDay.match(/^Week \d+/)) {
           if (currentWeek) {
             const filteredDays = {};
-            Object.keys(currentWeek).forEach(day => {
+            Object.keys(currentWeek).forEach((day) => {
               if (currentWeek[day].length > 0) {
                 filteredDays[day] = currentWeek[day];
               }
@@ -117,48 +116,45 @@ function Workout() {
             if (Object.keys(filteredDays).length > 0) {
               transformedData.workoutPlan.push({
                 section: `Week ${weekIndex}`,
-                days: filteredDays
+                days: filteredDays,
               });
               console.log(`Pushed Week ${weekIndex} to transformedData:`, transformedData.workoutPlan);
-            } else {
-              console.log(`Week ${weekIndex} has no valid days to push`);
             }
           }
           weekIndex++;
           currentWeek = {
-            "Monday": [],
-            "Tuesday": [],
-            "Wednesday": [],
-            "Thursday": [],
-            "Friday": [],
-            "Saturday": []
+            Monday: [],
+            Tuesday: [],
+            Wednesday: [],
+            Thursday: [],
+            Friday: [],
+            Saturday: [],
           };
-          currentDay = null; // Reset currentDay for the new week
+          currentDay = null;
           console.log(`Starting new week: Week ${weekIndex}`);
-          return; // Skip further processing for week header
+          return;
         }
 
-        // Handle day entries
         const day = cleanedDay;
-        if (["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].includes(day)) {
+        if (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].includes(day)) {
           if (!currentWeek) {
             console.log('Initializing first week as no week header found');
             weekIndex = 1;
             currentWeek = {
-              "Monday": [],
-              "Tuesday": [],
-              "Wednesday": [],
-              "Thursday": [],
-              "Friday": [],
-              "Saturday": []
+              Monday: [],
+              Tuesday: [],
+              Wednesday: [],
+              Thursday: [],
+              Friday: [],
+              Saturday: [],
             };
           }
-          currentDay = day; // Set currentDay to the new day
+          currentDay = day;
           const exerciseEntry = {
             exercise: item.Exercise || 'Rest',
             sets: item.Sets || '',
             reps: item.Reps || '',
-            notes: item.Notes || ''
+            notes: item.Notes || '',
           };
           console.log(`Adding exercise to ${currentDay}:`, exerciseEntry);
           currentWeek[currentDay].push(exerciseEntry);
@@ -167,10 +163,9 @@ function Workout() {
         }
       });
 
-      // Add the last week
       if (currentWeek) {
         const filteredDays = {};
-        Object.keys(currentWeek).forEach(day => {
+        Object.keys(currentWeek).forEach((day) => {
           if (currentWeek[day].length > 0) {
             filteredDays[day] = currentWeek[day];
           }
@@ -178,11 +173,9 @@ function Workout() {
         if (Object.keys(filteredDays).length > 0) {
           transformedData.workoutPlan.push({
             section: `Week ${weekIndex}`,
-            days: filteredDays
+            days: filteredDays,
           });
           console.log(`Pushed Week ${weekIndex} (last week) to transformedData:`, transformedData.workoutPlan);
-        } else {
-          console.log(`Last week (Week ${weekIndex}) has no valid days to push`);
         }
       }
 
@@ -212,140 +205,191 @@ function Workout() {
     console.log('workoutResult updated:', workoutResult);
   }, [workoutResult]);
 
-  const containerStyle = {
-    flex: 1,
+  // Styles
+  const mainContainerStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '20px',
+    padding: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    minHeight: '100vh',
+    '@media (max-width: 768px)': {
+      flexDirection: 'column',
+    },
+  };
+
+  const formContainerStyle = {
+    flex: '0 0 400px',
+    minWidth: '350px',
+    maxWidth: '400px',
+    minHeight: '500px',
     padding: '20px',
     border: '1px solid #ccc',
     borderRadius: '5px',
     backgroundColor: '#f9f9f9',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    display: 'flex',
+    flexDirection: 'column',
+    flexShrink: 0,
+    position: 'sticky',
+    top: '20px',
+    alignSelf: 'flex-start',
+    '@media (max-width: 768px)': {
+      flex: '0 0 100%',
+      minWidth: '100%',
+      maxWidth: '100%',
+      position: 'static',
+    },
   };
+
+  const resultsContainerStyle = {
+    flex: '1',
+    minWidth: '300px',
+    padding: '20px',
+    backgroundColor: '#fff',
+    borderRadius: '5px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    maxHeight: 'calc(100vh - 40px)',
+    overflowY: 'auto',
+  };
+
   const headingStyle = {
     marginBottom: '20px',
     color: '#333',
     textAlign: 'center',
-    fontSize: '24px'
+    fontSize: '24px',
   };
+
   const formStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px'
+    gap: '12px',
   };
+
   const inputStyle = {
-    padding: '12px',
-    fontSize: '16px',
+    padding: '10px',
+    fontSize: '15px',
     borderRadius: '4px',
     border: '1px solid #ccc',
     width: '100%',
     boxSizing: 'border-box',
-    transition: 'border-color 0.3s ease'
+    transition: 'border-color 0.3s ease',
   };
+
   const inputErrorStyle = {
-    borderColor: 'red'
+    borderColor: 'red',
   };
+
   const buttonStyle = {
-    padding: '12px',
+    padding: '10px',
     backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#007bff',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
-    cursor: (isSubmitting || Object.keys(errors).length > 0) ? 'not-allowed' : 'pointer',
-    fontSize: '16px',
+    cursor: isSubmitting || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer',
+    fontSize: '15px',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease',
-    marginTop: '10px'
+    marginTop: '10px',
   };
+
   const errorStyle = {
     color: 'red',
     fontSize: '12px',
-    marginTop: '5px'
+    marginTop: '5px',
   };
+
   const formErrorStyle = {
     color: 'red',
     fontSize: '14px',
     marginTop: '10px',
-    textAlign: 'center'
+    textAlign: 'center',
   };
 
   return (
-    <div style={containerStyle}>
+    <div>
       <Header />
-      <h2 style={headingStyle}>Workout Plan Generator</h2>
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <div>
-          <input
-            type="text"
-            name="fitnessGoal"
-            placeholder="Fitness Goal (e.g., Muscle Gain)"
-            value={formData.fitnessGoal}
-            onChange={handleChange}
-            required
-            style={{ ...inputStyle, ...(errors.fitnessGoal ? inputErrorStyle : {}) }}
-          />
-          {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
+      <div style={mainContainerStyle}>
+        <div style={formContainerStyle}>
+          <h2 style={headingStyle}>Workout Plan Generator</h2>
+          <form onSubmit={handleSubmit} style={formStyle}>
+            <div>
+              <input
+                type="text"
+                name="fitnessGoal"
+                placeholder="Fitness Goal (e.g., Muscle Gain)"
+                value={formData.fitnessGoal}
+                onChange={handleChange}
+                required
+                style={{ ...inputStyle, ...(errors.fitnessGoal ? inputErrorStyle : {}) }}
+              />
+              {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
+            </div>
+            <div>
+              <input
+                type="number"
+                name="age"
+                placeholder="Age"
+                value={formData.age}
+                onChange={handleChange}
+                required
+                min="1"
+                max="120"
+                step="1"
+                style={{ ...inputStyle, ...(errors.age ? inputErrorStyle : {}) }}
+              />
+              {errors.age && <p style={errorStyle}>{errors.age}</p>}
+            </div>
+            <div>
+              <input
+                type="number"
+                name="weight"
+                placeholder="Weight (kg)"
+                value={formData.weight}
+                onChange={handleChange}
+                required
+                min="0.1"
+                max="500"
+                step="0.1"
+                style={{ ...inputStyle, ...(errors.weight ? inputErrorStyle : {}) }}
+              />
+              {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
+            </div>
+            <div>
+              <input
+                type="number"
+                name="height"
+                placeholder="Height (cm)"
+                value={formData.height}
+                onChange={handleChange}
+                min="0.1"
+                max="300"
+                step="0.1"
+                style={{ ...inputStyle, ...(errors.height ? inputErrorStyle : {}) }}
+              />
+              {errors.height && <p style={errorStyle}>{errors.height}</p>}
+            </div>
+            <button
+              type="submit"
+              style={buttonStyle}
+              disabled={isSubmitting || Object.keys(errors).length > 0}
+            >
+              {isSubmitting ? 'Generating...' : 'Generate Workout Plan'}
+            </button>
+          </form>
+          {error && <p style={formErrorStyle}>{error}</p>}
         </div>
-        <div>
-          <input
-            type="number"
-            name="age"
-            placeholder="Age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-            min="1"
-            max="120"
-            step="1"
-            style={{ ...inputStyle, ...(errors.age ? inputErrorStyle : {}) }}
-          />
-          {errors.age && <p style={errorStyle}>{errors.age}</p>}
+        <div style={resultsContainerStyle}>
+          {workoutResult ? (
+            <ResultDisplay title="Workout Plan" data={workoutResult} />
+          ) : (
+            <p style={{ textAlign: 'center', color: '#7f8c8d', fontSize: '16px' }}>
+              No results yet. Submit the form to generate a workout plan.
+            </p>
+          )}
         </div>
-        <div>
-          <input
-            type="number"
-            name="weight"
-            placeholder="Weight (kg)"
-            value={formData.weight}
-            onChange={handleChange}
-            required
-            min="0.1"
-            max="500"
-            step="0.1"
-            style={{ ...inputStyle, ...(errors.weight ? inputErrorStyle : {}) }}
-          />
-          {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
-        </div>
-        <div>
-          <input
-            type="number"
-            name="height"
-            placeholder="Height (cm)"
-            value={formData.height}
-            onChange={handleChange}
-            min="0.1"
-            max="300"
-            step="0.1"
-            style={{ ...inputStyle, ...(errors.height ? inputErrorStyle : {}) }}
-          />
-          {errors.height && <p style={errorStyle}>{errors.height}</p>}
-        </div>
-        <button 
-          type="submit" 
-          style={buttonStyle}
-          disabled={isSubmitting || Object.keys(errors).length > 0}
-        >
-          {isSubmitting ? 'Generating...' : 'Generate Workout Plan'}
-        </button>
-      </form>
-      {error && <p style={formErrorStyle}>{error}</p>}
-      {workoutResult && (
-        <>
-          <ResultDisplay title="Workout Plan" data={workoutResult} />
-          {/* <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ccc' }}>
-            <h3>Debug: workoutResult</h3>
-            <pre>{JSON.stringify(workoutResult, null, 2)}</pre>
-          </div> */}
-        </>
-      )}
+      </div>
     </div>
   );
 }

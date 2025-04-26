@@ -82,7 +82,7 @@ function EquipmentForm({ onClose }) {
             [name]: error
         }));
         setGlobalError(''); // Clear global error on input change
-        setError('');
+
     };
 
     const handleSubmit = async (e) => {
@@ -178,7 +178,6 @@ function EquipmentForm({ onClose }) {
                 />
                 {errors.lastMaintenanceDate && <p className="error">{errors.lastMaintenanceDate}</p>}
             </div>
-            {error && <p className="error">{error}</p>}
             <input
                 type="number"
                 value={equipmentId}

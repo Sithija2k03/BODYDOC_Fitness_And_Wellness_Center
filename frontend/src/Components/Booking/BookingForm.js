@@ -1,19 +1,22 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-import Header from "../../Login/Header"; // Make sure this path is correct based on your folder structure
+import Header from "../../Login/Header";
 
 const BookingForm = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const facilityType = location.state?.facilityType || "";
+
     const [formData, setFormData] = useState({
         Name: "",
-        email: "", // Added email field
-        facility_type: "",
+        email: "",
+        facility_type: facilityType,
         date: "",
         time_slot: "",
     });
 
     const [error, setError] = useState(null);
-    // const navigate = useNavigate();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -25,11 +28,12 @@ const BookingForm = () => {
         try {
             const response = await axios.post("http://localhost:4000/booking/add-book", formData, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Added Authorization header
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
             if (response.status === 201) {
                 alert("Booking Successful!");
+                navigate("/");
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -107,7 +111,7 @@ const BookingForm = () => {
 
             <div className="booking-form-container">
                 <h2>Online Booking Form</h2>
-                
+
                 {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
