@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from './Login/Header';
-import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Keep this as your main route guard
+import { PrivateRoute as RouteGuard } from './PrivateRoute'; // Rename import to avoid redefinition
 import Home from "./Pages/Home";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
@@ -10,16 +10,13 @@ import Register from "./Register/Register";
 import Login from "./Login/Login";
 import UserProfile from "./Login/UserProfile";
 import EditProfile from "./Login/EditProfile";
-import AdminLayout from "./AdminLayout";
+import AdminLayout from "./AdminLayout"; // Only one import
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Incomes from "./Components/Incomes/Incomes";
 import Expenses from "./Components/Expenses/Expenses";
 import Salary from "./Components/Salaries/salaries";
 import Inventory from "./Components/Inventory/Inventory";
 import Supplier from "./Components/Suppliers/Supplier";
-import BookingForm from "./Booking/BookingForm";
-import BookingList from "./Booking/BookingList";
-import EditBooking from "./Booking/EditBooking";
 import EditSupplier from "./Components/Form/EditSupplier";
 import Pharmacy from "./Components/pharmacy/Pharmacy";
 import GymEquipment from "./Components/GymEquipment/GymEquipment";
@@ -28,14 +25,16 @@ import { GlobalProvider } from './context/globalContext';
 import navItems from "./utils/navItems";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
-import ResultDisplay from './Components/ResultDisplay';
-import AppointmentForm from "./Components/Appoinment/AppoinmentForm";
+import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
 import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment';
 import BookingForm from "./Components/Booking/BookingForm";
 import BookingList from "./Components/Booking/BookingList";
 import EditBooking from "./Components/Booking/EditBooking";
 import Bookings from "./Components/Booking/Bookings";
+import OrderForm from './Components/Order/OrderForm';
+import Order from "./Components/Order/Order";
+import OrderEdit from "./Components/Order/OrderEdit";
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -57,7 +56,6 @@ const App = () => {
       <Router>
         <div className="app">
           <Routes>
-
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
@@ -76,7 +74,12 @@ const App = () => {
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
 
-            {/* Supplier & Inventory */}
+            {/* Order Routes */}
+            <Route path="/addOrder" element={<OrderForm/>} />
+            <Route path="/order-display" element={<Order/>} />
+            <Route path="/order-edit" element={<OrderEdit/>} />
+          {/* Fitness & Nutrition Routes */}
+
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
             <Route path="/gymEquipment" element={<GymEquipment />} />
@@ -93,9 +96,9 @@ const App = () => {
 
             {/* Protected Admin Routes */}
             <Route path="/admin/*" element={
-              <RouteGuard>
+              <PrivateRoute>
                 <AdminLayout />
-              </RouteGuard>
+              </PrivateRoute>
             }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
@@ -106,11 +109,11 @@ const App = () => {
               <Route path="salaries" element={<Salary />} />
               <Route path="inventory" element={<Inventory />} />
               <Route path="suppliers" element={<Supplier />} />
+              <Route path="supplier" element={<Supplier />} />
             </Route>
 
             {/* Fallback Route */}
             <Route path="*" element={<Navigate to="/" />} />
-
           </Routes>
         </div>
       </Router>

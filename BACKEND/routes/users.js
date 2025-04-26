@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const expressAsyncHandler = require("express-async-handler");
 const multer = require("multer");
 const path = require("path");
+const { v4: uuidv4 } = require("uuid"); // Add uuid for userID
 
 const authMiddleware = require("../Middleware/authMiddleware"); // Import middleware
 require("dotenv").config();
@@ -39,8 +40,12 @@ router.post("/add", async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const myEncPassword = await bcrypt.hash(password, salt);
 
+        // Generate unique userID
+        const userID = uuidv4(); // Generate UUID
+
         // Create a new user
         const newUser = new User({
+            userID, // Add userID
             fullName: fullName.trim(), // Preserve capitalization but remove extra spaces
             email,
             password: myEncPassword,
@@ -216,7 +221,7 @@ router.post("/login", expressAsyncHandler(async (req, res) => {
     }
 
     // Generate JWT token
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user._id, user.role, user.email);
 
     res.status(200).json({
         id: user._id,

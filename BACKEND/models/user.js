@@ -5,6 +5,8 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
 
+    userID: { type: String, unique: true },
+
     fullName : {
         type : String,
         required: true,
@@ -49,6 +51,8 @@ const userSchema = new Schema({
         type : Date,
         default: Date.now
     },
+    workoutPlan: { type: String, default: '' }, // Store as JSON string
+    nutritionPlan: { type: String, default: '' } // Added for nutrition plan
 
 })
 

@@ -2,12 +2,10 @@ const mongoose = require('mongoose');
 
 const sensorSchema = new mongoose.Schema({
   sensor1: {
-    status: String,
-    distance: Number
+    type: String, // only level stored (Available or Non-Available)
   },
   sensor2: {
-    status: String,
-    distance: Number
+    type: String,
   },
   timestamp: Number
 });

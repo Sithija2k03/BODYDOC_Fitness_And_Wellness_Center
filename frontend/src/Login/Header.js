@@ -4,7 +4,6 @@ import "./Header.css"; // Custom CSS
 import { Link } from "react-router-dom";
 
 function Header() {
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isAiDropdownOpen, setAiDropdownOpen] = useState(false); 
   
   // Get the current route
@@ -26,7 +25,7 @@ function Header() {
 
           <li><a href="/booking">Online Booking</a></li>
           <li><a href="/appointment-layout">Medicare & Clinic</a></li>
-          <li><a href="#">Pharmacy</a></li>
+          <li><a href="/addOrder">Pharmacy</a></li>
             <li
                       className="dropdown"
                       onMouseEnter={() => setAiDropdownOpen(true)}
