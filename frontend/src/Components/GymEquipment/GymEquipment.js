@@ -3,160 +3,335 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import { InnerLayout } from '../../styles/Layouts';
 import Button from '../Button/Button';
-import { plus } from '../../utils/icons';
+import { plus, search, fileText } from '../../utils/icons';
 import Modal from '../Modal/Modal';
 import GymEquipmentForm from '../Form/EquipmentForm';
 import Navigation from '../../Components/Navigation/Navigation';
-import GymEquipmentItem from '../../Components/GymEquipment/GymEquipmentItems';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 function GymEquipment() {
-    const {
-        gymEquipment = [], // Placeholder: Update globalContext.js to include gymEquipment state
-        getGymEquipment = () => {}, // Placeholder: Add to globalContext.js
-        addGymEquipment = () => {}, // Placeholder: Add to globalContext.js
-        deleteGymEquipment = () => {}, // Placeholder: Add to globalContext.js
-        error,
-        success,
-        setSuccess
-    } = useGlobalContext();
+  const {
+    gymEquipment = [],
+    getGymEquipment = () => {},
+    addGymEquipment = () => {},
+    deleteGymEquipment = () => {},
+    error,
+    success,
+    setSuccess,
+  } = useGlobalContext();
 
-    const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate(); // Initialize navigate
 
-    useEffect(() => {
-        getGymEquipment();
-    }, [getGymEquipment]);
+  useEffect(() => {
+    getGymEquipment();
+  }, [getGymEquipment]);
 
-    useEffect(() => {
-        if (success) {
-            alert(success);
-            const timer = setTimeout(() => setSuccess(null), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [success, setSuccess]);
+  useEffect(() => {
+    if (success) {
+      alert(success);
+      const timer = setTimeout(() => setSuccess(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, setSuccess]);
 
-    const openForm = () => setIsFormOpen(true);
-    const closeForm = () => setIsFormOpen(false);
+  useEffect(() => {
+    console.log('Gym Equipment Items:', gymEquipment);
+  }, [gymEquipment]);
 
+  const openForm = () => setIsFormOpen(true);
+  const closeForm = () => setIsFormOpen(false);
+
+  const filteredGymEquipment = gymEquipment.filter((item) =>
+    item?.equipmentName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['Equipment ID', 'Equipment Name', 'Category', 'Last Maintenance Date']],
+      body: filteredGymEquipment.map((item) => [
+        item.equipmentId || 'N/A',
+        item.equipmentName || 'N/A',
+        item.equipmentCategory || 'N/A',
+        item.lastMaintenanceDate ? new Date(item.lastMaintenanceDate).toLocaleDateString() : 'N/A',
+      ]),
+      startY: 30,
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+        overflow: 'linebreak',
+      },
+      headStyles: {
+        fillColor: [245, 102, 146],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [250, 250, 250],
+      },
+      margin: { top: 30 },
+      didDrawPage: (data) => {
+        doc.setFontSize(18);
+        doc.text('Gym Equipment Inventory', 14, 22);
+      },
+    });
+    doc.save('gym-equipment-inventory.pdf');
+  };
+
+  // Inline GymEquipmentItem component
+  const GymEquipmentItem = ({
+    id,
+    equipmentId,
+    equipmentName,
+    equipmentCategory,
+    lastMaintenanceDate,
+    deleteGymEquipment,
+  }) => {
     return (
-        <MainLayout>
-            <Navigation />
-            <GymEquipmentStyled>
-                <InnerLayout>
-                    <h1>Gym Equipment Inventory</h1>
-                    <div className="submit-btn">
-                        <Button
-                            name={'Add Equipment'}
-                            icon={plus}
-                            bPad={'.8rem 1.6rem'}
-                            bRad={'30px'}
-                            bg={'#6C63FF'}
-                            color={'#fff'}
-                            onClick={openForm}
-                        />
-                    </div>
-                    <div className="gym-equipment-list">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Equipment ID</th>
-                                    <th>Equipment Name</th>
-                                    <th>Category</th>
-                                    <th>Last Maintenance Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {gymEquipment.map((item) => (
-                                    <GymEquipmentItem
-                                        key={item._id}
-                                        id={item._id}
-                                        equipmentId={item.equipmentId}
-                                        equipmentName={item.equipmentName}
-                                        equipmentCategory={item.equipmentCategory}
-                                        lastMaintenanceDate={item.lastMaintenanceDate}
-                                        deleteGymEquipment={deleteGymEquipment}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </InnerLayout>
-
-                <Modal isOpen={isFormOpen} onClose={closeForm}>
-                    <GymEquipmentForm onClose={closeForm} onSubmit={addGymEquipment} />
-                </Modal>
-            </GymEquipmentStyled>
-        </MainLayout>
+      <tr>
+        <td>{equipmentId || 'N/A'}</td>
+        <td>{equipmentName || 'N/A'}</td>
+        <td>{equipmentCategory || 'N/A'}</td>
+        <td>{lastMaintenanceDate ? new Date(lastMaintenanceDate).toLocaleDateString() : 'N/A'}</td>
+        <td>
+          <button className="delete-btn" onClick={() => deleteGymEquipment(equipmentId)}>
+            Delete
+          </button>
+        </td>
+      </tr>
     );
+  };
+
+  return (
+    <MainLayout>
+      <div className="page-content">
+        <Navigation />
+        <GymEquipmentStyled>
+          <InnerLayout>
+            <h1>Gym Equipment Inventory</h1>
+            <SearchBarContainer>
+              <input
+                type="text"
+                placeholder="Search equipment by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="search-icon">{search}</div>
+            </SearchBarContainer>
+            <div className="submit-btn">
+              <Button
+                name={'Add Equipment'}
+                icon={plus}
+                bPad={'.8rem 1.6rem'}
+                bRad={'30px'}
+                bg={'#F56692'}
+                color={'#fff'}
+                onClick={openForm}
+              />
+              <Button
+                name={'Generate PDF'}
+                icon={fileText}
+                bPad={'.8rem 1.6rem'}
+                bRad={'30px'}
+                bg={'#F56692'}
+                color={'#fff'}
+                onClick={generatePDF}
+              />
+              <Button
+                name={'View Latest Sensor Data'}
+                icon={fileText}
+                bPad={'.8rem 1.6rem'}
+                bRad={'30px'}
+                bg={'#F56692'}
+                color={'#fff'}
+                onClick={() => navigate('/sensor-data')}
+              />
+
+            
+            </div>
+            <div className="gym-equipment-list">
+              {gymEquipment.length > 0 ? (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Equipment ID</th>
+                      <th>Equipment Name</th>
+                      <th>Category</th>
+                      <th>Last Maintenance Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredGymEquipment.length > 0 ? (
+                      filteredGymEquipment.map((item) => (
+                        <GymEquipmentItem
+                          key={item._id}
+                          id={item._id}
+                          equipmentId={item.equipmentId}
+                          equipmentName={item.equipmentName}
+                          equipmentCategory={item.equipmentCategory}
+                          lastMaintenanceDate={item.lastMaintenanceDate}
+                          deleteGymEquipment={deleteGymEquipment}
+                        />
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5">No gym equipment matches your search</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                <p>No gym equipment available</p>
+              )}
+            </div>
+          </InnerLayout>
+
+          <Modal isOpen={isFormOpen} onClose={closeForm}>
+            <GymEquipmentForm onClose={closeForm} onSubmit={addGymEquipment} />
+          </Modal>
+        </GymEquipmentStyled>
+      </div>
+    </MainLayout>
+  );
 }
 
-const GymEquipmentStyled = styled.div`
-    .submit-btn {
-        margin: 1rem 0;
-    }
+// Styled components remain unchanged
+const MainLayout = styled.div`
+  display: flex;
+  height: 100vh;
+  background: linear-gradient(135deg, rgba(245, 102, 146, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+  padding: 2rem;
 
-    .gym-equipment-list {
-        margin-top: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
+  .page-content {
+    display: flex;
+    flex: 1;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
+  > .page-content > nav {
+    width: 250px;
+    min-width: 250px;
+    background-color: #f8f8f8;
+    height: 100%;
+  }
 
-    th, td {
-        padding: 0.8rem;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    td {
-        background-color: #fafafa;
-    }
-
-    tr:hover td {
-        background-color: #f0f0f0;
-    }
-
-    .delete-btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        background-color: #f44336;
-        color: white;
-    }
-
-    .delete-btn:hover {
-        background-color: #d32f2f;
-    }
+  > .page-content > div {
+    flex: 1;
+    overflow-y: auto;
+  }
 `;
 
-const MainLayout = styled.div`
+const GymEquipmentStyled = styled.div`
+  flex: 1;
+
+  .submit-btn {
+    margin: 1rem 0;
     display: flex;
-    height: 100vh;
+    gap: 1rem;
+    justify-content: center;
+
+    button {
+      box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  .gym-equipment-list {
+    margin-top: 1rem;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th,
+  td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    > nav {
-        width: 250px;
-        min-width: 250px;
-        background-color: #f8f8f8;
-        height: 100%;
-    }
+  th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    width: 20%;
+  }
 
-    > div {
-        flex: 1;
-        overflow-y: auto;
+  td {
+    background-color: #fafafa;
+  }
+
+  tr:hover td {
+    background-color: #f0f0f0;
+  }
+
+  .delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    background-color: #f44336;
+    color: white;
+  }
+
+  .delete-btn:hover {
+    background-color: #d32f2f;
+  }
+
+  p {
+    text-align: center;
+    font-size: 1rem;
+    color: #666;
+    margin: 2rem 0;
+  }
+`;
+
+const SearchBarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-left: 15px;
+
+  input {
+    background: #ffffff;
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 40px 10px 10px;
+    border: 2px solid #228b22;
+    border-radius: 20px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s ease-in-out;
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 5px var(--color-primary);
     }
+  }
+
+  .search-icon {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    left: 790px;
+    top: 160px;
+    color: var(--color-primary);
+    cursor: pointer;
+  }
 `;
 
 export default GymEquipment;

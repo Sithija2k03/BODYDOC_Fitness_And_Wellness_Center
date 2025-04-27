@@ -1,61 +1,70 @@
-import React, { useState } from "react";
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
+import { useGlobalContext } from '../../context/globalContext';
+import OrderItem from './OrderItem';
+import Header from '../../Login/Header';
 
-const PharmacyInventoryForm = () => {
-  const [order, setOrder] = useState([{ medicine: "", quantity: 1 }]);
-  const [prescription, setPrescription] = useState(null);
+function OrderList() {
+  const { orders, getOrders, loading, error } = useGlobalContext();
 
-  const handleChange = (index, field, value) => {
-    const newOrder = [...order];
-    newOrder[index][field] = value;
-    setOrder(newOrder);
-  };
-
-  const handleAddMedicine = () => {
-    setOrder([...order, { medicine: "", quantity: 1 }]);
-  };
-
-  const handleFileUpload = (event) => {
-    setPrescription(event.target.files[0]);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Order Submitted:", order, "Prescription:", prescription);
-  };
+  useEffect(() => {
+    getOrders();
+  }, []);
 
   return (
-    <div className="p-6 bg-gray-100 rounded-lg shadow-md max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">Order Medicine</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {order.map((item, index) => (
-          <div key={index} className="flex space-x-2">
-            <input
-              type="text"
-              placeholder="Medicine Name"
-              value={item.medicine}
-              onChange={(e) => handleChange(index, "medicine", e.target.value)}
-              className="border p-2 flex-1 rounded"
-              required
-            />
-            <input
-              type="number"
-              min="1"
-              value={item.quantity}
-              onChange={(e) => handleChange(index, "quantity", e.target.value)}
-              className="border p-2 w-20 rounded"
-              required
-            />
-          </div>
-        ))}
-        <button type="button" onClick={handleAddMedicine} className="text-blue-600">+ Add More</button>
-        <div>
-          <label className="block mb-1">Upload Prescription (Optional)</label>
-          <input type="file" onChange={handleFileUpload} className="border p-2 rounded w-full" />
+    <>
+      <Header />
+      <OrderListStyled>
+        <h2>My Orders</h2>
+        <div className="orders">
+          {loading ? (
+            <p className="status">Loading orders...</p>
+          ) : error ? (
+            <p className="status error">{error}</p>
+          ) : orders && orders.length > 0 ? (
+            orders.map((order, index) => (
+              <OrderItem
+                key={order.id || index}
+                userName={order.user_name}
+                doctorName={order.doctor_name}
+                cDate={order.c_date}
+                prescription={order.prescription}
+              />
+            ))
+          ) : (
+            <p className="status">No orders found</p>
+          )}
         </div>
-        <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Submit Order</button>
-      </form>
-    </div>
+      </OrderListStyled>
+    </>
   );
-};
+}
 
-export default PharmacyInventoryForm;
+const OrderListStyled = styled.div`
+  padding: 2rem;
+  background: #f4f4f4;
+  min-height: 100vh;
+
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+  }
+
+  .orders {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .status {
+    font-size: 1rem;
+    color: #555;
+  }
+
+  .status.error {
+    color: #e74c3c;
+  }
+`;
+
+export default OrderList;

@@ -25,10 +25,17 @@ import { GlobalProvider } from './context/globalContext';
 import navItems from "./utils/navItems";
 import Nutrition from './Components/Nutrition/Nutrition';
 import WorkOut from './Components/Workout/Workout';
-import ResultDisplay from './Components/ResultDisplay';
 import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
 import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment';
+import BookingForm from "./Components/Booking/BookingForm";
+import BookingList from "./Components/Booking/BookingList";
+import EditBooking from "./Components/Booking/EditBooking";
+import Bookings from "./Components/Booking/Bookings";
+import OrderForm from './Components/Order/OrderForm';
+import Order from "./Components/Order/Order";
+import OrderEdit from "./Components/Order/OrderEdit";
+import SensorData from "./Components/SensorData/SensorData";
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -59,15 +66,25 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/booking" element={<BookingForm />} />
+            {/* <Route path="/booking-list" element={<BookingList />} /> */}
+            <Route path="/edit-booking/:id" element={<EditBooking />} />
 
             {/* E-Pharmacy Routes */}
             <Route path="/addAppointment" element={<AppointmentForm />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
 
+            {/* Order Routes */}
+            <Route path="/addOrder" element={<OrderForm/>} />
+            <Route path="/order-display" element={<Order/>} />
+            <Route path="/order-edit" element={<OrderEdit/>} />
+          {/* Fitness & Nutrition Routes */}
+
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
             <Route path="/gymEquipment" element={<GymEquipment />} />
+            <Route path="/sensor-data" element={<SensorData />} />
 
             {/* Fitness & Nutrition Routes */}
             <Route 
@@ -87,6 +104,8 @@ const App = () => {
             }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="appointment-display" element={<AppoinmentList />} />
               <Route path="incomes" element={<Incomes />} />
               <Route path="expenses" element={<Expenses />} />
               <Route path="salaries" element={<Salary />} />
