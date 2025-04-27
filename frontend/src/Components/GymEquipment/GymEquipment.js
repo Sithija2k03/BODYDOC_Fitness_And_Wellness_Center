@@ -147,7 +147,7 @@ function GymEquipment() {
                 bRad={'30px'}
                 bg={'#F56692'}
                 color={'#fff'}
-                onClick={() => navigate('/new-page')} // Navigate to new page
+                onClick={() => navigate('/sensor')} // Navigate to new page
               />
             </div>
             <div className="gym-equipment-list">

@@ -18,6 +18,7 @@ import Login from './Login/Login'; // Import Login component
 import AdminAppointments from './Components/Appoinment/AdminAppointments';
 import PettyCash from './Components/pettyCashBook/PettyCashBook';
 import BankBook from './Components/BankBook/BankBook';
+import AllUsers from './Components/AllUsers/DisplayAllUsers';
 
 function App() {
   const [active, setActive] = React.useState(1);
@@ -27,7 +28,7 @@ function App() {
       case 1:
         return <Dashboard />;
       case 2:
-        return <Dashboard />;
+        return <AllUsers />;
       case 9:
         return <Bookings />;
       case 10:

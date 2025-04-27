@@ -34,6 +34,7 @@ import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
 import OrderEdit from "./Components/Order/OrderEdit";
 import BMI from "./Components/BMI Calculator/BMI";
+import Sensor from "./Components/GymEquipment/sensorAvailability";
 import UserDashboard from './Pages/userDashboard';
 import { GlobalProvider } from './context/globalContext';
 
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/gymEquipment" element={<GymEquipment />} />
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
+            <Route path="/sensor" element={<Sensor />} />
            
 
             {/* E-Pharmacy Routes */}

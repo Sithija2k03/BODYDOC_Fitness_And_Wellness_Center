@@ -72,8 +72,8 @@ router.post("/add", async (req, res) => {
     }
 });
 
-// ✅ Read All Users (Admin Only)
-router.get("/", authMiddleware(["admin"]), async (req, res) => {
+// ✅ Read All Users (Public Access - No Authentication)
+router.get("/", async (req, res) => {
     try {
         const users = await User.find(); // Fetch all users
         res.status(200).json(users);
@@ -82,6 +82,7 @@ router.get("/", authMiddleware(["admin"]), async (req, res) => {
         res.status(500).json({ message: "Error fetching users", error: error.message });
     }
 });
+
 
 // ✅ Read User Profile (Authenticated Users Only)
 router.get("/profile", authMiddleware(), async (req, res) => {
@@ -204,13 +205,13 @@ router.put("/update/:id", upload.single("profilePic"), authMiddleware(), async (
     }
 });
 
-// ✅ Delete User (User can delete their own account, Admin can delete anyone)
-router.delete("/delete/:id", authMiddleware(), async (req, res) => {
+// ✅ Delete User (User can delete their own account)
+router.delete("/delete/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Ensure the logged-in user is deleting their own account or is an admin
-        if (req.user.id !== id && req.user.role !== "admin") {
+        // Ensure the logged-in user is deleting their own account
+        if (req.user.id !== id) {
             return res.status(403).json({ message: "Access Forbidden! You can only delete your own account." });
         }
 

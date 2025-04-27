@@ -53,7 +53,7 @@ const BookingForm = () => {
             });
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/");
+                navigate("/user-profile");
             }
         } catch (err) {
             console.error("Error while adding booking", err);

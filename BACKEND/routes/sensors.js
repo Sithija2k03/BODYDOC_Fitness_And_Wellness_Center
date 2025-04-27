@@ -21,4 +21,15 @@ router.post("/", async (req, res) => {
     }
 });
 
+// GET - Retrieve sensor details
+router.get("/get-sensor", async (req, res) => {
+    try {
+        const sensors = await Sensor.find();  // Fetch all sensor data from the database
+        res.status(200).json(sensors);  // Return the sensor data in JSON format
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
