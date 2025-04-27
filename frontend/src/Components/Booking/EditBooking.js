@@ -8,15 +8,23 @@ const EditBooking = () => {
 
   const [formData, setFormData] = useState({
     Name: "",
-    email: "", // Added email field
+    email: "",
     facility_type: "",
     date: "",
     time_slot: "",
-    status: "",
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  // Get today's date in YYYY-MM-DD format for min attribute
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -26,11 +34,10 @@ const EditBooking = () => {
 
         setFormData({
           Name: booking.Name || "",
-          email: booking.email || "", // Added email field
+          email: booking.email || "",
           facility_type: booking.facility_type || "",
-          date: booking.date?.slice(0, 10) || "", // Format date
+          date: booking.date?.slice(0, 10) || "",
           time_slot: booking.time_slot || "",
-          status: booking.status || "",
         });
 
         setLoading(false);
@@ -55,17 +62,28 @@ const EditBooking = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Additional date validation before submission
+    const selectedDate = new Date(formData.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to beginning of day for accurate comparison
+    
+    if (selectedDate < today) {
+      setError("Please select a future date for your booking.");
+      return;
+    }
+
     try {
       await axios.put(`http://localhost:4000/booking/update/${id}`, formData);
       alert("Booking updated successfully!");
-      navigate("/bookings");
+      // Navigate to user profile page instead of bookings page
+      navigate("/user-profile"); // Adjust the path as needed
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking.");
     }
   };
 
-  if (loading) return <p>Loading booking details...</p>;
+  
 
   return (
     <>
@@ -127,6 +145,29 @@ const EditBooking = () => {
             text-align: center;
             margin-bottom: 15px;
           }
+          
+          .cancel-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #6c757d;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+          }
+          
+          .cancel-button:hover {
+            background-color: #5a6268;
+          }
+          
+          .date-helper-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+          }
         `}
       </style>
 
@@ -164,7 +205,15 @@ const EditBooking = () => {
 
           <div className="form-group">
             <label>Date</label>
-            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+            <input 
+              type="date" 
+              name="date" 
+              value={formData.date} 
+              onChange={handleChange} 
+              min={getTodayDate()} 
+              required 
+            />
+            <div className="date-helper-text">Only future dates are allowed</div>
           </div>
 
           <div className="form-group">
@@ -172,12 +221,8 @@ const EditBooking = () => {
             <input type="time" name="time_slot" value={formData.time_slot} onChange={handleChange} required />
           </div>
 
-          <div className="form-group">
-            <label>Status</label>
-            <input type="text" name="status" value={formData.status} onChange={handleChange} required />
-          </div>
-
           <button type="submit" className="submit-button">Update Booking</button>
+          <button type="button" className="cancel-button" onClick={() => navigate("/profile")}>Cancel</button>
         </form>
       </div>
     </>

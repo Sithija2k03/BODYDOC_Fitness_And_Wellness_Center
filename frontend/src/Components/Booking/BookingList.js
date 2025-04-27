@@ -8,13 +8,20 @@ const BookingList = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchBookings();
-    }, []);
+    const userEmail = localStorage.getItem("userEmail"); // 👈 Get logged-in user's email
 
-    const fetchBookings = async () => {
+    useEffect(() => {
+        if (userEmail) {
+            fetchBookings(userEmail);
+        } else {
+            setError("User email not found. Please login.");
+            setLoading(false);
+        }
+    }, [userEmail]);
+
+    const fetchBookings = async (email) => { // ✅ You missed email parameter
         try {
-            const response = await axios.get("http://localhost:4000/booking/");
+            const response = await axios.get(`http://localhost:4000/booking/bookings/${email}`); // ✅ use backticks ``
             setBookings(response.data);
             setLoading(false);
         } catch (err) {
@@ -27,7 +34,7 @@ const BookingList = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this booking?")) {
             try {
-                await axios.delete(`http://localhost:4000/booking/delete/${id}`);
+                await axios.delete(`http://localhost:4000/booking/delete/${id}`); // ✅ use backticks ``
                 alert("Booking deleted successfully!");
                 setBookings(bookings.filter((booking) => booking._id !== id));
             } catch (err) {

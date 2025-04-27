@@ -1,35 +1,59 @@
 import React, { useState } from "react";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
-import Header from "../../Login/Header"; // Make sure this path is correct based on your folder structure
+import { useNavigate } from "react-router-dom";
+import Header from "../../Login/Header";
 
 const BookingForm = () => {
     const [formData, setFormData] = useState({
         Name: "",
-        email: "", // Added email field
+        email: "",
         facility_type: "",
         date: "",
         time_slot: "",
     });
 
     const [error, setError] = useState(null);
-    // const navigate = useNavigate();
+    const [dateError, setDateError] = useState(null);
+    const navigate = useNavigate();
+
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if (name === "date") {
+            const selectedDate = new Date(value);
+            const currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0);
+            if (selectedDate < currentDate) {
+                setDateError("Please select a future date");
+            } else {
+                setDateError(null);
+            }
+        }
         setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const selectedDate = new Date(formData.date);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        if (selectedDate < currentDate) {
+            setDateError("Please select a future date");
+            return;
+        }
+
         try {
             const response = await axios.post("http://localhost:4000/booking/add-book", formData, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Added Authorization header
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
             if (response.status === 201) {
                 alert("Booking Successful!");
+                navigate("/user-profile");
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -37,111 +61,124 @@ const BookingForm = () => {
         }
     };
 
+    // Inline styles
+    const containerStyle = {
+        maxWidth: "400px",
+        margin: "50px auto",
+        padding: "20px",
+        background: "#f4f4f4",
+        borderRadius: "10px",
+        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+    };
+
+    const headingStyle = {
+        textAlign: "center",
+        color: "#333",
+        marginBottom: "20px",
+    };
+
+    const formGroupStyle = {
+        marginBottom: "15px",
+    };
+
+    const labelStyle = {
+        display: "block",
+        fontWeight: "bold",
+        marginBottom: "5px",
+    };
+
+    const inputStyle = {
+        width: "100%",
+        padding: "10px",
+        border: "1px solid #ccc",
+        borderRadius: "5px",
+        fontSize: "16px",
+        boxSizing: "border-box",
+    };
+
+    const inputFocusStyle = {
+        borderColor: "#007bff",
+        outline: "none",
+    };
+
+    const errorMessageStyle = {
+        color: "red",
+        textAlign: "center",
+        marginBottom: "10px",
+        fontWeight: "bold",
+    };
+
+    const fieldErrorStyle = {
+        color: "red",
+        fontSize: "14px",
+        marginTop: "5px",
+    };
+
+    const submitButtonStyle = {
+        width: "100%",
+        padding: "10px",
+        backgroundColor: "#28a745",
+        color: "white",
+        border: "none",
+        borderRadius: "5px",
+        fontSize: "16px",
+        cursor: "pointer",
+        transition: "background 0.3s",
+    };
+
+    const submitButtonHoverStyle = {
+        backgroundColor: "#218838",
+    };
+
+    const invalidInputStyle = {
+        ...inputStyle,
+        border: "1px solid red",
+    };
+
     return (
         <div>
             <Header />
 
-            <style>
-                {`
-                .booking-form-container {
-                    max-width: 400px;
-                    margin: 50px auto;
-                    padding: 20px;
-                    background: #f4f4f4;
-                    border-radius: 10px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
+            <div style={containerStyle}>
+                <h2 style={headingStyle}>Online Booking Form</h2>
 
-                h2 {
-                    text-align: center;
-                    color: #333;
-                }
-
-                .form-group {
-                    margin-bottom: 15px;
-                }
-
-                label {
-                    display: block;
-                    font-weight: bold;
-                    margin-bottom: 5px;
-                }
-
-                input, select {
-                    width: 100%;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    font-size: 16px;
-                }
-
-                input:focus, select:focus {
-                    border-color: #007bff;
-                    outline: none;
-                }
-
-                .submit-button {
-                    width: 100%;
-                    padding: 10px;
-                    background-color: #28a745;
-                    color: white;
-                    border: none;
-                    border-radius: 5px;
-                    font-size: 16px;
-                    cursor: pointer;
-                    transition: background 0.3s;
-                }
-
-                .submit-button:hover {
-                    background-color: #218838;
-                }
-
-                .error-message {
-                    color: red;
-                    text-align: center;
-                    margin-bottom: 10px;
-                    font-weight: bold;
-                }
-                `}
-            </style>
-
-            <div className="booking-form-container">
-                <h2>Online Booking Form</h2>
-                
-                {error && <div className="error-message">{error}</div>}
+                {error && <div style={errorMessageStyle}>{error}</div>}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name">Name</label>
+                    <div style={formGroupStyle}>
+                        <label htmlFor="name" style={labelStyle}>Name</label>
                         <input
                             type="text"
                             id="name"
                             name="Name"
                             value={formData.Name}
                             onChange={handleInputChange}
+                            style={inputStyle}
                             required
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                    <div style={formGroupStyle}>
+                        <label htmlFor="email" style={labelStyle}>Email</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
+                            style={inputStyle}
                             required
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="facility_type">Facility Type</label>
+                    <div style={formGroupStyle}>
+                        <label htmlFor="facility_type" style={labelStyle}>Facility Type</label>
                         <select
                             id="facility_type"
                             name="facility_type"
                             value={formData.facility_type}
                             onChange={handleInputChange}
+                            style={inputStyle}
                             required
                         >
                             <option value="">Select Facility</option>
@@ -152,31 +189,43 @@ const BookingForm = () => {
                         </select>
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="date">Date</label>
+                    <div style={formGroupStyle}>
+                        <label htmlFor="date" style={labelStyle}>Date</label>
                         <input
                             type="date"
                             id="date"
                             name="date"
                             value={formData.date}
                             onChange={handleInputChange}
+                            min={formattedToday}
+                            style={dateError ? invalidInputStyle : inputStyle}
                             required
                         />
+                        {dateError && <div style={fieldErrorStyle}>{dateError}</div>}
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="time_slot">Time Slot</label>
+                    <div style={formGroupStyle}>
+                        <label htmlFor="time_slot" style={labelStyle}>Time Slot</label>
                         <input
                             type="time"
                             id="time_slot"
                             name="time_slot"
                             value={formData.time_slot}
                             onChange={handleInputChange}
+                            style={inputStyle}
                             required
                         />
                     </div>
 
-                    <button type="submit" className="submit-button">Book Now</button>
+                    <button
+                        type="submit"
+                        style={submitButtonStyle}
+                        onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
+                        onMouseOut={(e) => (e.target.style.backgroundColor = "#28a745")}
+                        disabled={dateError}
+                    >
+                        Book Now
+                    </button>
                 </form>
             </div>
         </div>

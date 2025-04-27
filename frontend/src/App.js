@@ -40,6 +40,7 @@ import WorkoutResult from "./Components/Workout/WorkoutResult";
 import NutritionResults from "./Components/Nutrition/NutritionResults";
 import BMI from "./Components/BMI Calculator/BMI";
 
+
 // Private Route Component (using the more robust version with error handling)
 const PrivateRoute = ({ children }) => {
   let user = null;
@@ -58,6 +59,7 @@ const PrivateRoute = ({ children }) => {
 
   return children;
 };
+
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = useState(null);
@@ -80,9 +82,7 @@ const App = () => {
             <Route path="/booking" element={<BookingForm />} />
             {/* <Route path="/booking-list" element={<BookingList />} /> */}
             <Route path="/edit-booking/:id" element={<EditBooking />} />
-            <Route path="/gymEquipment" element={<GymEquipment />} />
-            <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
-            <Route path="/pharmacy-items" element={<Pharmacy />} />
+           
 
             {/* E-Pharmacy Routes */}
             <Route path="/addAppointment" element={<AppointmentForm />} />
