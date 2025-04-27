@@ -51,8 +51,6 @@ router.route("/").get((req,res)=>{
 })
 
 
-
-
 //update
 //http://localhost:4000/appoinment/update/id
 router.route("/update/:id").put(async(req,res) => {
