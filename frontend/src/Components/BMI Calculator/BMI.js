@@ -11,27 +11,84 @@ const BMI = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
+  // Regular expression to allow only numbers and a single decimal point
+  const validNumberRegex = /^[0-9]*\.?[0-9]*$/;
+
+  // Validate input to prevent letters and invalid symbols
+  const validateInput = (value) => {
+    return validNumberRegex.test(value) && !/[a-zA-Z]/.test(value) && !/[!@#$%^&*(),?":{}|<>]/.test(value);
+  };
+
+  // Handle keydown to prevent invalid characters
+  const handleKeyDown = (e) => {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', '0', '1', '2', '3', '4',
+      '5', '6', '7', '8', '9', '.',
+    ];
+    if (!allowedKeys.includes(e.key) || (e.key === '.' && e.target.value.includes('.'))) {
+      e.preventDefault();
+    }
+  };
+
+  // Handle height input change
+  const handleHeightChange = (e) => {
+    const value = e.target.value;
+    if (value === '' || validateInput(value)) {
+      setHeight(value);
+      setError('');
+    } else {
+      setError('Please enter a valid number (no letters or symbols).');
+    }
+  };
+
+  // Handle weight input change
+  const handleWeightChange = (e) => {
+    const value = e.target.value;
+    if (value === '' || validateInput(value)) {
+      setWeight(value);
+      setError('');
+    } else {
+      setError('Please enter a valid number (no letters or symbols).');
+    }
+  };
+
   const handleCalculate = async () => {
+    const heightValue = parseFloat(height);
+    const weightValue = parseFloat(weight);
+
+    // Validate inputs
+    if (!height || !weight) {
+      setError('Please enter both height and weight.');
+      return;
+    }
+    if (isNaN(heightValue) || isNaN(weightValue)) {
+      setError('Please enter valid numbers for height and weight.');
+      return;
+    }
+    if (heightValue <= 0 || weightValue <= 0) {
+      setError('Height and weight must be positive numbers.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:4000/api/bmi/calculate', {
-        height: parseFloat(height),
-        weight: parseFloat(weight),
+        height: heightValue,
+        weight: weightValue,
       });
       console.log('Backend response:', response.data);
       const bmiValue = response.data.bmi;
       if (bmiValue && !isNaN(bmiValue)) {
         setBmi(parseFloat(bmiValue).toFixed(2));
+        setError('');
+        setTimeout(() => setShowModal(true), 100);
       } else {
         throw new Error('Invalid BMI value from backend');
       }
-      setError('');
-      setTimeout(() => setShowModal(true), 100);
     } catch (err) {
       console.error('Error calculating BMI:', err.message);
-      const heightInMeters = parseFloat(height) / 100;
-      const weightInKg = parseFloat(weight);
-      if (!isNaN(heightInMeters) && !isNaN(weightInKg) && heightInMeters > 0 && weightInKg > 0) {
-        const calculatedBmi = (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
+      const heightInMeters = heightValue / 100;
+      if (!isNaN(heightInMeters) && !isNaN(weightValue) && heightInMeters > 0 && weightValue > 0) {
+        const calculatedBmi = (weightValue / (heightInMeters * heightInMeters)).toFixed(2);
         setBmi(calculatedBmi);
         setError('');
         setTimeout(() => setShowModal(true), 100);
@@ -44,7 +101,7 @@ const BMI = () => {
 
   const handleNavigate = (path) => {
     setShowModal(false);
-    navigate(path);
+    navigate(path, { state: { height, weight } });
   };
 
   // CSS Styles
@@ -67,7 +124,7 @@ const BMI = () => {
     backgroundColor: '#f9f9f9',
     borderRadius: '8px',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    marginTop: '-50px', // Shift the form upward
+    marginTop: '-50px',
   };
 
   const titleStyle = {
@@ -211,21 +268,25 @@ const BMI = () => {
           <div style={inputContainerStyle}>
             <label style={labelStyle}>Height (cm):</label>
             <input
-              type="number"
+              type="text"
               value={height}
-              onChange={(e) => setHeight(e.target.value)}
+              onChange={handleHeightChange}
+              onKeyDown={handleKeyDown}
               style={inputStyle}
               placeholder="Enter height in cm"
+              aria-describedby="height-error"
             />
           </div>
           <div style={inputContainerStyle}>
             <label style={labelStyle}>Weight (kg):</label>
             <input
-              type="number"
+              type="text"
               value={weight}
-              onChange={(e) => setWeight(e.target.value)}
+              onChange={handleWeightChange}
+              onKeyDown={handleKeyDown}
               style={inputStyle}
               placeholder="Enter weight in kg"
+              aria-describedby="weight-error"
             />
           </div>
           <button
@@ -242,7 +303,9 @@ const BMI = () => {
             </p>
           )}
           {error && (
-            <p style={errorStyle}>{error}</p>
+            <p style={errorStyle} id="height-error weight-error">
+              {error}
+            </p>
           )}
         </div>
       </div>

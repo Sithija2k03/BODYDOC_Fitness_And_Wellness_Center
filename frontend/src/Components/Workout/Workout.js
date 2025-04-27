@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import Header from '../../Login/Header';
 import ResultDisplay from './WorkoutResult';
 
 function Workout() {
+  const location = useLocation();
+  const { height = '', weight = '' } = location.state || {};
+
   const [formData, setFormData] = useState({
     fitnessGoal: '',
     age: '',
-    weight: '',
-    height: '',
+    weight: weight || '',
+    height: height || '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,13 +27,19 @@ function Workout() {
     'General Fitness',
   ];
 
+  // Regular expression for valid numbers (allows digits and one decimal point)
+  const validNumberRegex = /^[0-9]*\.?[0-9]*$/;
+  // Regular expression for fitnessGoal (allows letters, spaces, commas, periods, hyphens)
+  const validFitnessGoalRegex = /^[a-zA-Z\s,.-]*$/;
+
+  // Validate form data, used on submit
   const validateForm = (data) => {
     const newErrors = {};
 
     if (!data.fitnessGoal.trim()) {
       newErrors.fitnessGoal = 'Fitness goal is required';
     } else if (!/^[a-zA-Z\s,.-]{2,50}$/.test(data.fitnessGoal.trim())) {
-      newErrors.fitnessGoal = 'Fitness goal must be 2-50 characters (letters, spaces, commas, periods, or hyphens, no numbers)';
+      newErrors.fitnessGoal = 'Fitness goal must be 2-50 characters (letters, spaces, commas, periods, or hyphens)';
     }
 
     if (!data.age) {
@@ -51,24 +61,53 @@ function Workout() {
     return newErrors;
   };
 
+  // Handle keydown to prevent invalid characters
+  const handleKeyDown = (e, field) => {
+    if (field === 'fitnessGoal') {
+      const allowedKeys = [
+        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter',
+        ' ', ',', '.', '-',
+      ];
+      // Allow letters (a-z, A-Z)
+      if (/^[a-zA-Z]$/.test(e.key) || allowedKeys.includes(e.key)) {
+        return;
+      }
+      e.preventDefault();
+    } else {
+      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      if (field !== 'age') {
+        allowedKeys.push('.'); // Allow decimal point for weight and height
+      }
+      if (!allowedKeys.includes(e.key) || (e.key === '.' && e.target.value.includes('.'))) {
+        e.preventDefault();
+      }
+    }
+  };
+
+  // Handle input changes with validation
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let newErrors = { ...errors };
+
     if (name === 'fitnessGoal') {
-      // Allow only letters, spaces, commas, periods, and hyphens (no numbers)
-      if (/^[a-zA-Z\s,.-]*$/.test(value)) {
+      if (value === '' || validFitnessGoalRegex.test(value)) {
         setFormData({ ...formData, [name]: value });
+        delete newErrors.fitnessGoal; // Clear error if input is valid
+      } else {
+        newErrors.fitnessGoal = 'Fitness goal can only contain letters, spaces, commas, periods, or hyphens';
       }
     } else if (['age', 'weight', 'height'].includes(name)) {
-      if (name !== 'age' && /^\d*\.?\d*$/.test(value)) {
+      if (value === '' || validNumberRegex.test(value)) {
+        if (name === 'age' && value.includes('.')) {
+          return; // Prevent decimal points in age
+        }
         setFormData({ ...formData, [name]: value });
-      } else if (name === 'age' && /^\d*$/.test(value)) {
-        setFormData({ ...formData, [name]: value });
+        delete newErrors[name]; // Clear error if input is valid
+      } else {
+        newErrors[name] = `Please enter a valid number for ${name}`;
       }
-    } else {
-      setFormData({ ...formData, [name]: value });
     }
 
-    const newErrors = validateForm({ ...formData, [name]: value });
     setErrors(newErrors);
     setError(null);
   };
@@ -390,67 +429,70 @@ function Workout() {
                 name="fitnessGoal"
                 value={formData.fitnessGoal}
                 onChange={handleChange}
+                onKeyDown={(e) => handleKeyDown(e, 'fitnessGoal')}
                 required
                 style={{ ...inputStyle, ...(errors.fitnessGoal ? inputErrorStyle : {}) }}
                 disabled={isSubmitting}
+                placeholder="Enter fitness goal"
                 list="fitnessGoals"
+                aria-describedby="fitnessGoal-error"
               />
               <datalist id="fitnessGoals">
                 {fitnessGoals.map((goal) => (
                   <option key={goal} value={goal} />
                 ))}
               </datalist>
-              {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
+              {errors.fitnessGoal && <p style={errorStyle} id="fitnessGoal-error">{errors.fitnessGoal}</p>}
             </div>
             <div>
               <label style={labelStyle} htmlFor="age">Age</label>
               <input
-                type="number"
+                type="text"
                 id="age"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
+                onKeyDown={(e) => handleKeyDown(e, 'age')}
                 required
-                min="1"
-                max="120"
-                step="1"
                 style={{ ...inputStyle, ...(errors.age ? inputErrorStyle : {}) }}
                 disabled={isSubmitting}
+                placeholder="Enter age"
+                aria-describedby="age-error"
               />
-              {errors.age && <p style={errorStyle}>{errors.age}</p>}
+              {errors.age && <p style={errorStyle} id="age-error">{errors.age}</p>}
             </div>
             <div>
               <label style={labelStyle} htmlFor="weight">Weight (kg)</label>
               <input
-                type="number"
+                type="text"
                 id="weight"
                 name="weight"
                 value={formData.weight}
                 onChange={handleChange}
+                onKeyDown={(e) => handleKeyDown(e, 'weight')}
                 required
-                min="0.1"
-                max="500"
-                step="0.1"
                 style={{ ...inputStyle, ...(errors.weight ? inputErrorStyle : {}) }}
                 disabled={isSubmitting}
+                placeholder="Enter weight in kg"
+                aria-describedby="weight-error"
               />
-              {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
+              {errors.weight && <p style={errorStyle} id="weight-error">{errors.weight}</p>}
             </div>
             <div>
               <label style={labelStyle} htmlFor="height">Height (cm)</label>
               <input
-                type="number"
+                type="text"
                 id="height"
                 name="height"
                 value={formData.height}
                 onChange={handleChange}
-                min="0.1"
-                max="300"
-                step="0.1"
+                onKeyDown={(e) => handleKeyDown(e, 'height')}
                 style={{ ...inputStyle, ...(errors.height ? inputErrorStyle : {}) }}
                 disabled={isSubmitting}
+                placeholder="Enter height in cm"
+                aria-describedby="height-error"
               />
-              {errors.height && <p style={errorStyle}>{errors.height}</p>}
+              {errors.height && <p style={errorStyle} id="height-error">{errors.height}</p>}
             </div>
             <button
               type="submit"

@@ -6,146 +6,122 @@ function Header() {
   const location = useLocation();
   const isProfilePage = location.pathname === "/user-profile";
 
-  // Close dropdown after navigation
   const handleNavigation = () => {
     setAiDropdownOpen(false);
   };
 
   const styles = `
-    /* General Navbar Styling */
     .navbar {
-        background-color: white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-
     .container {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
-    /* Logo Styling */
     .logo {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2c3e50;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c3e50;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
     }
-
     .logo-img {
-        height: 60px;
-        width: auto;
-        margin-right: 10px;
+      height: 60px;
+      width: auto;
+      margin-right: 10px;
     }
-
-    /* Navigation Links */
     .nav-links {
-        list-style: none;
-        display: flex;
-        gap: 20px;
+      list-style: none;
+      display: flex;
+      gap: 20px;
     }
-
     .nav-links li {
-        position: relative;
+      position: relative;
     }
-
     .nav-links a {
-        text-decoration: none;
-        color: #2c3e50;
-        font-weight: 500;
-        transition: 0.3s;
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 500;
+      transition: 0.3s;
     }
-
     .nav-links a:hover {
-        color: #F56692;
+      color: #F56692;
     }
-
-    /* Dropdown Menu */
     .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background-color: #f2f2f2;
-        list-style: none;
-        padding: 10px;
-        border-radius: 5px;
-        width: 150px;
-        display: block;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #f2f2f2;
+      list-style: none;
+      padding: 10px;
+      border-radius: 5px;
+      width: 150px;
+      display: block;
     }
-
     .dropdown-menu li {
-        padding: 8px 12px;
+      padding: 8px 12px;
     }
-
     .dropdown-menu a {
-        color: #2c3e50;
-        text-decoration: none;
-        display: block;
-        transition: background 0.3s, color 0.3s;
+      color: #2c3e50;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s, color 0.3s;
     }
-
     .dropdown-menu a:hover {
-        background-color: #F56692;
-        color: white !important;
+      background-color: #F56692;
+      color: white !important;
     }
-
-    /* User Profile */
     .user-profile {
-        margin-left: auto;
-        cursor: pointer;
-        position: relative;
+      margin-left: auto;
+      cursor: pointer;
+      position: relative;
     }
-
     .user-profile img {
-        height: 50px;
-        width: 50px;
-        border-radius: 50%;
-        transition: 0.3s ease;
+      height: 50px;
+      width: 50px;
+      border-radius: 50%;
+      transition: 0.3s ease;
     }
-
     .user-profile.active img {
-        border: 2px solid #F56692;
+      border: 2px solid #F56692;
     }
-
-    /* Responsive Design */
     @media (max-width: 768px) {
-        .navbar {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .nav-links {
-            flex-direction: column;
-            gap: 10px;
-        }
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-links {
+        flex-direction: column;
+        gap: 10px;
+      }
     }
   `;
 
   return (
     <>
       <style>{styles}</style>
-      {/* Fixed Navbar */}
       <nav className="navbar" style={{ zIndex: 1000, position: "fixed", top: 0, left: 0, right: 0 }}>
         <div className="container">
-          {/* Logo */}
           <Link to="/" className="logo">
-            <img src="./img/bodydoc.png" alt="Body Doc Logo" className="logo-img" />
+            <img
+              src="/img/bodydoc.png"
+              alt="Body Doc Logo"
+              className="logo-img"
+              onError={(e) => (e.target.src = "/img/fallback-logo.png")}
+            />
           </Link>
-
-          {/* Navigation Links */}
           <ul className="nav-links">
             <li><a href="/booking">Online Booking</a></li>
             <li><a href="/appointment-layout">Medicare & Clinic</a></li>
             <li><a href="/addOrder">Pharmacy</a></li>
-
-            {/* Support with AI Dropdown */}
             <li
               className="dropdown"
               onMouseEnter={() => setAiDropdownOpen(true)}
@@ -154,7 +130,7 @@ function Header() {
               <button
                 className="dropdown-toggle"
                 aria-expanded={isAiDropdownOpen}
-                style={{ background: 'none', border: 'none', color: '#2c3e50', cursor: 'pointer', fontSize: '16px' }}
+                style={{ background: "none", border: "none", color: "#2c3e50", cursor: "pointer", fontSize: "16px" }}
               >
                 Support with AI ▼
               </button>
@@ -179,15 +155,16 @@ function Header() {
               )}
             </li>
           </ul>
-
-          {/* User Profile */}
           <Link to="/user-profile" className={`user-profile ${isProfilePage ? "active" : ""}`}>
-            <img src="./img/male-default.png" alt="User Profile" className="profile-icon" />
+            <img
+              src="/img/male-default.png"
+              alt="User Profile"
+              className="profile-icon"
+              onError={(e) => (e.target.src = "/img/fallback-profile.png")}
+            />
           </Link>
         </div>
       </nav>
-
-      {/* Push the page content down so it's not hidden behind the fixed navbar */}
       <div style={{ height: "90px" }}></div>
     </>
   );

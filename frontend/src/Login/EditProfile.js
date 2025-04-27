@@ -49,15 +49,18 @@ function EditProfile() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      console.log("Sending PUT request:", formData); // Debug: Log request payload
-      const response = await axios.put(`http://localhost:4000/user/update/${formData._id}`, formData, {
+      // Explicitly select fields to update, excluding password
+      const { fullName, email, phone, gender, profilePic } = formData;
+      const updateData = { fullName, email, phone, gender, profilePic };
+      console.log("Sending PUT request:", updateData);
+      const response = await axios.put(`http://localhost:4000/user/update/${formData._id}`, updateData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Update response:", response.data); // Debug: Log response
+      console.log("Update response:", response.data);
       if (response.data.user?.emailChanged) {
         alert("Profile updated successfully! Please log in with your new email.");
-        localStorage.removeItem("token"); // Clear token
-        localStorage.removeItem("user"); // Clear user data
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/login");
       } else {
         alert("Profile updated successfully!");
