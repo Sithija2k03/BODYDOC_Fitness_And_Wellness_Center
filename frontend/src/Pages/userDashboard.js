@@ -54,6 +54,15 @@ const UserDashboard = () => {
         },
         {
             image: '/img/SlideB10.jpg',
+            title: "Sink Your Goals",
+            description: "Challenge yourself on our professional pool tables, designed for fun, precision, and friendly competition. Perfect for sharpening your skills and enjoying a great time.",
+            button: {
+                text: "Book Pool Lounge",
+                action: () => navigate("/booking", { state: { facilityType: "Pool Lounge" } }),
+            },
+        },
+        {
+            image: '/img/SlideBadminton.jpg',
             title: "Smash Your Goals",
             description: "Challenge yourself on our professional badminton courts, designed for fun and fitness.",
             button: {
@@ -319,7 +328,7 @@ const UserDashboard = () => {
                     </button>
                     <button
                         onClick={() => setShowModal(false)}
-                        style={{ ...styles.modalButton, backgroundColor: "#ccc" }}
+                        style={{ ...styles.modalButton, backgroundColor: "#f44336" }}
                         aria-label="Cancel"
                     >
                         Cancel

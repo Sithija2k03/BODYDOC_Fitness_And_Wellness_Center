@@ -64,7 +64,7 @@ function Header() {
     }
 
     .nav-links a:hover {
-        color: #1abc9c;
+        color: #F56692;
     }
 
     /* Dropdown Menu */
@@ -92,7 +92,7 @@ function Header() {
     }
 
     .dropdown-menu a:hover {
-        background-color: #1abc9c;
+        background-color: #F56692;
         color: white !important;
     }
 
@@ -111,7 +111,7 @@ function Header() {
     }
 
     .user-profile.active img {
-        border: 2px solid #1abc9c;
+        border: 2px solid #F56692;
     }
 
     /* Responsive Design */

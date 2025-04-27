@@ -15,13 +15,21 @@ function Workout() {
   const [error, setError] = useState(null);
   const [workoutResult, setWorkoutResult] = useState(null);
 
+  const fitnessGoals = [
+    'Muscle Gain',
+    'Weight Loss',
+    'Strength Training',
+    'Endurance',
+    'General Fitness',
+  ];
+
   const validateForm = (data) => {
     const newErrors = {};
 
     if (!data.fitnessGoal.trim()) {
       newErrors.fitnessGoal = 'Fitness goal is required';
     } else if (!/^[a-zA-Z\s,.-]{2,50}$/.test(data.fitnessGoal.trim())) {
-      newErrors.fitnessGoal = 'Fitness goal must be 2-50 characters (letters, spaces, commas, periods, or hyphens)';
+      newErrors.fitnessGoal = 'Fitness goal must be 2-50 characters (letters, spaces, commas, periods, or hyphens, no numbers)';
     }
 
     if (!data.age) {
@@ -45,7 +53,12 @@ function Workout() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (['age', 'weight', 'height'].includes(name)) {
+    if (name === 'fitnessGoal') {
+      // Allow only letters, spaces, commas, periods, and hyphens (no numbers)
+      if (/^[a-zA-Z\s,.-]*$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else if (['age', 'weight', 'height'].includes(name)) {
       if (name !== 'age' && /^\d*\.?\d*$/.test(value)) {
         setFormData({ ...formData, [name]: value });
       } else if (name === 'age' && /^\d*$/.test(value)) {
@@ -265,6 +278,7 @@ function Workout() {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
+    position: 'relative',
   };
 
   const inputStyle = {
@@ -277,60 +291,123 @@ function Workout() {
     transition: 'border-color 0.3s ease',
   };
 
+  const selectStyle = {
+    ...inputStyle,
+    appearance: 'none',
+    background: 'url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\"><path fill=\"%23333\" d=\"M7 10l5 5 5-5z\"/></svg>") no-repeat right 10px center',
+    backgroundSize: '12px',
+    paddingRight: '30px',
+  };
+
   const inputErrorStyle = {
-    borderColor: 'red',
+    borderColor: '#F56692',
   };
 
   const buttonStyle = {
-    padding: '10px',
-    backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#007bff',
+    padding: '12px',
+    backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#e04e7e',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
     cursor: isSubmitting || Object.keys(errors).length > 0 ? 'not-allowed' : 'pointer',
-    fontSize: '15px',
+    fontSize: '16px',
     fontWeight: 'bold',
     transition: 'background-color 0.3s ease',
     marginTop: '10px',
   };
 
   const errorStyle = {
-    color: 'red',
+    color: '#F56692',
     fontSize: '12px',
     marginTop: '5px',
   };
 
   const formErrorStyle = {
-    color: 'red',
+    color: '#F56692',
     fontSize: '14px',
     marginTop: '10px',
     textAlign: 'center',
   };
 
+  const loadingOverlayStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  };
+
+  const spinnerStyle = {
+    width: '40px',
+    height: '40px',
+    border: '4px solid #f3f3f3',
+    borderTop: '4px solid #F56692',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+  };
+
+  const labelStyle = {
+    fontSize: '14px',
+    color: '#333',
+    marginBottom: '5px',
+    fontWeight: '500',
+  };
+
+  const keyframes = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+
   return (
     <div>
       <Header />
+      <style>{keyframes}</style>
       <div style={mainContainerStyle}>
         <div style={formContainerStyle}>
           <h2 style={headingStyle}>Workout Plan Generator</h2>
           <form onSubmit={handleSubmit} style={formStyle}>
+            {isSubmitting && (
+              <div style={loadingOverlayStyle}>
+                <div style={spinnerStyle}></div>
+                <p style={{ marginTop: '10px', fontSize: '14px', color: '#333' }}>
+                  Generating Workout Plan...
+                </p>
+              </div>
+            )}
             <div>
+              <label style={labelStyle} htmlFor="fitnessGoal">Fitness Goal (e.g., Muscle Gain)</label>
               <input
                 type="text"
+                id="fitnessGoal"
                 name="fitnessGoal"
-                placeholder="Fitness Goal (e.g., Muscle Gain)"
                 value={formData.fitnessGoal}
                 onChange={handleChange}
                 required
                 style={{ ...inputStyle, ...(errors.fitnessGoal ? inputErrorStyle : {}) }}
+                disabled={isSubmitting}
+                list="fitnessGoals"
               />
+              <datalist id="fitnessGoals">
+                {fitnessGoals.map((goal) => (
+                  <option key={goal} value={goal} />
+                ))}
+              </datalist>
               {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="age">Age</label>
               <input
                 type="number"
+                id="age"
                 name="age"
-                placeholder="Age"
                 value={formData.age}
                 onChange={handleChange}
                 required
@@ -338,14 +415,16 @@ function Workout() {
                 max="120"
                 step="1"
                 style={{ ...inputStyle, ...(errors.age ? inputErrorStyle : {}) }}
+                disabled={isSubmitting}
               />
               {errors.age && <p style={errorStyle}>{errors.age}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="weight">Weight (kg)</label>
               <input
                 type="number"
+                id="weight"
                 name="weight"
-                placeholder="Weight (kg)"
                 value={formData.weight}
                 onChange={handleChange}
                 required
@@ -353,20 +432,23 @@ function Workout() {
                 max="500"
                 step="0.1"
                 style={{ ...inputStyle, ...(errors.weight ? inputErrorStyle : {}) }}
+                disabled={isSubmitting}
               />
               {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="height">Height (cm)</label>
               <input
                 type="number"
+                id="height"
                 name="height"
-                placeholder="Height (cm)"
                 value={formData.height}
                 onChange={handleChange}
                 min="0.1"
                 max="300"
                 step="0.1"
                 style={{ ...inputStyle, ...(errors.height ? inputErrorStyle : {}) }}
+                disabled={isSubmitting}
               />
               {errors.height && <p style={errorStyle}>{errors.height}</p>}
             </div>

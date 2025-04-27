@@ -167,7 +167,7 @@ function Nutrition() {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    position: 'relative', // For positioning the loading overlay
+    position: 'relative',
   };
 
   const inputStyle = {
@@ -181,12 +181,12 @@ function Nutrition() {
   };
 
   const inputErrorStyle = {
-    borderColor: 'red',
+    borderColor: '#F56692',
   };
 
   const buttonStyle = {
     padding: '12px',
-    backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#007bff',
+    backgroundColor: isSubmitting || Object.keys(errors).length > 0 ? '#cccccc' : '#e04e7e',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
@@ -198,13 +198,13 @@ function Nutrition() {
   };
 
   const errorStyle = {
-    color: 'red',
+    color: '#F56692',
     fontSize: '12px',
     marginTop: '5px',
   };
 
   const formErrorStyle = {
-    color: 'red',
+    color: '#F56692',
     fontSize: '14px',
     marginTop: '10px',
     textAlign: 'center',
@@ -214,8 +214,8 @@ function Nutrition() {
     position: 'absolute',
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
+    right: '0',
+    bottom: '0',
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     display: 'flex',
     flexDirection: 'column',
@@ -228,12 +228,18 @@ function Nutrition() {
     width: '40px',
     height: '40px',
     border: '4px solid #f3f3f3',
-    borderTop: '4px solid #007bff',
+    borderTop: '4px solid #F56692',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   };
 
-  // Keyframes for spinner animation (defined in a style tag)
+  const labelStyle = {
+    fontSize: '14px',
+    color: '#333',
+    marginBottom: '5px',
+    fontWeight: '500',
+  };
+
   const keyframes = `
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -258,10 +264,11 @@ function Nutrition() {
               </div>
             )}
             <div>
+              <label style={labelStyle} htmlFor="fitnessGoal">Fitness Goal (e.g., Weight Loss)</label>
               <input
                 type="text"
+                id="fitnessGoal"
                 name="fitnessGoal"
-                placeholder="Fitness Goal (e.g., Weight Loss)"
                 value={formData.fitnessGoal}
                 onChange={handleChange}
                 required
@@ -271,10 +278,11 @@ function Nutrition() {
               {errors.fitnessGoal && <p style={errorStyle}>{errors.fitnessGoal}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="age">Age</label>
               <input
                 type="number"
+                id="age"
                 name="age"
-                placeholder="Age"
                 value={formData.age}
                 onChange={handleChange}
                 required
@@ -287,10 +295,11 @@ function Nutrition() {
               {errors.age && <p style={errorStyle}>{errors.age}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="weight">Weight (kg)</label>
               <input
                 type="number"
+                id="weight"
                 name="weight"
-                placeholder="Weight (kg)"
                 value={formData.weight}
                 onChange={handleChange}
                 required
@@ -303,10 +312,11 @@ function Nutrition() {
               {errors.weight && <p style={errorStyle}>{errors.weight}</p>}
             </div>
             <div>
+              <label style={labelStyle} htmlFor="height">Height (cm)</label>
               <input
                 type="number"
+                id="height"
                 name="height"
-                placeholder="Height (cm)"
                 value={formData.height}
                 onChange={handleChange}
                 min="0.1"
