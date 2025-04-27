@@ -1,23 +1,23 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import Header from "../../Login/Header";
 
 const BookingForm = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const facilityType = location.state?.facilityType || "";
+
     const [formData, setFormData] = useState({
         Name: "",
         email: "",
-        facility_type: "",
+        facility_type: facilityType,
         date: "",
         time_slot: "",
     });
 
     const [error, setError] = useState(null);
     const [dateError, setDateError] = useState(null);
-    const navigate = useNavigate();
-
-    const today = new Date();
-    const formattedToday = today.toISOString().split('T')[0];
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +53,7 @@ const BookingForm = () => {
             });
             if (response.status === 201) {
                 alert("Booking Successful!");
-                navigate("/user-profile");
+                navigate("/");
             }
         } catch (err) {
             console.error("Error while adding booking", err);
@@ -61,7 +61,6 @@ const BookingForm = () => {
         }
     };
 
-    // Inline styles
     const containerStyle = {
         maxWidth: "400px",
         margin: "50px auto",
@@ -197,7 +196,6 @@ const BookingForm = () => {
                             name="date"
                             value={formData.date}
                             onChange={handleInputChange}
-                            min={formattedToday}
                             style={dateError ? invalidInputStyle : inputStyle}
                             required
                         />

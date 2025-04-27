@@ -9,9 +9,8 @@ function Login() {
   });
 
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Hook to navigate programmatically
+  const navigate = useNavigate();
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -20,95 +19,118 @@ function Login() {
     }));
   };
 
-  // Handle form submission
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:4000/user/login', formData);
+      const payload = {
+        email: formData.email.trim(), // Trim email to remove whitespace
+        password: formData.password
+      };
+      console.log("Sending login request:", payload); // Debug: Log request payload
+      const response = await axios.post('http://localhost:4000/user/login', payload);
       console.log('Login response:', response.data);
-  
+
       localStorage.setItem('user', JSON.stringify(response.data));
       localStorage.setItem('token', response.data.token);
-  
-      // Get role from response and navigate accordingly
-      const userRole = response.data.role;  // Directly accessing role from response
-      if (userRole === 'admin' ) {
-        navigate('/admin/dashboard');  // Admin goes to the dashboard
+
+      const userRole = response.data.role;
+      if (userRole === 'admin') {
+        navigate('/admin/dashboard');
       } else {
-        console.log('Navigating to /user-profile');
-        navigate('/user-profile');
+        navigate('/user/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setMessage(error.response?.data?.message || 'Login failed');
+      setMessage(error.response?.data?.error || 'Login failed');
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  
-  //   try {
-  //     const response = await axios.post('http://localhost:4000/user/login', formData);
-  
-  //     // Log the response to check if you get the expected data
-  //     //console.log('Login response:', response);
-  //     console.log('Login response:', JSON.stringify(response.data, null, 2));
-  
-  //     // Save user data and token
-  //     localStorage.setItem('user', JSON.stringify(response.data));
-  //     localStorage.setItem('token', response.data.token);
-  
-  //     // Get role from response and navigate accordingly
+  const handleSignUpClick = () => {
+    navigate('/register'); // Navigate to the register route
+  };
 
-  //     const userRole = response.data.role ? response.data.role.toLowerCase() : null;
-  //     console.log('User role:', userRole);
-  //     if (userRole === 'admin' || userRole === 'doctor') {
-  //       navigate('/admin/dashboard');
-  //     } else {
-  //       navigate('/user-profile');
-  //     }
-      
-  //     // const userRole = response.data.role;  // Directly accessing role from response
-  //     // if (userRole === 'admin' || userRole === 'doctor' ) {
-  //     //   navigate('/admin/dashboard');  // Admin goes to the dashboard
-  //     // } else {
-  //     //   navigate('/user-profile');  // Other roles go to the user profile
-  //     // }
-  //   } catch (error) {
-  //     console.error('Login error:', error);
-  //     setMessage(error.response?.data?.message || 'Login failed');
-  //   }
-  // };
-  
   return (
     <div style={styles.container}>
-      <div style={styles.form}>
-        <h1 style={styles.heading}>Login</h1>
+      {/* Left Section: BodyDoc Features */}
+      <div style={styles.leftSection}>
+        {/* Add the photo */}
+        <div style={styles.imageContainer}>
+          <img
+            src="/img/login.jpg"
+            alt="BodyDoc Health and Fitness"
+            style={styles.image}
+          />
+        </div>
+        <h1 style={styles.heading}>One Account, All BodyDoc</h1>
+        <p style={styles.subHeading}>
+          Sign into your BodyDoc account and access everything you need from one portal, powered by AI!
+        </p>
+        <ul style={styles.featureList}>
+          <li style={styles.featureItem}>🩺 Schedule and manage your medical appointments</li>
+          <li style={styles.featureItem}>📊 Track your health records and vitals with AI analysis</li>
+          <li style={styles.featureItem}>💊 Access the pharmacy with AI-driven medication reminders</li>
+          <li style={styles.featureItem}>🏊 Enjoy the swimming pool and stay active</li>
+          <li style={styles.featureItem}>🎱 Relax at the pool lounge with pool tables</li>
+          <li style={styles.featureItem}>🏸 Play badminton for fun and fitness</li>
+          <li style={styles.featureItem}>💪 Work out at the gym with AI-optimized routines</li>
+          <li style={styles.featureItem}>🤖 Get personalized health insights with BodyDoc AI</li>
+          <li style={styles.featureItem}>🌐 Access real-time wellness updates and event info</li>
+        </ul>
+      </div>
+
+      {/* Right Section: Login Form */}
+      <div style={styles.rightSection}>
+        <h2 style={styles.formHeading}>Account Login</h2>
         {message && <p style={styles.message}>{message}</p>}
         <form onSubmit={handleSubmit}>
           <label style={styles.label}>Email</label>
-          <input 
-            type="email" 
-            name="email" 
-            placeholder="Enter Email" 
-            required 
-            style={styles.input} 
-            onChange={handleChange} 
+          <input
+            type="email"
+            name="email"
+            placeholder="Please enter your email"
+            required
+            style={styles.input}
+            onChange={handleChange}
           />
 
           <label style={styles.label}>Password</label>
-          <input 
-            type="password" 
-            name="password" 
-            placeholder="Enter Password" 
-            required 
-            style={styles.input} 
-            onChange={handleChange} 
-          />
+          <div style={styles.passwordContainer}>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              style={styles.input}
+              onChange={handleChange}
+            />
+          </div>
 
-          <button type="submit" style={styles.button}>Login</button>
+          <div style={styles.optionsContainer}>
+            <label style={styles.checkboxLabel}>
+              <input type="checkbox" style={styles.checkbox} /> Remember Me
+            </label>
+            <a href="#" style={styles.forgotPassword}>Forgot your password?</a>
+          </div>
+
+          <button type="submit" style={styles.button}>SIGN IN</button>
         </form>
+
+        <p style={styles.signUpText}>
+          Don’t Have a BodyDoc Account?{' '}
+          <span onClick={handleSignUpClick} style={styles.signUpLink}>
+            Sign Up Now
+          </span>
+        </p>
+
+        <div style={styles.dividerContainer}>
+          <span style={styles.dividerText}>Or Sign In With</span>
+        </div>
+
+        <div style={styles.socialButtons}>
+          <button style={styles.socialButton}><span style={styles.socialIcon}>f</span></button>
+          <button style={styles.socialButton}><span style={styles.socialIcon}></span></button>
+          <button style={styles.socialButton}><span style={styles.socialIcon}>G</span></button>
+        </div>
       </div>
     </div>
   );
@@ -117,59 +139,162 @@ function Login() {
 const styles = {
   container: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
     height: '100vh',
-    backgroundColor: '#f9f9f9'
+    backgroundColor: '#f9f9f9',
   },
-  form: {
-    background: 'white',
-    padding: '30px',
-    borderRadius: '10px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    width: '380px'
+  leftSection: {
+    flex: 0.8,
+    backgroundColor: 'white',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  imageContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '20px',
+  },
+  image: {
+    width: '80%',
+    maxWidth: '300px',
+    height: 'auto',
   },
   heading: {
-    textAlign: 'center',
-    marginBottom: '20px',
+    fontSize: '32px',
+    fontWeight: 'bold',
     color: '#333',
-    fontSize: '24px',
-    fontWeight: 'bold'
+    marginBottom: '10px',
+  },
+  subHeading: {
+    fontSize: '16px',
+    color: '#333',
+    marginBottom: '20px',
+  },
+  featureList: {
+    listStyleType: 'none',
+    padding: 0,
+  },
+  featureItem: {
+    fontSize: '14px',
+    color: '#333',
+    marginBottom: '10px',
+  },
+  rightSection: {
+    flex: 1.2,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '40px',
+  },
+  formHeading: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '20px',
   },
   message: {
     textAlign: 'center',
     color: 'red',
-    fontSize: '14px',
-    marginBottom: '10px'
+    fontSize: '16px',
+    marginBottom: '10px',
   },
   label: {
     display: 'block',
     textAlign: 'left',
-    fontSize: '14px',
+    fontSize: '16px',
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: '5px'
+    marginBottom: '5px',
   },
   input: {
     width: '100%',
-    padding: '10px',
+    padding: '12px',
     border: '1px solid #ccc',
     borderRadius: '5px',
-    fontSize: '14px'
+    fontSize: '16px',
+    marginBottom: '15px',
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  optionsContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+  },
+  checkboxLabel: {
+    fontSize: '16px',
+    color: '#333',
+  },
+  checkbox: {
+    marginRight: '5px',
+  },
+  forgotPassword: {
+    fontSize: '16px',
+    color: '#007bff',
+    textDecoration: 'none',
   },
   button: {
-    marginTop: '15px',
     width: '100%',
-    padding: '12px',
-    backgroundColor: 'lightgreen',
+    padding: '14px',
+    backgroundColor: '#F56692',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+    fontSize: '18px',
+    fontWeight: 'bold',
+  },
+  signUpText: {
+    marginTop: '20px',
     fontSize: '16px',
-    fontWeight: 'bold'
-  }
+    color: '#333',
+    textAlign: 'center',
+  },
+  signUpLink: {
+    color: '#007bff',
+    textDecoration: 'none',
+    cursor: 'pointer', // Added to indicate it's clickable
+  },
+  dividerContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    margin: '20px 0',
+  },
+  dividerText: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: '16px',
+    color: '#333',
+    position: 'relative',
+    backgroundColor: '#f9f9f9',
+    padding: '0 10px',
+  },
+  socialButtons: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '10px',
+  },
+  socialButton: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    border: '1px solid #ccc',
+    backgroundColor: 'white',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  socialIcon: {
+    fontSize: '20px',
+    color: '#333',
+  },
 };
 
 export default Login;
