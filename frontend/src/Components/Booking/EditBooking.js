@@ -8,15 +8,23 @@ const EditBooking = () => {
 
   const [formData, setFormData] = useState({
     Name: "",
-    email: "", // Added email field
+    email: "",
     facility_type: "",
     date: "",
     time_slot: "",
-    status: "",
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  // Get today's date in YYYY-MM-DD format for min attribute
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -26,11 +34,10 @@ const EditBooking = () => {
 
         setFormData({
           Name: booking.Name || "",
-          email: booking.email || "", // Added email field
+          email: booking.email || "",
           facility_type: booking.facility_type || "",
           date: booking.date?.slice(0, 10) || "",
           time_slot: booking.time_slot || "",
-          status: booking.status || "",
         });
 
         setLoading(false);
@@ -55,126 +62,126 @@ const EditBooking = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Additional date validation before submission
+    const selectedDate = new Date(formData.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to beginning of day for accurate comparison
+    
+    if (selectedDate < today) {
+      setError("Please select a future date for your booking.");
+      return;
+    }
+
     try {
       await axios.put(`http://localhost:4000/booking/update/${id}`, formData);
       alert("Booking updated successfully!");
-      navigate("/bookings");
+      // Navigate to user profile page instead of bookings page
+      navigate("/user-profile"); // Adjust the path as needed
     } catch (err) {
       console.error("Error updating booking:", err);
       setError("Failed to update booking.");
     }
   };
 
-  if (loading) return <p>Loading booking details...</p>;
+  
 
   return (
     <>
-      <style>{`
-        .edit-booking-container {
-          max-width: 500px;
-          margin: 60px auto;
-          padding: 30px;
-          background-color: #ffffff;
-          border-radius: 12px;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+      <style>
+        {`
+          .booking-form-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          }
 
-        .edit-booking-container h2 {
-          text-align: center;
-          margin-bottom: 25px;
-          color: #2c3e50;
-          font-size: 24px;
-        }
+          .booking-form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+          }
 
-        .form-group {
-          margin-bottom: 18px;
-        }
+          .form-group {
+            margin-bottom: 15px;
+          }
 
-        label {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 600;
-          color: #34495e;
-          font-size: 15px;
-        }
+          .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #444;
+          }
 
-        input,
-        select {
-          width: 100%;
-          height: 45px;
-          padding: 10px 12px;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          font-size: 15px;
-          color: #333;
-          box-sizing: border-box;
-          transition: border-color 0.3s ease;
-        }
+          .form-group input,
+          .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+          }
 
-        input:focus,
-        select:focus {
-          border-color: #3498db;
-          outline: none;
-        }
+          .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+          }
 
-        .submit-button {
-          width: 100%;
-          height: 50px;
-          background-color: #3498db;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }
+          .submit-button:hover {
+            background-color: #218838;
+          }
 
-        .submit-button:hover {
-          background-color: #2980b9;
-        }
+          .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+          }
+          
+          .cancel-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #6c757d;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+          }
+          
+          .cancel-button:hover {
+            background-color: #5a6268;
+          }
+          
+          .date-helper-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+          }
+        `}
+      </style>
 
-        .error-message {
-          color: #e74c3c;
-          background-color: #fdecea;
-          border: 1px solid #f5c6cb;
-          padding: 10px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          font-size: 14px;
-          text-align: center;
-        }
-      `}</style>
-
-      <div className="edit-booking-container">
+      <div className="booking-form-container">
         <h2>Edit Booking</h2>
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="Name">Full Name</label>
-            <input
-              type="text"
-              name="Name"
-              id="Name"
-              value={formData.Name}
-              onChange={handleChange}
-              required
-            />
+            <label>Name</label>
+            <input type="text" name="Name" value={formData.Name} onChange={handleChange} required />
           </div>
 
           <div className="form-group">
-
-            <label htmlFor="facility_type">Facility Type</label>
-            <select
-              name="facility_type"
-              id="facility_type"
-              value={formData.facility_type}
-              onChange={handleChange}
-              required
-            >
-
             <label>Email</label>
             <input
               type="email"
@@ -188,7 +195,6 @@ const EditBooking = () => {
           <div className="form-group">
             <label>Facility Type</label>
             <select name="facility_type" value={formData.facility_type} onChange={handleChange} required>
-
               <option value="">Select Facility</option>
               <option value="Gym">Gym</option>
               <option value="Swimming Pool">Swimming Pool</option>
@@ -198,44 +204,25 @@ const EditBooking = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="date">Booking Date</label>
-            <input
-              type="date"
-              name="date"
-              id="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
+            <label>Date</label>
+            <input 
+              type="date" 
+              name="date" 
+              value={formData.date} 
+              onChange={handleChange} 
+              min={getTodayDate()} 
+              required 
             />
+            <div className="date-helper-text">Only future dates are allowed</div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="time_slot">Time Slot</label>
-            <input
-              type="time"
-              name="time_slot"
-              id="time_slot"
-              value={formData.time_slot}
-              onChange={handleChange}
-              required
-            />
+            <label>Time Slot</label>
+            <input type="time" name="time_slot" value={formData.time_slot} onChange={handleChange} required />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="status">Status</label>
-            <input
-              type="text"
-              name="status"
-              id="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <button type="submit" className="submit-button">
-            Update Booking
-          </button>
+          <button type="submit" className="submit-button">Update Booking</button>
+          <button type="button" className="cancel-button" onClick={() => navigate("/profile")}>Cancel</button>
         </form>
       </div>
     </>

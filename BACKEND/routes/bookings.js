@@ -5,20 +5,18 @@ const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 
 //=========create bookings======
-
 router.route("/add-book").post(async (req, res) => {
     try {
-        const { Name,email,facility_type,date,time_slot} = req.body;
+        const { Name, email, facility_type, date, time_slot } = req.body;
         
         // Create a new booking
         const newBooking = new Booking({
-            
             Name,
             email,
             facility_type,
             date,
             time_slot,
-            status:"Pending",
+            status: "Pending",
         });
 
         // Save the booking to the database
@@ -26,7 +24,6 @@ router.route("/add-book").post(async (req, res) => {
 
         // Send a success response
         res.status(201).json({ message: "Booking added successfully!" });
-
     } catch (error) {
         console.error("Error adding booking:", error);
         res.status(500).json({ message: "Error adding booking", error: error.message });
@@ -53,10 +50,17 @@ router.route("/").get(async (req, res) => {
 router.route("/:id").get(async (req, res) => {
     try {
         let bookingId = req.params.id;
+        
+        // Check if ID is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+            // If not, it might be an email, but this route is for ObjectId lookups
+            return res.status(404).json({ message: "Invalid booking ID format" });
+        }
+        
         const booking = await Booking.findById(bookingId);
 
         if (!booking) {
-            return res.status(404).json({ message: "Bookings not found" });
+            return res.status(404).json({ message: "Booking not found" });
         }
 
         res.status(200).json(booking);
@@ -66,8 +70,7 @@ router.route("/:id").get(async (req, res) => {
     }
 });
 
-//=============update membership==========
-
+//=============update booking==========
 router.route("/update/:id").put(async (req, res) => {
     let bookingid = req.params.id;
 
@@ -81,7 +84,7 @@ router.route("/update/:id").put(async (req, res) => {
         status,
     };
 
-    const update = await Booking.findByIdAndUpdate(bookingid, updateBooking)
+    await Booking.findByIdAndUpdate(bookingid, updateBooking)
         .then(() => {
             res.status(200).send({ status: "Booking updated" });
         })
@@ -91,14 +94,13 @@ router.route("/update/:id").put(async (req, res) => {
         });
 });
 
-//==========delete membership=======
-
+//==========delete booking=======
 router.route("/delete/:id").delete(async (req, res) => {
     let bookingid = req.params.id;
 
     await Booking.findByIdAndDelete(bookingid)
         .then(() => {
-            res.status(200).send({ status: "booking Deleted" });
+            res.status(200).send({ status: "Booking Deleted" });
         })
         .catch((error) => {
             console.log(error.message);
@@ -124,8 +126,8 @@ router.route("/search/:name").get(async (req, res) => {
     }
 });
 
-// Get bookings by specific user ID
-router.get("/bookings/:id", async (req, res) => {
+// Get bookings by specific user email - Fixed to match frontend URL path
+router.route("/bookings/:id").get(async (req, res) => {
     try {
         const email = req.params.id;
         const bookings = await Booking.find({ email });
@@ -136,7 +138,7 @@ router.get("/bookings/:id", async (req, res) => {
 
         res.status(200).json(bookings);
     } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error("Error fetching bookings by email:", error);
         res.status(500).json({ message: "Error fetching bookings", error: error.message });
     }
 });

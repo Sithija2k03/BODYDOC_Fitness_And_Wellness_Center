@@ -36,6 +36,7 @@ import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
 import OrderEdit from "./Components/Order/OrderEdit";
 
+
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
   const [nutritionResult, setNutritionResult] = React.useState(null);
@@ -68,6 +69,7 @@ const App = () => {
             <Route path="/booking" element={<BookingForm />} />
             {/* <Route path="/booking-list" element={<BookingList />} /> */}
             <Route path="/edit-booking/:id" element={<EditBooking />} />
+           
 
             {/* E-Pharmacy Routes */}
             <Route path="/addAppointment" element={<AppointmentForm />} />
