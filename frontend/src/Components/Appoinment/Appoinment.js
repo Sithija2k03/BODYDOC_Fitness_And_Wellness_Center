@@ -24,8 +24,9 @@ function AppointmentsList() {
         ) : appointments && appointments.length > 0 ? (
           appointments.map((appointment, index) => (
             <AppointmentItem
-              key={appointment.id || index} // Use index as fallback if id is missing
-              id={appointment.id}
+              key={appointment._id || index} // Use index as fallback if id is missing
+              id={appointment._id}
+              appointmentId={`A${index + 1}`} 
               userName={appointment.user_name}
               doctorName={appointment.doctor_name}
               timeSlot={appointment.time_slot}

@@ -17,8 +17,8 @@ async function dropOrderIdIndex() {
     console.log("Current indexes:", indexes);
 
     // Drop the order_id_1 index
-    await Order.collection.dropIndex("Or_id_1");
-    console.log("Dropped Or_id_1 index");
+    await Order.collection.dropIndex("appoinment_id_1");
+    console.log("Dropped appoinment_id_1 index");
 
     // Verify remaining indexes
     const updatedIndexes = await Order.collection.indexes();

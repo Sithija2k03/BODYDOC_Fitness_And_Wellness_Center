@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-function OrderItem({ id, userName, doctorName, cDate, prescription,onDelete}) {
+function OrderItem({ id, userName, doctorName, cDate, prescription, onDelete }) {
 
-  const navigate = useNavigate(); // delete part
+  const navigate = useNavigate();
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this order?')) {
@@ -17,36 +17,31 @@ function OrderItem({ id, userName, doctorName, cDate, prescription,onDelete}) {
   };
 
   const handleEdit = () => {
-    // Pass the order data to the OrderEdit form
+    // Navigate with the order data
     navigate(`/order-edit/${id}`, {
-      state: { id, userName, doctorName, cDate, prescription },
+      state: { id, userName, doctorName, cDate, prescription }
     });
   };
-
 
   return (
     <OrderCard>
       <div className="header">
-        <h3>Order #{}</h3>
+        <h3>Order #{id}</h3>
       </div>
       <div className="info">
         <div><strong>User:</strong> {userName}</div>
         <div><strong>Doctor:</strong> {doctorName}</div>
         <div><strong>Consultation Date:</strong> {cDate}</div>
         <a 
-          href={`http://localhost:4000${prescription}`} 
+          href={`http://localhost:4000/${prescription}`} 
           target="_blank" 
           rel="noopener noreferrer"
         >
-        View
-       </a>
-
-       
+          View Prescription
+        </a>
       </div>
 
-
-        {/* edit part and delete part */}
-        <div className="actions">
+      <div className="actions">
         <button className="edit-btn" onClick={handleEdit}>
           Edit
         </button>
@@ -54,7 +49,6 @@ function OrderItem({ id, userName, doctorName, cDate, prescription,onDelete}) {
           Delete
         </button>
       </div>
-      
     </OrderCard>
   );
 }
@@ -91,7 +85,8 @@ const OrderCard = styled.div`
       word-wrap: break-word;
     }
   }
-    .actions {
+
+  .actions {
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;

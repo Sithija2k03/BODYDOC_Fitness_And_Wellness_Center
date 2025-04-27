@@ -1,96 +1,92 @@
-const router = require("express").Router();
-//import Appoinment.js file
-let Appoinment = require("../models/Appoinment");
+const express = require('express');
+const router = express.Router();
+const Appointment = require('../models/Appoinment');
 
-
-router.post("/add", async (req, res) => {
-    try {
-    //now we create some objects to collects datas in model file
-    const appoinment_id = req.body.appoinment_id;
-    const user_name  = req.body.user_name;
-    const doctor_name = req.body.doctor_name;
-    const date = Date(req.body.date);
-    const time_slot = req.body.time_slot;
-
-    
-    // Validate time_slot
-    const validTimeSlots = ["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "02:00 PM - 03:00 PM", "03:00 PM - 04:00 PM"];
-    if (!validTimeSlots.includes(time_slot)) {
-        return res.status(400).json({ error: "Invalid time slot selected" });
-    }
-    
-    const newAppoinment = new Appoinment({
-        appoinment_id,
-        user_name,
-        doctor_name,
-        date :new Date(date),
-        time_slot,
-
-    })
-
-    // this object newAppoinment send to the database
-    //javascript promise like if else
-    await newAppoinment.save();
-    res.status(201).json({ message: "Appoinment added successfully!", data: newAppoinment });
-} catch (error) {
-    res.status(500).json({ error: error.message });
-}
+// Fetch all appointments
+router.get('/', async (req, res) => {
+  console.log('Received GET request to fetch all appointments');
+  try {
+    const appointments = await Appointment.find();
+    console.log('Fetched appointments:', appointments);
+    res.json(appointments);
+  } catch (err) {
+    console.error('Error fetching appointments:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
+// Add a new appointment
+router.post('/add', async (req, res) => {
+  try {
+    const { user_name, doctor_name, date, time_slot } = req.body;
+    const appointment = new Appointment({
+      user_name,
+      doctor_name,
+      date,
+      time_slot,
+    });
+    console.log('Appointment before saving:', appointment);
+    await appointment.save();
+    res.status(201).json(appointment);
+  } catch (err) {
+    console.error('Error saving appointment:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
+// Update an appointment
+router.put('/update/:id', async (req, res) => {
+  console.log('Received PUT request to update appointment:', req.params.id);
+  console.log('Request body:', req.body);
 
-//data fatch
-//http://localhost:4000/appoinment
-router.route("/").get((req,res)=>{
-    //data take where the appoinment table inserted
-    Appoinment.find().then((appoinment)=>{
-        res.json(appoinment)
-    }).catch((err)=>{
-        console.log(err)
-    })
-})
+  const appointmentId = req.params.id;
+  const { user_name, doctor_name, date, time_slot } = req.body;
 
+  const updateAppointment = {
+    user_name,
+    doctor_name,
+    date,
+    time_slot,
+  };
 
+  try {
+    const appointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      updateAppointment,
+      { new: true }
+    );
 
-
-//update
-//http://localhost:4000/appoinment/update/id
-router.route("/update/:id").put(async(req,res) => {
-    let appoinmentId = req.params.id;
-    const {appoinment_id,user_name,doctor_name,date,time_slot} = req.body;
-
-    const updateAppoinment = {
-        appoinment_id,
-        user_name,
-        doctor_name,
-        date,
-        time_slot
+    if (!appointment) {
+      console.log('Appointment not found for _id:', appointmentId);
+      return res.status(404).json({ status: 'error', message: 'Appointment not found' });
     }
-    const update = await Appoinment.findByIdAndUpdate(appoinmentId,updateAppoinment).then(() =>{
-        res.status(200).send({status: "Appoinment updated"})
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).send({status: "error with updating data",error : err.message});//when updating has any error then we can see this error msg on frontend
-    })
-})
 
+    console.log('Updated appointment:', appointment);
+    res.status(200).json({ status: 'Appointment updated', appointment });
+  } catch (err) {
+    console.error('Error updating appointment:', err);
+    res.status(500).json({ status: 'error with updating data', error: err.message });
+  }
+});
 
+// Delete an appointment
+router.delete('/delete/:id', async (req, res) => {
+  console.log('Received DELETE request to delete appointment:', req.params.id);
+  const appointmentId = req.params.id;
 
-
-//delete part
-//(http//localhost:4000/appoinment/delete/id
-router.route("/delete/:id").delete(async(req,res) => {
-    let appoinmentId = req.params.id;
-
-    await Appoinment.findByIdAndDelete(appoinmentId).then(() => {
-        res.status(200).send({status: "Appoinment deleted"});
-    }).catch((err) => {
-        console.log(err.message);
-        res.status(500).send({status: 'Failed to delete appointment', error: err.message});
-    })
-})
-
-
+  try {
+    const appointment = await Appointment.findByIdAndDelete(appointmentId);
+    if (!appointment) {
+      console.log('Appointment not found for _id:', appointmentId);
+      return res.status(404).json({ status: 'error', message: 'Appointment not found' });
+    }
+    console.log('Deleted appointment:', appointment);
+    res.status(200).json({ status: 'Appointment deleted' });
+  } catch (err) {
+    console.error('Error deleting appointment:', err);
+    res.status(500).json({ status: 'Failed to delete appointment', error: err.message });
+  }
+});
 
 
 // get all appointments with all attributes
@@ -110,6 +106,24 @@ router.route("/get").get(async (req, res) => {
       res.status(500).send({ status: "Error fetching appointments", error: err.message });
     }
   });
+
+  // Fetch a single appointment by ID
+router.get('/:id', async (req, res) => {
+    try {
+      const appointmentId = req.params.id;
+      const appointment = await Appointment.findById(appointmentId);
+  
+      if (!appointment) {
+        return res.status(404).json({ error: 'Appointment not found' });
+      }
+  
+      res.json(appointment);
+    } catch (err) {
+      console.error('Error fetching appointment:', err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
   
   
 

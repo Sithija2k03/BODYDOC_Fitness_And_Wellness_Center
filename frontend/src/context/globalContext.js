@@ -314,54 +314,59 @@ export const GlobalProvider = ({ children }) => {
     };
 
     //E Pharmacy Section
-    // Add a new appointment
-    const addAppointment = async (newAppointment) => {
-        try {
-            const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
-            console.log("Added appointment response:", response.data);
-            setAppointments([...appointments, response.data.appointment]);
-        } catch (err) {
-            console.error("Error adding appointment:", err);
-            setError("Failed to add appointment.");
-        }
-    };
-
-    const getAppointments = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await axios.get(`${API_URL}appoinments/`);
-            setAppointments(res.data);
-        } catch (err) {
-            setError('Failed to fetch appointments');
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    const deleteAppointment = async (id) => {
-        try {
-            await axios.delete(`${API_URL}appoinments/delete/${id}`);
-            setAppointments(appointments.filter(appoinment => appoinment._id !== id));
-        } catch (err) {
-            console.error("Error deleting appointment:", err);
-            setError("Failed to delete appointment.");
-        }
-    };
-
-    const updateAppoinment = async (id, formData) => {
-        try {
-            const data = await axios.put(`${API_URL}appoinments/update/${id}`,formData);
-          setAppointments(appointments.map(app => (app.id === id ? { id, ...data.data } : app)));
-          return data;
-        } catch (err) {
-          const errorMessage = err.response?.data?.error || 'Failed to update appointment';
-          setError(errorMessage);
-          console.error('Update error:', err.response || err);
-          throw err;
-        }
-      };
-    
+// Add a new appointment
+const addAppointment = async (newAppointment) => {
+    try {
+      const response = await axios.post(`${API_URL}appoinments/add`, newAppointment);
+      console.log("Added appointment response:", response.data);
+      setAppointments([...appointments, response.data]); // Backend returns the appointment directly
+    } catch (err) {
+      console.error("Error adding appointment:", err);
+      setError("Failed to add appointment.");
+    }
+  };
+  
+  // Fetch all appointments
+  const getAppointments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`${API_URL}appoinments/`);
+      setAppointments(res.data); // Backend returns an array of appointments
+    } catch (err) {
+      setError('Failed to fetch appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Delete an appointment
+  const deleteAppointment = async (id) => {
+    try {
+      await axios.delete(`${API_URL}appoinments/delete/${id}`);
+      setAppointments(appointments.filter(appointment => appointment._id !== id)); // Use _id
+    } catch (err) {
+      console.error("Error deleting appointment:", err);
+      setError("Failed to delete appointment.");
+    }
+  };
+  
+  // Update an appointment
+  const updateAppointment = async (id, formData) => {
+    try {
+      const response = await axios.put(`${API_URL}appoinments/update/${id}`, formData);
+      const updatedAppointment = response.data; // Backend returns the updated appointment directly
+      setAppointments(prevAppointments =>
+        prevAppointments.map(app => (app._id === id ? updatedAppointment : app))
+      );
+      return updatedAppointment;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Failed to update appointment';
+      setError(errorMessage);
+      console.error('Update error:', err.response || err);
+      throw err;
+    }
+  };
 
     // Order Section
     const addOrder = async (newOrder) => {
@@ -426,6 +431,27 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
+    const updateOrder = async (id, formData) => {
+        try {
+          const res = await axios.put(`${API_URL}order/update/${id}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+      
+          if (res.status === 200) {
+            return res.data;
+          } else {
+            throw new Error('Failed to update order');
+          }
+        } catch (err) {
+          console.error("Error updating order:", err);
+          throw new Error("Error updating order: " + err.message);
+        }
+      };
+      
+    
+    
 
     return (
         <GlobalContext.Provider value={{ 
@@ -467,6 +493,7 @@ export const GlobalProvider = ({ children }) => {
             addAppointment, 
             getAppointments,
             deleteAppointment,
+            updateAppointment,
 
             bookings,
             setBookings,
@@ -476,6 +503,7 @@ export const GlobalProvider = ({ children }) => {
             addOrder,
             getOrders,
             deleteOrder,
+            updateOrder,
         
             orders
         }}>

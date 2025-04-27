@@ -60,6 +60,9 @@ app.use('/uploads', (req, res, next) => {
   next();
 });
 
+// Serve uploads folder statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 const fs = require('fs');
 const uploadsDir = path.join(__dirname, 'uploads/bank-receipts');
 if (!fs.existsSync(uploadsDir)) {

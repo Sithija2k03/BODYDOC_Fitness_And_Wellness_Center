@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useGlobalContext } from '../../context/globalContext';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Button from "../AppoinmentLayout/Button";
 import Header from '../../Login/Header';
 import axios from 'axios';
-
-
 
 const containerStyle = {
   width: '400px',
@@ -66,29 +63,50 @@ const errorBorderStyle = {
 };
 
 const AppoinmentEdit = () => {
-
-    const navigate = useNavigate();
-    const { addAppointment } = useGlobalContext();
-    const { state } = useLocation();
-    const location = useLocation();
-    const [userName, setUserName] = useState(state?.userName || '');
-    const [doctorName, setDoctorName] = useState(state?.doctorName || '');
-    const [timeSlot, setTimeSlot] = useState(state?.timeSlot || '');
-    const [date, setDate] = useState(state?.date || '');
-    const [errors, setErrors] = useState({});
-    const [isHovering, setIsHovering] = useState(false);
+  const navigate = useNavigate();
+  const { id } = useParams(); // Get ID from URL params
+  const { state } = useLocation();
+  const [userName, setUserName] = useState(state?.userName || '');
+  const [doctorName, setDoctorName] = useState(state?.doctorName || '');
+  const [timeSlot, setTimeSlot] = useState(state?.timeSlot || '');
+  const [date, setDate] = useState(state?.date || '');
+  const [errors, setErrors] = useState({});
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-      if (location.state) {
-        console.log("Location State:", location.state);
-        const { userName, doctorName, timeSlot, date } = location.state;
-        setUserName(userName || '');
-        setDoctorName(doctorName || '');
-        setTimeSlot(timeSlot || '');
-        setDate(date ? new Date(date).toISOString().split('T')[0] : '');
-        
-      }
-  }, [location.state]);
+    if (!id) {
+      alert('No appointment ID provided. Redirecting to appointment display.');
+      navigate('/appointment-display');
+      return;
+    }
+
+    if (state) {
+      console.log("Location State:", state);
+      const { userName, doctorName, timeSlot, date } = state;
+      setUserName(userName || '');
+      setDoctorName(doctorName || '');
+      setTimeSlot(timeSlot || '');
+      setDate(date ? new Date(date).toISOString().split('T')[0] : '');
+    } else {
+      // Fetch the appointment data if state is not available
+      console.log("No state provided, fetching appointment data for ID:", id);
+      const fetchAppointment = async () => {
+        try {
+          const response = await axios.get(`http://localhost:4000/appoinments/${id}`);
+          const appointment = response.data;
+          setUserName(appointment.user_name || '');
+          setDoctorName(appointment.doctor_name || '');
+          setTimeSlot(appointment.time_slot || '');
+          setDate(appointment.date ? new Date(appointment.date).toISOString().split('T')[0] : '');
+        } catch (error) {
+          console.error('Error fetching appointment:', error);
+          alert('Failed to load appointment data.');
+          navigate('/appointment-display');
+        }
+      };
+      fetchAppointment();
+    }
+  }, [id, state, navigate]);
 
   const validateForm = () => {
     let errors = {};
@@ -139,122 +157,113 @@ const AppoinmentEdit = () => {
       setErrors(errors);
       return;
     }
-  
+
     const payload = {
       user_name: userName,
       doctor_name: doctorName,
       date: date,
       time_slot: timeSlot,
     };
-  
+
     try {
-      if (state?.id) {
-        // Updating existing appointment
-        await axios.put(`http://localhost:4000/appoinments/update/${state.id}`, payload);
-      } else {
-        // Adding new appointment
-        await axios.post(`http://localhost:4000/appoinments/add`, payload);
-      }
-  
+      const response = await axios.put(`http://localhost:4000/appoinments/update/${id}`, payload);
       setUserName('');
       setDoctorName('');
       setTimeSlot('');
       setDate('');
       setErrors({});
-      alert('Appointment saved successfully!');
+      alert('Appointment updated successfully!');
       navigate('/appointment-display');
-  
     } catch (error) {
-      console.error('Error saving appointment:', error);
-      alert('Failed to save appointment. Please try again.');
+      console.error('Error updating appointment:', error.response?.data || error.message);
+      alert('Failed to update appointment: ' + (error.response?.data?.message || error.message));
     }
   };
-  
 
   return (
     <>
-    <Header/>
-    <div style={containerStyle}>
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <img src="/img/bodydoc.png" alt="Logo" style={logoStyle} />
+      <Header />
+      <div style={containerStyle}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <img src="/img/bodydoc.png" alt="Logo" style={logoStyle} />
+        </div>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Update Your Appointment at BodyDoc.</h2>
+
+        <form onSubmit={handleSubmit} noValidate style={formStyle}>
+          <label htmlFor="user_name" style={labelStyle}>User Name:</label>
+          <input
+            type="text"
+            id="user_name"
+            placeholder="Enter your name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            style={{
+              ...inputStyle,
+              ...(errors.userName ? errorBorderStyle : {})
+            }}
+          />
+          {errors.userName && <span style={errorTextStyle}>{errors.userName}</span>}
+
+          <label htmlFor="doctor_name" style={labelStyle}>Doctor Name:</label>
+          <input
+            type="text"
+            id="doctor_name"
+            placeholder="Enter your doctor name"
+            value={doctorName}
+            onChange={(e) => setDoctorName(e.target.value)}
+            style={{
+              ...inputStyle,
+              ...(errors.doctorName ? errorBorderStyle : {})
+            }}
+          />
+          {errors.doctorName && <span style={errorTextStyle}>{errors.doctorName}</span>}
+
+          <label htmlFor="date" style={labelStyle}>Date:</label>
+          <input
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            style={{
+              ...inputStyle,
+              ...(errors.date ? errorBorderStyle : {})
+            }}
+          />
+          {errors.date && <span style={errorTextStyle}>{errors.date}</span>}
+
+          <label htmlFor="time_slot" style={labelStyle}>Time-slot:</label>
+          <select
+            id="time_slot"
+            value={timeSlot}
+            onChange={(e) => setTimeSlot(e.target.value)}
+            style={{
+              ...inputStyle,
+              ...(errors.timeSlot ? errorBorderStyle : {})
+            }}
+          >
+            <option value="">Select Time</option>
+            <option>09:00 AM - 10:00 AM</option>
+            <option>10:00 AM - 11:00 AM</option>
+            <option>11:00 AM - 12:00 PM</option>
+            <option>02:00 PM - 03:00 PM</option>
+            <option>03:00 PM - 04:00 PM</option>
+          </select>
+          {errors.timeSlot && <span style={errorTextStyle}>{errors.timeSlot}</span>}
+
+          <button
+            type="submit"
+            style={isHovering ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+            Update
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center' }}>
+          <Button onClick={() => navigate("/appoinment-display")}>View My Appointments</Button>
+        </div>
       </div>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Book Your Appointment at BodyDoc.</h2>
-
-      <form onSubmit={handleSubmit} noValidate style={formStyle}>
-        <label htmlFor="user_name" style={labelStyle}>User Name:</label>
-        <input
-          type="text"
-          id="user_name"
-          placeholder="Enter your name"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          style={{ 
-            ...inputStyle, 
-            ...(errors.userName ? errorBorderStyle : {}) 
-          }}
-        />
-        {errors.userName && <span style={errorTextStyle}>{errors.userName}</span>}
-
-        <label htmlFor="doctor_name" style={labelStyle}>Doctor Name:</label>
-        <input
-          type="text"
-          id="doctor_name"
-          placeholder="Enter your doctor name"
-          value={doctorName}
-          onChange={(e) => setDoctorName(e.target.value)}
-          style={{ 
-            ...inputStyle, 
-            ...(errors.doctorName ? errorBorderStyle : {}) 
-          }}
-        />
-        {errors.doctorName && <span style={errorTextStyle}>{errors.doctorName}</span>}
-
-        <label htmlFor="date" style={labelStyle}>Date:</label>
-        <input
-          type="date"
-          id="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          style={{ 
-            ...inputStyle, 
-            ...(errors.date ? errorBorderStyle : {}) 
-          }}
-        />
-        {errors.date && <span style={errorTextStyle}>{errors.date}</span>}
-
-        <label htmlFor="time_slot" style={labelStyle}>Time-slot:</label>
-        <select
-          id="time_slot"
-          value={timeSlot}
-          onChange={(e) => setTimeSlot(e.target.value)}
-          style={{
-            ...inputStyle,
-            ...(errors.timeSlot ? errorBorderStyle : {})
-          }}
-        >
-          <option value="">Select Time</option>
-          <option>09:00 AM - 10:00 AM</option>
-          <option>10:00 AM - 11:00 AM</option>
-          <option>11:00 AM - 12:00 PM</option>
-          <option>02:00 PM - 03:00 PM</option>
-          <option>03:00 PM - 04:00 PM</option>
-        </select>
-        {errors.timeSlot && <span style={errorTextStyle}>{errors.timeSlot}</span>}
-
-        <button
-          type="submit"
-          style={isHovering ? { ...buttonStyle, ...buttonHoverStyle } : buttonStyle}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
-        Update
-        </button>
-      </form>
-
-      <div style={{ textAlign: 'center' }}>
-      <Button onClick={() => navigate("/appoinment-display")}>View My Appointments</Button>
-      </div>
-    </div>
     </>
   );
 };

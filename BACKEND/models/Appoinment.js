@@ -3,10 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const appoinmentSchema = new Schema({
-    appoinment_id : {
-        type : String,
-        unique:true
-    },
+ 
     user_name : {
         type : String,
         required : true

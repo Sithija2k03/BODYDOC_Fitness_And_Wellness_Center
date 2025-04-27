@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useGlobalContext } from '../../context/globalContext';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useGlobalContext } from '../../context/globalContext'; 
 import Header from '../../Login/Header';
 import Button from '../AppoinmentLayout/Button';
 
@@ -62,30 +62,27 @@ const buttonHoverStyle = {
 };
 
 const OrderForm = () => {
-
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { addOrder } = useGlobalContext();
-  const location = useLocation();
+  const { updateOrder } = useGlobalContext();
 
   const [userName, setUserName] = useState(state?.userName || '');
   const [doctorName, setDoctorName] = useState(state?.doctorName || '');
-  const [prescriptionFile, setPrescriptionFile] = useState(null); // Changed to store file
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
   const [cDate, setCDate] = useState(state?.cDate || '');
-  const [existingPrescriptionName, setExistingPrescriptionName] = useState(state?.prescription || ''); // To retain the existing prescription file name
+  const [existingPrescriptionName, setExistingPrescriptionName] = useState(state?.prescription || '');
   const [errors, setErrors] = useState({});
   const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-    if (location.state) {
-      console.log("Location State:", location.state);
-      const { userName, doctorName, cDate, prescription } = location.state;
+    if (state) {
+      const { userName, doctorName, cDate, prescription } = state;
       setUserName(userName || '');
       setDoctorName(doctorName || '');
       setCDate(cDate ? new Date(cDate).toISOString().split('T')[0] : '');
-      setExistingPrescriptionName(prescription || ''); // Set existing prescription file name
+      setExistingPrescriptionName(prescription || '');
     }
-  }, [location.state]);
+  }, [state]);
 
   const validateForm = () => {
     let errors = {};
@@ -121,7 +118,7 @@ const OrderForm = () => {
       }
     }
 
-    if (!prescriptionFile && !existingPrescriptionName) {  // Check if there’s no file uploaded and no existing file name
+    if (!prescriptionFile && !existingPrescriptionName) {
       errors.prescription = "Prescription PDF file is required!";
       isValid = false;
     } else if (prescriptionFile && !prescriptionFile.name.toLowerCase().endsWith('.pdf')) {
@@ -134,38 +131,38 @@ const OrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const { isValid, errors } = validateForm();
     if (!isValid) {
       setErrors(errors);
       return;
     }
 
-    // Create FormData to handle file upload
     const formData = new FormData();
     formData.append('user_name', userName);
     formData.append('doctor_name', doctorName);
     formData.append('c_date', cDate);
 
-    // If a new prescription file is selected, append it, otherwise append the existing file
     if (prescriptionFile) {
       formData.append('prescription', prescriptionFile);
     } else {
-      formData.append('prescription', existingPrescriptionName); // Append the existing prescription file
+      formData.append('prescription', existingPrescriptionName);
     }
 
     try {
-      await addOrder(formData);
+      // Update order with the auto-generated ID from MongoDB
+      await updateOrder(state?._id, formData);  // Use state._id from MongoDB
+      alert("Order updated successfully!");
+
       setUserName('');
       setDoctorName('');
       setCDate('');
       setPrescriptionFile(null);
       setErrors({});
-      alert("Order placed successfully!");
-      // Reset the file input
-      document.getElementById('prescription').value = null;
+      navigate("/order-display");
     } catch (error) {
       console.error("Error submitting order:", error);
-      alert("Failed to place order. Please try again.");
+      alert("Failed to submit order. Please try again.");
     }
   };
 
@@ -176,7 +173,7 @@ const OrderForm = () => {
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <img src="/img/bodydoc.png" alt="Logo" style={logoStyle} />
         </div>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Place a New Order</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Update Order</h2>
 
         <form onSubmit={handleSubmit} noValidate style={formStyle}>
           <label htmlFor="user_name" style={labelStyle}>User Name:</label>
@@ -218,6 +215,11 @@ const OrderForm = () => {
             style={{ ...inputStyle, ...(errors.prescription ? errorBorderStyle : {}) }}
           />
           {errors.prescription && <span style={errorTextStyle}>{errors.prescription}</span>}
+          {existingPrescriptionName && (
+            <div style={{ marginTop: '10px', fontSize: '14px', color: '#555' }}>
+              Existing Prescription: <a href={existingPrescriptionName} target="_blank" rel="noopener noreferrer">Download</a>
+            </div>
+          )}
 
           <button
             type="submit"
@@ -225,7 +227,7 @@ const OrderForm = () => {
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
           >
-            Update
+            Update Order
           </button>
         </form>
 

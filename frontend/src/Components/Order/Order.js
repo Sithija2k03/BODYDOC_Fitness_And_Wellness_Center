@@ -5,7 +5,7 @@ import OrderItem from './OrderItem';
 import Header from '../../Login/Header';
 
 function OrderList() {
-  const { orders, getOrders, loading, error } = useGlobalContext();
+  const { orders, getOrders, deleteOrder, loading, error } = useGlobalContext();
 
   useEffect(() => {
     getOrders();
@@ -24,13 +24,15 @@ function OrderList() {
           ) : orders && orders.length > 0 ? (
             orders.map((order, index) => (
               <OrderItem
-                key={order.id || index}
+                key={order._id || index} // Ensure key is set to order._id
+                id={order._id || index}   // Pass order._id or index as the ID
                 userName={order.user_name}
                 doctorName={order.doctor_name}
                 cDate={order.c_date}
                 prescription={order.prescription}
+                onDelete={() => deleteOrder(order._id)} // Delete function
               />
-            ))
+            ))            
           ) : (
             <p className="status">No orders found</p>
           )}

@@ -74,45 +74,48 @@ router.route("/").get((req,res)=>{
 
 
 
-//update
-//http://localhost:4000/order/update/id
 router.put("/update/:id", upload.single("prescription"), async (req, res) => {
-   try{
-    let orderId = req.params.id;
-    const {c_id,user_name,doctor_name,c_date} = req.body;
-    if (!req.file) {
-        return res.status(400).json({ error: "Prescription file is required!" });
-    }
-
-    
-    const cdate = new Date(req.body.c_date);
-    if (isNaN(c_date.getTime())) {
-        return res.status(400).json({ error: "Invalid date format! Use YYYY-MM-DD." });
-    }
-
-    const prescription = req.file.path;
-
-    
-    const updateOrder = {
-        c_id,
-        user_name,
-        doctor_name,
-        c_date,
-    };
-    if (prescription) updateOrder.prescription = prescription;
-
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateOrder, { new: true });
-
-    if (updatedOrder) {
-        res.status(200).send({ status: "Order updated", data: updatedOrder });
-    } else {
-        res.status(404).send({ status: "Order not found" });
-    }
-} catch (err) {
-    console.log(err);
-    res.status(500).send({ status: "Error updating order", error: err.message });
-}
-});
+    try {
+     let orderId = req.params.id;
+     const { user_name, doctor_name, c_date } = req.body;
+ 
+     // Check if a prescription file was uploaded
+     const prescription = req.file ? req.file.path : null;
+ 
+     // Convert the c_date string into a Date object
+     const cdate = new Date(c_date);
+     
+     // Validate c_date format
+     if (isNaN(cdate.getTime())) {
+         return res.status(400).json({ error: "Invalid date format! Use YYYY-MM-DD." });
+     }
+ 
+     // Prepare the order update object
+     const updateOrder = {
+         user_name,
+         doctor_name,
+         c_date: cdate, // Store the Date object
+     };
+ 
+     // Only include prescription if it's updated
+     if (prescription) {
+         updateOrder.prescription = prescription;
+     }
+ 
+     // Perform the update operation
+     const updatedOrder = await Order.findByIdAndUpdate(orderId, updateOrder, { new: true });
+ 
+     if (updatedOrder) {
+         res.status(200).send({ status: "Order updated", data: updatedOrder });
+     } else {
+         res.status(404).send({ status: "Order not found" });
+     }
+   } catch (err) {
+     console.log(err);
+     res.status(500).send({ status: "Error updating order", error: err.message });
+   }
+ });
+ 
 
 
 

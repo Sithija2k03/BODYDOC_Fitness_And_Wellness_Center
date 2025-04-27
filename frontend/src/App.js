@@ -28,6 +28,7 @@ import WorkOut from './Components/Workout/Workout';
 import AppointmentForm from "./Components/Appoinment/AppoinmentForm"; 
 import AppoinmentLayout from "./Components/AppoinmentLayout/AppoinmentLayout";
 import AppoinmentList from './Components/Appoinment/Appoinment';
+import AppointmentEdit from './Components/Appoinment/AppoinmentEdit';
 import BookingForm from "./Components/Booking/BookingForm";
 import BookingList from "./Components/Booking/BookingList";
 import EditBooking from "./Components/Booking/EditBooking";
@@ -87,14 +88,16 @@ const App = () => {
             <Route path="/addAppointment" element={<AppointmentForm />} />
             <Route path="/appointment-layout" element={<AppoinmentLayout />} />
             <Route path="/appointment-display" element={<AppoinmentList />} />
-           
-            
+            <Route path="/appointment-edit/:id" element={<AppointmentEdit />} />
 
-            {/* Fitness & Nutrition Routes */}
-            <Route path="/nutrition-plan" element={<Nutrition setResult={setNutritionResult} />} />
+            {/*Order Routes */}
+            <Route path="/order-edit/:id" element={<OrderEdit />} />
             <Route path="/addOrder" element={<OrderForm />} />
             <Route path="/order-display" element={<Order />} />
             <Route path="/order-edit" element={<OrderEdit />} />
+           
+            {/* Fitness & Nutrition Routes */}
+            <Route path="/nutrition-plan" element={<Nutrition setResult={setNutritionResult} />} />
             <Route path="/workout-plan" element={<WorkOut setResult={setWorkoutResult} />} />
             <Route path="/BMI" element={<BMI />} />
             <Route path="/result" element={<WorkoutResult result={workoutResult} />} />
