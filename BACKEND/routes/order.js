@@ -5,9 +5,6 @@ const path = require("path");
 let Order = require("../models/Order");
 
 
-// const storage = multer.memoryStorage(); // Store file in memory or update for disk storage
-// const upload = multer({ storage: storage });
-
 // Set storage engine
 const storage = multer.diskStorage({
     destination: "./uploads/", // Save files inside "uploads" folder
@@ -34,37 +31,37 @@ const upload = multer({
 });
 
 
-//data insert or add(create)(http://localhost:8070/order/add)when we put this it call add part
-router.post("/add", upload.single("prescription"),async (req, res) => {
-    try {
-    //now we create some objects to collects datas in model file
-    const c_id = req.body.c_id;
-    const user_name  = req.body.user_name;
-    const doctor_name = req.body.doctor_name;
-    const c_date = new Date(req.body.c_date);
-    const prescription = req.file ?  req.file.path : "";
-   
-    const newOrder = new Order({
-        c_id,
-        user_name,
-        doctor_name,
-        c_date,
-        prescription
+// Route to add an order
+router.post("/add", upload.single("prescription"), async (req, res) => {
+  try {
+    const { user_name, doctor_name, c_date } = req.body;
+    const prescription = req.file ? req.file.path : null; // Store file path
 
+    // Validate inputs
+    if (!user_name || !doctor_name || !c_date || !prescription) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Create new order
+    const newOrder = new Order({
+      user_name,
+      doctor_name,
+      c_date: new Date(c_date),
+      prescription, // Store the file path
     });
 
-// this object newOrder send to the database
-    //javascript promise like if else
-    await newOrder.save();
-    res.status(201).json({ message: "Order added successfully!", data: newOrder });
-} catch (error) {
-    res.status(500).json({ error: error.message });
-}
+    // Save to database
+    const savedOrder = await newOrder.save();
+    res.status(201).json({ data: savedOrder });
+  } catch (err) {
+    console.error("Error saving order:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
 //data fatch
-//http://localhost:8070/order
+//http://localhost:4000/order
 router.route("/").get((req,res)=>{
     //data take where the order table inserted
    Order.find().then((order)=>{
@@ -72,55 +69,58 @@ router.route("/").get((req,res)=>{
     }).catch((err)=>{
         console.log(err)
     })
-})
-
-
-
-
-//update
-//http://localhost:8070/order/update/id
-router.put("/update/:id", upload.single("prescription"), async (req, res) => {
-   try{
-    let orderId = req.params.id;
-    const {c_id,user_name,doctor_name,c_date} = req.body;
-    if (!req.file) {
-        return res.status(400).json({ error: "Prescription file is required!" });
-    }
-
-    
-    const cdate = new Date(req.body.c_date);
-    if (isNaN(c_date.getTime())) {
-        return res.status(400).json({ error: "Invalid date format! Use YYYY-MM-DD." });
-    }
-
-    const prescription = req.file.path;
-
-    
-    const updateOrder = {
-        c_id,
-        user_name,
-        doctor_name,
-        c_date,
-    };
-    if (prescription) updateOrder.prescription = prescription;
-
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateOrder, { new: true });
-
-    if (updatedOrder) {
-        res.status(200).send({ status: "Order updated", data: updatedOrder });
-    } else {
-        res.status(404).send({ status: "Order not found" });
-    }
-} catch (err) {
-    console.log(err);
-    res.status(500).send({ status: "Error updating order", error: err.message });
-}
 });
 
 
 
+
+router.put("/update/:id", upload.single("prescription"), async (req, res) => {
+    try {
+     let orderId = req.params.id;
+     const { user_name, doctor_name, c_date } = req.body;
+ 
+     // Check if a prescription file was uploaded
+     const prescription = req.file ? req.file.path : null;
+ 
+     // Convert the c_date string into a Date object
+     const cdate = new Date(c_date);
+     
+     // Validate c_date format
+     if (isNaN(cdate.getTime())) {
+         return res.status(400).json({ error: "Invalid date format! Use YYYY-MM-DD." });
+     }
+ 
+     // Prepare the order update object
+     const updateOrder = {
+         user_name,
+         doctor_name,
+         c_date: cdate, // Store the Date object
+     };
+ 
+     // Only include prescription if it's updated
+     if (prescription) {
+         updateOrder.prescription = prescription;
+     }
+ 
+     // Perform the update operation
+     const updatedOrder = await Order.findByIdAndUpdate(orderId, updateOrder, { new: true });
+ 
+     if (updatedOrder) {
+         res.status(200).send({ status: "Order updated", data: updatedOrder });
+     } else {
+         res.status(404).send({ status: "Order not found" });
+     }
+   } catch (err) {
+     console.log(err);
+     res.status(500).send({ status: "Error updating order", error: err.message });
+   }
+ });
+ 
+
+
+
 //delete part
-//(http//localhost:8070/Order/delete/id
+//(http//localhost:4000/Order/delete/id
 router.route("/delete/:id").delete(async(req,res) => {
     let orderId = req.params.id;
 

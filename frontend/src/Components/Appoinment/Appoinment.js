@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Header from '../../Login/Header';
 
 function AppointmentsList() {
-  const { appointments, getAppointments, loading, error } = useGlobalContext();
+  const { appointments, getAppointments, loading, error,deleteAppointment } = useGlobalContext();
 
   useEffect(() => {
     getAppointments();
@@ -24,12 +24,16 @@ function AppointmentsList() {
         ) : appointments && appointments.length > 0 ? (
           appointments.map((appointment, index) => (
             <AppointmentItem
-              key={appointment.id || index} // Use index as fallback if id is missing
-              id={appointment.id}
+              key={appointment._id || index} // Use index as fallback if id is missing
+              id={appointment._id}
+              appointmentId={`A${index + 1}`} 
               userName={appointment.user_name}
               doctorName={appointment.doctor_name}
               timeSlot={appointment.time_slot}
               date={appointment.date}
+
+              //delete part
+              onDelete={() => deleteAppointment(appointment._id)}
             />
           ))
         ) : (

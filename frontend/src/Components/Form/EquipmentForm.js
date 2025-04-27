@@ -5,9 +5,18 @@ import Button from '../Button/Button';
 import { plus } from '../../utils/icons';
 
 function EquipmentForm({ onClose }) {
-    const { addGymEquipment, error, setError } = useGlobalContext();
+    const { addGymEquipment, error: globalError, setError: setGlobalError } = useGlobalContext();
+    
 
     const [inputState, setInputState] = useState({
+        equipmentId: '',
+        equipmentName: '',
+        equipmentCategory: '',
+        lastMaintenanceDate: ''
+    });
+
+
+    const [errors, setErrors] = useState({
         equipmentId: '',
         equipmentName: '',
         equipmentCategory: '',
@@ -21,18 +30,78 @@ function EquipmentForm({ onClose }) {
         lastMaintenanceDate
     } = inputState;
 
+
+    // Validation functions
+    const validateEquipmentId = (value) => {
+        if (!value) return "Equipment ID is required";
+        if (!/^\d+$/.test(value)) return "Equipment ID must be a positive integer";
+        return "";
+    };
+
+    const validateNameOrCategory = (value, fieldName) => {
+        if (!value) return `${fieldName} is required`;
+        if (value.length > 50) return `${fieldName} cannot exceed 50 characters`;
+        if (!/^[a-zA-Z0-9\s]+$/.test(value)) return `${fieldName} can only contain letters, numbers, and spaces`;
+        return "";
+    };
+
+    const validateDate = (value) => {
+        if (!value) return "Last Maintenance Date is required";
+        const selectedDate = new Date(value);
+        const currentDate = new Date('2025-04-24'); // Current date: April 24, 2025
+        const minDate = new Date('2020-04-24'); // 5 years ago
+        if (isNaN(selectedDate.getTime())) return "Invalid date format";
+        if (selectedDate > currentDate) return "Date cannot be in the future";
+        if (selectedDate < minDate) return "Date must be within the last 5 years";
+        return "";
+    };
+
+
     const handleInput = (name) => (e) => {
         const value = e.target.value;
         setInputState(prev => ({
             ...prev,
             [name]: value
         }));
-        setError('');
+
+
+        // Validate input on change
+        let error = '';
+        if (name === 'equipmentId') {
+            error = validateEquipmentId(value);
+        } else if (name === 'equipmentName') {
+            error = validateNameOrCategory(value, "Equipment Name");
+        } else if (name === 'equipmentCategory') {
+            error = validateNameOrCategory(value, "Category");
+        } else if (name === 'lastMaintenanceDate') {
+            error = validateDate(value);
+        }
+
+        setErrors(prev => ({
+            ...prev,
+            [name]: error
+        }));
+        setGlobalError(''); // Clear global error on input change
+
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validate all fields
+        const newErrors = {
+            equipmentId: validateEquipmentId(equipmentId),
+            equipmentName: validateNameOrCategory(equipmentName, "Equipment Name"),
+            equipmentCategory: validateNameOrCategory(equipmentCategory, "Category"),
+            lastMaintenanceDate: validateDate(lastMaintenanceDate)
+        };
+
+        setErrors(newErrors);
+
+        // Check if any errors exist
+        if (Object.values(newErrors).some(error => error)) {
+            alert("Please fix the errors before submitting.");
+            return;
         // Validate that all fields are filled
         for (let key in inputState) {
             if (inputState[key] === '') {
@@ -57,14 +126,58 @@ function EquipmentForm({ onClose }) {
                 equipmentCategory: '',
                 lastMaintenanceDate: ''
             });
+            setErrors({
+                equipmentId: '',
+                equipmentName: '',
+                equipmentCategory: '',
+                lastMaintenanceDate: ''
+            });
         } catch (err) {
-            setError("Failed to add gym equipment");
-        }
+            setGlobalError(err.response?.data?.error || "Failed to add gym equipment");
+        } 
     };
 
     return (
         <FormStyled onSubmit={handleSubmit}>
-            {error && <p className="error">{error}</p>}
+            {globalError && <p className="error">{globalError}</p>}
+            <div className="input-group">
+                <input
+                    type="number"
+                    value={equipmentId}
+                    placeholder="Equipment ID"
+                    onChange={handleInput('equipmentId')}
+                />
+                {errors.equipmentId && <p className="error">{errors.equipmentId}</p>}
+            </div>
+            <div className="input-group">
+                <input
+                    type="text"
+                    value={equipmentName}
+                    placeholder="Equipment Name"
+                    onChange={handleInput('equipmentName')}
+                />
+                {errors.equipmentName && <p className="error">{errors.equipmentName}</p>}
+            </div>
+            <div className="input-group">
+                <input
+                    type="text"
+                    value={equipmentCategory}
+                    placeholder="Category"
+                    onChange={handleInput('equipmentCategory')}
+                />
+                {errors.equipmentCategory && <p className="error">{errors.equipmentCategory}</p>}
+            </div>
+            <div className="input-group">
+                <input
+                    type="date"
+                    value={lastMaintenanceDate}
+                    placeholder="Last Maintenance Date"
+                    onChange={handleInput('lastMaintenanceDate')}
+                    min="2020-04-24"
+                    max="2025-04-24"
+                />
+                {errors.lastMaintenanceDate && <p className="error">{errors.lastMaintenanceDate}</p>}
+            </div>
             <input
                 type="number"
                 value={equipmentId}
@@ -103,6 +216,7 @@ function EquipmentForm({ onClose }) {
         </FormStyled>
     );
 }
+}
 
 const FormStyled = styled.form`
     display: flex;
@@ -113,6 +227,13 @@ const FormStyled = styled.form`
     margin-left: 5px;
     padding: 1rem;
     align-items: flex-start;
+
+    .input-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
 
     input {
         font-family: inherit;
@@ -127,6 +248,16 @@ const FormStyled = styled.form`
 
         &::placeholder {
             color: rgba(34, 34, 96, 0.4);
+        }
+
+        &[type="number"]::-webkit-inner-spin-button,
+        &[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        &[type="number"] {
+            -moz-appearance: textfield;
         }
     }
 

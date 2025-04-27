@@ -2,7 +2,9 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
 const Helth = require("../models/helth.js");
+const User = require("../models/user.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const authMiddleware = require("../Middleware/authMiddleware.js"); // Import authMiddleware
 
 // Initialize GoogleGenerativeAI with the API key
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -49,7 +51,8 @@ const getGeminiResponseText = async (model, prompt) => {
 router.route("/log-workout/:id").post(async (req, res) => {
     const userId = req.params.id;
     const { exercise, duration, caloriesBurned } = req.body;
-
+    const { email } = req.user;
+    
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).send({ status: "Invalid user ID" });
     }
@@ -95,76 +98,50 @@ router.route("/track-progress/:id").post(async (req, res) => {
     }
 });
 
-// Calculate BMI
-router.route("/calculate-bmi/:id").get(async (req, res) => {
-    const userId = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).send({ status: "Invalid user ID" });
-    }
+// Generate AI workout, nutrition, and recovery plans
+router.route("/generate-plans").post(authMiddleware(), async (req, res) => {
+    const { fitnessGoal, preferences } = req.body;
+    const { email } = req.user; // Get email from JWT
 
     try {
-        const user = await Helth.findById(userId);
+        // Fetch userID from users collection
+        const user = await User.findOne({ email }).select('userID email fullName');
         if (!user) {
-            return res.status(404).send({ status: "User not found" });
+            return res.status(404).send({ status: "User not found in users collection" });
         }
 
-        const heightInMeters = user.height / 100;
-        const bmi = (user.weight / (heightInMeters * heightInMeters)).toFixed(2);
-        user.bmi = bmi;
-        await user.save();
-
-        res.status(200).send({ status: "BMI calculated", bmi });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({ status: "Error calculating BMI", error: err.message });
-    }
-});
-
-// Generate AI workout, nutrition, and recovery plans
-router.route("/generate-plans/:id").post(async (req, res) => {
-    const userId = req.params.id;
-    const { fitnessGoal, preferences } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).send({ status: "Invalid user ID" });
-    }
-
-    try {
-        const user = await Helth.findById(userId);
-        if (!user) {
-            return res.status(404).send({ status: "User not found" });
+        // Find or create Helth document for this userID
+        let helthUser = await Helth.findOne({ userID: user.userID });
+        if (!helthUser) {
+            helthUser = new Helth({
+                userID: user.userID,
+                email: user.email,
+                name: user.fullName,
+                fitnessGoal,
+                preferences
+            });
         }
 
         // Generate workout plan
         const workoutPrompt = `Generate a ${fitnessGoal} workout plan for someone who enjoys ${preferences.join(", ")}.`;
-        const workoutResponse = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: workoutPrompt }]
-        });
-        const workoutPlan = workoutResponse.choices[0].message.content;
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const workoutPlan = await getGeminiResponseText(model, workoutPrompt);
 
         // Generate nutrition plan
         const nutritionPrompt = `Generate a ${fitnessGoal} nutrition plan for someone who enjoys ${preferences.join(", ")}.`;
-        const nutritionResponse = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: nutritionPrompt }]
-        });
-        const nutritionPlan = nutritionResponse.choices[0].message.content;
+        const nutritionPlan = await getGeminiResponseText(model, nutritionPrompt);
 
         // Generate recovery treatments
         const recoveryPrompt = `Suggest recovery treatments for someone with the following fitness goal: ${fitnessGoal}.`;
-        const recoveryResponse = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: recoveryPrompt }]
-        });
-        const recoveryTreatments = recoveryResponse.choices[0].message.content.split("\n");
+        const recoveryTreatments = (await getGeminiResponseText(model, recoveryPrompt)).split("\n");
 
-        // Save plans to user
-        user.workoutPlan = workoutPlan;
-        user.nutritionPlan = nutritionPlan;
-        user.recoveryTreatments = recoveryTreatments;
-        await user.save();
+        // Save plans to Helth document
+        helthUser.workoutPlan = workoutPlan;
+        helthUser.nutritionPlan = nutritionPlan;
+        helthUser.recoveryTreatments = recoveryTreatments;
+        helthUser.fitnessGoal = fitnessGoal;
+        helthUser.preferences = preferences;
+        await helthUser.save();
 
         res.status(200).send({ status: "Plans generated", workoutPlan, nutritionPlan, recoveryTreatments });
     } catch (err) {
@@ -172,6 +149,8 @@ router.route("/generate-plans/:id").post(async (req, res) => {
         res.status(500).send({ status: "Error generating plans", error: err.message });
     }
 });
+
+
 
 // Export the router
 module.exports = router;

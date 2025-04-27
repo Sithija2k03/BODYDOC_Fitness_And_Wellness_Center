@@ -1,38 +1,35 @@
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const bookingSchema =  new Schema({
-        
+const bookingSchema = new Schema({
     Name: {
         type: String,
-        required : true
+        required: true
     },
-    
-
-    facility_type : {
+    email: {
         type: String,
-        enum:["Gym","Swimming Pool","Badminton Court","Pool Lounge"],
-        required : true
+        required: true,
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"]
     },
-
+    facility_type: {
+        type: String,
+        enum: ["Gym", "Swimming Pool", "Badminton Court", "Pool Lounge"],
+        required: true
+    },
     date: {
         type: Date,
         required: true
     },
-
     time_slot: {
         type: String,
-        required : true
+        required: true
     },
-
     status: {
         type: String,
-        required : true
+        default: "Pending",
+        enum: ["Pending", "Approved", "Declined"]
     },
+});
 
-})
-
-const Booking = mongoose.model("Booking", bookingSchema);
-
-module.exports = Booking;
+module.exports = mongoose.model("Booking", bookingSchema);

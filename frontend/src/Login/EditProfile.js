@@ -18,7 +18,7 @@ function EditProfile() {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8070/user/profile", {
+        const response = await axios.get("http://localhost:4000/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -49,13 +49,23 @@ function EditProfile() {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:8070/user/update/${formData._id}`, formData, {
+      console.log("Sending PUT request:", formData); // Debug: Log request payload
+      const response = await axios.put(`http://localhost:4000/user/update/${formData._id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Profile updated successfully!");
-      navigate("/user-profile");
+      console.log("Update response:", response.data); // Debug: Log response
+      if (response.data.user?.emailChanged) {
+        alert("Profile updated successfully! Please log in with your new email.");
+        localStorage.removeItem("token"); // Clear token
+        localStorage.removeItem("user"); // Clear user data
+        navigate("/login");
+      } else {
+        alert("Profile updated successfully!");
+        navigate("/user-profile");
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
+      alert(error.response?.data?.message || "Failed to update profile.");
     }
   };
 
