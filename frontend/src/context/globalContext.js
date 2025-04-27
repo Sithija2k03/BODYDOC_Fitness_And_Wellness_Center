@@ -14,6 +14,7 @@ export const GlobalProvider = ({ children }) => {
     const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
      const [appointments, setAppointments] = React.useState([]);
+     const [sensorData, setSensorData] = React.useState([]);
      const [bookings, setBookings] = React.useState([]);
      const [orders, setOrders] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -313,6 +314,22 @@ export const GlobalProvider = ({ children }) => {
         }
     };
 
+
+   // Sensor Section
+const getSensorData = async () => {
+    setLoading(true); // Start loading
+    try {
+        const response = await axios.get(`${API_URL}sensors/latest`);
+        setSensorData(response.data);
+    } catch (error) {
+        console.error('Error fetching sensor data:', error);
+    } finally {
+        setLoading(false); // Stop loading
+    }
+};
+
+
+
     //E Pharmacy Section
     // Add a new appointment
     const addAppointment = async (newAppointment) => {
@@ -461,6 +478,8 @@ export const GlobalProvider = ({ children }) => {
             getGymEquipment,
             addGymEquipment,
             deleteGymEquipment,
+            getSensorData,
+            setSensorData,
 
             appointments, 
             loading,

@@ -35,6 +35,7 @@ import Bookings from "./Components/Booking/Bookings";
 import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
 import OrderEdit from "./Components/Order/OrderEdit";
+import SensorData from "./Components/SensorData/SensorData";
 
 const App = () => {
   const [workoutResult, setWorkoutResult] = React.useState(null);
@@ -83,6 +84,7 @@ const App = () => {
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
             <Route path="/gymEquipment" element={<GymEquipment />} />
+            <Route path="/sensor-data" element={<SensorData />} />
 
             {/* Fitness & Nutrition Routes */}
             <Route 
