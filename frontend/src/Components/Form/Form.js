@@ -17,6 +17,8 @@ function Form() {
         description: "",
     });
 
+    const [dateError, setDateError] = React.useState("");  // Error state for the date field
+
     const { title, amount, date, category, description } = inputState;
 
     const handleInput = (name) => (e) => {
@@ -25,6 +27,27 @@ function Form() {
             [name]: e.target.value,
         })
         setError("");
+    };
+
+    const handleDateChange = (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);  // Remove time from today
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);  // Get the date for one week ago
+
+        // Validate the date - it can't be more than a week ago and can't be in the future
+        if (date > today) {
+            setDateError("Date cannot be in the future.");
+        } else if (date < oneWeekAgo) {
+            setDateError("Date cannot be more than a week in the past.");
+        } else {
+            setDateError("");  // Clear error if the date is valid
+        }
+
+        setInputState({
+            ...inputState,
+            date
+        });
     };
 
     const handleSubmit = (e) => {
@@ -36,20 +59,17 @@ function Form() {
         }
 
         // Ensure amount is a positive number
-       if (parseFloat(amount) <= 0) {
-        alert("Amount must be a positive number.");
-        return;
+        if (parseFloat(amount) <= 0) {
+            alert("Amount must be a positive number.");
+            return;
         }
 
-        // Ensure date is not in the future
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Remove time to compare only dates
-
-        if (new Date(date) > today) {
-        alert("Date cannot be in the future.");
-        return;
+        // Ensure date is valid before submitting
+        if (dateError) {
+            alert(dateError);
+            return;
         }
-  
+
         addIncome(inputState); 
         getIncomes(); // after adding income, fetch all incomes again
         setInputState({
@@ -89,8 +109,10 @@ function Form() {
                     selected={date}
                     dateFormat={"dd/MM/yyyy"}
                     placeholderText="Select Date"
-                    onChange={(date) => setInputState({ ...inputState, date })}
+                    onChange={handleDateChange}
+                    className={dateError ? "error-input" : ""}
                 />
+                {dateError && <p className="error">{dateError}</p>}
             </div>
 
             <div className="selects">
@@ -125,6 +147,7 @@ function Form() {
                     bRad={'30px'}
                     bg={'#F56692'}
                     color={'#fff'}
+                    disabled={dateError}  // Disable the button if there's an error
                 />
             </div>
         </FormStyled>
@@ -192,14 +215,27 @@ const FormStyled = styled.form`
             transition: all 0.3s ease-in-out;
             box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.06);
             border-radius: 8px;
-              gap: 1.6rem;
+            gap: 1.6rem;
+
             &:hover {
                 background: var(--color-green) !important;
             }
+
+            &:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
         }
     }
+
+    .error {
+        color: red;
+        font-size: 0.8rem;
+    }
+
+    .error-input {
+        border-color: red;
+    }
 `;
-
-
 
 export default Form;

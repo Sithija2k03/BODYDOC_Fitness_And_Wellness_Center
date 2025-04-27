@@ -29,6 +29,9 @@ function SalaryForm() {
         netSalary: 0,
     });
 
+    // State for tracking error messages
+    const [error, setError] = useState("");
+
     const { role, allowances, deductions, otHours, otRate, epfRate, etfRate, paymentDate, status } = inputState;
 
     useEffect(() => {
@@ -66,11 +69,45 @@ function SalaryForm() {
         });
     };
 
+    const validatePaymentDate = (date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Remove time to compare only dates
+
+        const maxPastDate = new Date();
+        maxPastDate.setDate(today.getDate() - 7); // Get the date 7 days ago
+
+        if (new Date(date) > today) {
+            setError("Payment date cannot be in the future.");
+            return false;
+        }
+
+        if (new Date(date) < maxPastDate) {
+            setError("Payment date cannot be older than 7 days.");
+            return false;
+        }
+
+        setError(""); // Clear error if the date is valid
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Validate all fields before submitting
         if (!role || !allowances || !deductions || !paymentDate || !otHours || !otRate || !epfRate || !etfRate) {
             alert("Please fill all fields before submitting.");
+            return;
+        }
+
+        // Ensure numerical fields are positive
+        if (parseFloat(allowances) < 0 || parseFloat(deductions) < 0 || parseFloat(otHours) < 0 || parseFloat(otRate) <= 0 || parseFloat(epfRate) < 0 || parseFloat(etfRate) < 0) {
+            alert("Please ensure all numerical values are positive.");
+            return;
+        }
+
+        // Ensure paymentDate is not in the future and within the past week
+        if (error) {
+            alert(error); // If there's an error message, alert it
             return;
         }
 
@@ -149,7 +186,16 @@ function SalaryForm() {
             </div>
 
             <div className="input-control">
-                <DatePicker selected={paymentDate} dateFormat={"dd/MM/yyyy"} placeholderText="Select Payment Date" onChange={(date) => setInputState({ ...inputState, paymentDate: date })} />
+                <DatePicker 
+                    selected={paymentDate} 
+                    dateFormat={"dd/MM/yyyy"} 
+                    placeholderText="Select Payment Date" 
+                    onChange={(date) => {
+                        setInputState({ ...inputState, paymentDate: date });
+                        validatePaymentDate(date);  // Validate the date whenever it's changed
+                    }} 
+                />
+                {error && <ErrorMessage>{error}</ErrorMessage>} {/* Show error message if any */}
             </div>
 
             <div className="submit-btn">
@@ -211,6 +257,12 @@ const FormStyled = styled.form`
             }
         }
     }
+`;
+
+const ErrorMessage = styled.p`
+    color: #FF4C4C;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 `;
 
 export default SalaryForm;
