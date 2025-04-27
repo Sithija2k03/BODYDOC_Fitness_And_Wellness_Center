@@ -51,8 +51,6 @@ const userSchema = new Schema({
         type : Date,
         default: Date.now
     },
-    workoutPlan: { type: String, default: '' }, // Store as JSON string
-    nutritionPlan: { type: String, default: '' } // Added for nutrition plan
 
 })
 

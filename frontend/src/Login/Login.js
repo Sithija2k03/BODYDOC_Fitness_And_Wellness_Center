@@ -22,7 +22,12 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:4000/user/login', formData);
+      const payload = {
+        email: formData.email.trim(), // Trim email to remove whitespace
+        password: formData.password
+      };
+      console.log("Sending login request:", payload); // Debug: Log request payload
+      const response = await axios.post('http://localhost:4000/user/login', payload);
       console.log('Login response:', response.data);
 
       localStorage.setItem('user', JSON.stringify(response.data));
@@ -36,7 +41,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setMessage(error.response?.data?.message || 'Login failed');
+      setMessage(error.response?.data?.error || 'Login failed');
     }
   };
 

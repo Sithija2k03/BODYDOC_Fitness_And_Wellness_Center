@@ -8,26 +8,78 @@ function Register() {
     email: '',
     password: '',
     gender: 'male',
-    dateOfBirth: '',
+    dateofBirth: '',
     phone: '',
     role: 'member'
   });
 
   const [message, setMessage] = useState('');
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
+  const validateFullName = (name) => {
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!name) {
+      return 'Full Name is required';
+    }
+    if (!nameRegex.test(name)) {
+      return 'Full Name should only contain letters and spaces';
+    }
+    return '';
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^\d+$/;
+    if (!phone) {
+      return 'Phone number is required';
+    }
+    if (!phoneRegex.test(phone)) {
+      return 'Phone number should only contain digits';
+    }
+    if (phone.length < 10) {
+      return 'Phone number must be at least 10 digits';
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === 'fullName') {
+      // Allow only letters and spaces for fullName
+      newValue = value.replace(/[^A-Za-z\s]/g, '');
+      const error = validateFullName(newValue);
+      setErrors({ ...errors, fullName: error });
+    } else if (name === 'phone') {
+      // Allow only digits for phone
+      newValue = value.replace(/\D/g, '');
+      const error = validatePhone(newValue);
+      setErrors({ ...errors, phone: error });
+    }
+
+    setFormData({ ...formData, [name]: newValue });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const fullNameError = validateFullName(formData.fullName);
+    const phoneError = validatePhone(formData.phone);
+
+    if (fullNameError || phoneError) {
+      setErrors({ ...errors, fullName: fullNameError, phone: phoneError });
+      return;
+    }
+
+    console.log("Submitting Form Data:", formData);
     try {
       const response = await axios.post('http://localhost:4000/user/add', formData);
       setMessage(response.data.message);
       navigate('/login');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Registration failed');
+      const errorMsg = error.response?.data?.message || 'Registration failed. Please try again.';
+      console.error("Registration Error:", error.response?.data || error);
+      setMessage(errorMsg);
     }
   };
 
@@ -62,7 +114,7 @@ function Register() {
       {/* Right Section: Registration Form */}
       <div style={styles.rightSection}>
         <h2 style={styles.formHeading}>Sign Up</h2>
-        {message && <p style={styles.message}>{message}</p>}
+        {message && <p style={{ ...styles.message, color: message.includes('successfully') ? 'green' : 'red' }}>{message}</p>}
         <form onSubmit={handleSubmit}>
           <label style={styles.label}>Full Name</label>
           <input
@@ -70,9 +122,11 @@ function Register() {
             name="fullName"
             placeholder="Enter Full Name"
             required
-            style={styles.input}
+            style={{ ...styles.input, borderColor: errors.fullName ? 'red' : '#ccc' }}
             onChange={handleChange}
+            value={formData.fullName}
           />
+          {errors.fullName && <p style={styles.error}>{errors.fullName}</p>}
 
           <label style={styles.label}>Email</label>
           <input
@@ -109,7 +163,7 @@ function Register() {
           <label style={styles.label}>Date of Birth</label>
           <input
             type="date"
-            name="dateOfBirth"
+            name="dateofBirth"
             required
             style={styles.input}
             onChange={handleChange}
@@ -121,9 +175,11 @@ function Register() {
             name="phone"
             placeholder="Enter Phone"
             required
-            style={styles.input}
+            style={{ ...styles.input, borderColor: errors.phone ? 'red' : '#ccc' }}
             onChange={handleChange}
+            value={formData.phone}
           />
+          {errors.phone && <p style={styles.error}>{errors.phone}</p>}
 
           <label style={styles.label}>Role</label>
           <select
@@ -204,17 +260,17 @@ const styles = {
     flex: 1.2,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', // Changed to start from the top
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: '40px',
-    overflowY: 'auto', // Ensures scrolling
+    overflowY: 'auto',
   },
   formHeading: {
     fontSize: '28px',
     fontWeight: 'bold',
     color: '#333',
     marginBottom: '20px',
-    marginTop: '20px', // Added to ensure some spacing from the top
+    marginTop: '20px',
   },
   message: {
     textAlign: 'center',
@@ -238,6 +294,12 @@ const styles = {
     fontSize: '16px',
     marginBottom: '15px',
   },
+  error: {
+    color: 'red',
+    fontSize: '14px',
+    marginBottom: '10px',
+    marginTop: '-10px',
+  },
   button: {
     width: '100%',
     padding: '14px',
@@ -251,7 +313,7 @@ const styles = {
   },
   signUpText: {
     marginTop: '20px',
-    marginBottom: '20px', // Added to ensure spacing at the bottom
+    marginBottom: '20px',
     fontSize: '16px',
     color: '#333',
     textAlign: 'center',
