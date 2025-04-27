@@ -26,6 +26,7 @@ const bankRoutes = require('./routes/bankRoutes');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const bmiRouter = require("./routes/bmiRoute.js");
+const sensorRoutes= require("./routes/sensors.js");
 
 // Google Generative AI
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -70,7 +71,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Serve static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+//app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // public Routes
 
@@ -110,6 +111,7 @@ app.get("/test-email", async (req, res) => {
   }
 });
 app.use("/api/bmi", bmiRouter);
+app.use("/sensors", sensorRoutes);
 
 // AI Response Parsing Helper
 const getGeminiResponseStructured = async (model, prompt) => {
