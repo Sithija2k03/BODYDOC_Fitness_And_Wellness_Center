@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { FaEnvelope } from "react-icons/fa"; // Added FontAwesome Icon
 
 function Header() {
   const [isAiDropdownOpen, setAiDropdownOpen] = useState(false);
@@ -83,6 +84,9 @@ function Header() {
       margin-left: auto;
       cursor: pointer;
       position: relative;
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
     .user-profile img {
       height: 50px;
@@ -92,6 +96,16 @@ function Header() {
     }
     .user-profile.active img {
       border: 2px solid #F56692;
+    }
+    .message-icon {
+      font-size: 24px;
+      margin-right: 40px;
+      color: #2c3e50;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .message-icon:hover {
+      color: #F56692;
     }
     @media (max-width: 768px) {
       .navbar {
@@ -155,14 +169,22 @@ function Header() {
               )}
             </li>
           </ul>
-          <Link to="/user-profile" className={`user-profile ${isProfilePage ? "active" : ""}`}>
-            <img
-              src="/img/male-default.png"
-              alt="User Profile"
-              className="profile-icon"
-              onError={(e) => (e.target.src = "/img/fallback-profile.png")}
-            />
-          </Link>
+          <div className="user-profile">
+            {/* 📩 Message Icon */}
+            <Link to="/messages">
+              <FaEnvelope className="message-icon" />
+            </Link>
+
+            {/* 👤 Profile Icon */}
+            <Link to="/user-profile" className={isProfilePage ? "active" : ""}>
+              <img
+                src="/img/male-default.png"
+                alt="User Profile"
+                className="profile-icon"
+                onError={(e) => (e.target.src = "/img/fallback-profile.png")}
+              />
+            </Link>
+          </div>
         </div>
       </nav>
       <div style={{ height: "90px" }}></div>

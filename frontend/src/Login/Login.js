@@ -122,7 +122,12 @@ function Login() {
             {isLoading ? 'Signing In...' : 'SIGN IN'}
           </button>
         </form>
-        {/* ... rest of the right section ... */}
+        <p style={styles.signUpText}>
+          Do not have an Account ?{' '}
+          <span onClick={() => navigate('/register')} style={styles.signUpLink}>
+            Sign Up Now
+          </span>
+        </p>
       </div>
     </div>
   );

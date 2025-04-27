@@ -1,13 +1,52 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import axios from 'axios';
 import styled from 'styled-components';
 
-function AdminAppointment({ id, userName, doctorName, timeSlot, date }) {
-  // Format the date for better readability
+function AdminAppointment({ id, userId, userName, doctorName, timeSlot, date }) {
+  const fileInputRef = useRef(null);
+
+  // Static adminId set here
+  const staticAdminId = '680633e28b7652df112c297b';  // Provided admin MongoDB ID
+
   const formattedDate = new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
   });
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+  
+    const staticAdminId = "680633e28b7652df112c297b";  // Static Admin ID
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const userId = currentUser?._id;  // Assuming the userId comes from the logged-in user
+  
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('senderId', staticAdminId);  // Static Admin ID
+    formData.append('receiverId', userId);      // User ID
+    formData.append('text', `Prescription for your appointment with Dr. ${doctorName}`);
+  
+    try {
+      const response = await axios.post('http://localhost:4000/messages/sendPrescription', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      console.log("Prescription sent successfully:", response.data);
+      alert('Prescription sent successfully!');
+    } catch (error) {
+      console.error('Error sending prescription:', error);
+      alert('Failed to send prescription.');
+    }
+  };
+  
+
+  const openFileDialog = () => {
+    fileInputRef.current.click();
+  };
 
   return (
     <AppointmentCard>
@@ -20,6 +59,7 @@ function AdminAppointment({ id, userName, doctorName, timeSlot, date }) {
               <th>Doctor</th>
               <th>Date</th>
               <th>Time Slot</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -29,6 +69,16 @@ function AdminAppointment({ id, userName, doctorName, timeSlot, date }) {
               <td>{doctorName}</td>
               <td>{formattedDate}</td>
               <td>{timeSlot}</td>
+              <td>
+                <button onClick={openFileDialog}>Send Prescription</button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  style={{ display: 'none' }}
+                  accept="application/pdf"
+                  onChange={handleFileUpload}
+                />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -37,67 +87,50 @@ function AdminAppointment({ id, userName, doctorName, timeSlot, date }) {
   );
 }
 
+// 🧩 Add this styled-component below:
+
 const AppointmentCard = styled.div`
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin: 20px 0;
   overflow-x: auto;
-  margin-bottom: 1.5rem; /* Add spacing between table rows */
 
   .table-container {
-    max-width: 1200px; /* Match BookingItem max-width */
-    margin: 0 auto;
+    width: 100%;
+    overflow-x: auto;
   }
 
   table {
-    border-collapse: collapse;
-    background: #ffffff; /* White background to match BookingItem */
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Match BookingItem shadow */
-    border-radius: 12px; /* Match BookingItem border-radius */
     width: 100%;
-    border: 1px solid #e0e0e0; /* Subtle border to match BookingItem */
+    border-collapse: collapse;
   }
 
   th, td {
-    padding: 12px 16px; /* Match BookingItem padding */
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0; /* Match BookingItem border */
-    font-size: 0.9rem; /* Match BookingItem font size */
-    color: #333; /* Match BookingItem text color */
+    padding: 12px 20px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
   }
 
   th {
-    background: #e0e0e0; /* Match BookingItem header background */
+    background-color: #f5f5f5;
+    color: #333;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    color: #555;
-    letter-spacing: 0.5px;
   }
 
-  /* Specific column widths for better alignment */
-  th:nth-child(1), td:nth-child(1) { /* Appointment ID */
-    width: 15%;
-  }
-  th:nth-child(2), td:nth-child(2) { /* User */
-    width: 20%;
-  }
-  th:nth-child(3), td:nth-child(3) { /* Doctor */
-    width: 20%;
-  }
-  th:nth-child(4), td:nth-child(4) { /* Date */
-    width: 15%;
-  }
-  th:nth-child(5), td:nth-child(5) { /* Time Slot */
-    width: 15%;
+  button {
+    background-color: #F56692;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
   }
 
-  /* Hover effect on rows */
-  tbody tr:hover {
-    background: #f9f9f9; /* Match BookingItem hover effect */
-    transition: background 0.2s ease;
-  }
-
-  /* Alternating row colors */
-  tbody tr:nth-child(even) {
-    background: #f5f5f5; /* Match BookingItem alternating row color */
+  button:hover {
+    background-color: #d84c77;
   }
 `;
 

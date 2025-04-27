@@ -126,7 +126,7 @@ const SearchBar = styled.input`
     width: 100%;
     max-width: 400px;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 25px;
     font-size: 1rem;
 `;
 

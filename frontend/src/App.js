@@ -37,6 +37,7 @@ import BMI from "./Components/BMI Calculator/BMI";
 import Sensor from "./Components/GymEquipment/sensorAvailability";
 import UserDashboard from './Pages/userDashboard';
 import { GlobalProvider } from './context/globalContext';
+import Messages from './Components/MessagePage/MessagesPage';
 
 // Private Route Component
 const PrivateRoute = ({ children }) => {
@@ -80,6 +81,8 @@ const App = () => {
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
             <Route path="/sensor" element={<Sensor />} />
+
+            <Route path="messages" element={<Messages />} />
            
 
             {/* E-Pharmacy Routes */}

@@ -42,20 +42,45 @@ function Register() {
     return '';
   };
 
+  const validateDateOfBirth = (dob) => {
+    const currentDate = new Date();
+    const selectedDate = new Date(dob);
+    const age = currentDate.getFullYear() - selectedDate.getFullYear();
+    const monthDifference = currentDate.getMonth() - selectedDate.getMonth();
+
+    // Check if date is in the future
+    if (selectedDate > currentDate) {
+      return 'Date of Birth cannot be in the future';
+    }
+    // Check if the user is at least 10 years old
+    if (age < 10 || (age === 10 && monthDifference < 0)) {
+      return 'You must be at least 10 years old';
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
-
+    
+    // Validate Full Name
     if (name === 'fullName') {
-      // Allow only letters and spaces for fullName
-      newValue = value.replace(/[^A-Za-z\s]/g, '');
+      newValue = value.replace(/[^A-Za-z\s]/g, ''); // Allow only letters and spaces
       const error = validateFullName(newValue);
       setErrors({ ...errors, fullName: error });
-    } else if (name === 'phone') {
-      // Allow only digits for phone
-      newValue = value.replace(/\D/g, '');
+    }
+    
+    // Validate Phone
+    else if (name === 'phone') {
+      newValue = value.replace(/\D/g, ''); // Allow only digits
       const error = validatePhone(newValue);
       setErrors({ ...errors, phone: error });
+    }
+    
+    // Validate Date of Birth
+    else if (name === 'dateofBirth') {
+      const error = validateDateOfBirth(value);
+      setErrors({ ...errors, dateofBirth: error });
     }
 
     setFormData({ ...formData, [name]: newValue });
@@ -65,9 +90,10 @@ function Register() {
     e.preventDefault();
     const fullNameError = validateFullName(formData.fullName);
     const phoneError = validatePhone(formData.phone);
+    const dateofBirthError = validateDateOfBirth(formData.dateofBirth);
 
-    if (fullNameError || phoneError) {
-      setErrors({ ...errors, fullName: fullNameError, phone: phoneError });
+    if (fullNameError || phoneError || dateofBirthError) {
+      setErrors({ ...errors, fullName: fullNameError, phone: phoneError, dateofBirth: dateofBirthError });
       return;
     }
 
@@ -165,9 +191,11 @@ function Register() {
             type="date"
             name="dateofBirth"
             required
-            style={styles.input}
+            style={{ ...styles.input, borderColor: errors.dateofBirth ? 'red' : '#ccc' }}
             onChange={handleChange}
+            value={formData.dateofBirth}
           />
+          {errors.dateofBirth && <p style={styles.error}>{errors.dateofBirth}</p>}
 
           <label style={styles.label}>Phone</label>
           <input
@@ -299,12 +327,6 @@ const styles = {
     borderRadius: '5px',
     fontSize: '16px',
     marginBottom: '15px',
-  },
-  error: {
-    color: 'red',
-    fontSize: '14px',
-    marginBottom: '10px',
-    marginTop: '-10px',
   },
   button: {
     width: '100%',

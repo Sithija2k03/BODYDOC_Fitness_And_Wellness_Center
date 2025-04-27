@@ -35,6 +35,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
+const messageRoutes = require('./routes/messages.js');
+
 // Middleware
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
@@ -88,6 +90,7 @@ app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
 app.use('/api/petty-cash', pettyCashRoutes);
 app.use('/api/bank', bankRoutes);
+app.use('/messages', messageRoutes);
 
 // In server.js, add a test route
 app.get("/test-email", async (req, res) => {
