@@ -205,17 +205,12 @@ router.put("/update/:id", upload.single("profilePic"), authMiddleware(), async (
     }
 });
 
-// ✅ Delete User (User can delete their own account)
+// ✅ Delete User
 router.delete("/delete/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Ensure the logged-in user is deleting their own account
-        if (req.user.id !== id) {
-            return res.status(403).json({ message: "Access Forbidden! You can only delete your own account." });
-        }
-
-        // Delete user
+        // Directly delete the user by ID
         const deletedUser = await User.findByIdAndDelete(id);
 
         if (!deletedUser) {
@@ -229,6 +224,7 @@ router.delete("/delete/:id", async (req, res) => {
         res.status(500).json({ message: "Error deleting user", error: error.message });
     }
 });
+
 
 // 🔹 Generate JWT Token
 const generateToken = (id, role) => {
