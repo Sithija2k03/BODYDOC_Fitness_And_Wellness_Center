@@ -82,6 +82,9 @@ const App = () => {
             <Route path="/booking" element={<BookingForm />} />
             {/* <Route path="/booking-list" element={<BookingList />} /> */}
             <Route path="/edit-booking/:id" element={<EditBooking />} />
+            <Route path="/gymEquipment" element={<GymEquipment />} />
+            <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
+            <Route path="/pharmacy-items" element={<Pharmacy />} />
            
 
             {/* E-Pharmacy Routes */}
