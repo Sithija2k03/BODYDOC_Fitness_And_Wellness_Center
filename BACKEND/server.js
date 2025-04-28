@@ -88,6 +88,7 @@ app.use("/order", orderRouter);
 app.use("/supplier", supplierRouter);
 app.use("/pharmacy", pharmacyItemRouter);
 app.use("/gym", gymEquipmentRouter);
+app.use('/sensors', sensorRoutes);
 app.use('/api/petty-cash', pettyCashRoutes);
 app.use('/api/bank', bankRoutes);
 app.use('/messages', messageRoutes);

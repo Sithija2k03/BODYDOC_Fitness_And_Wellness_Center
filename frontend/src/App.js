@@ -34,7 +34,7 @@ import OrderForm from './Components/Order/OrderForm';
 import Order from "./Components/Order/Order";
 import OrderEdit from "./Components/Order/OrderEdit";
 import BMI from "./Components/BMI Calculator/BMI";
-import Sensor from "./Components/GymEquipment/sensorAvailability";
+import SensorData from "./Components/SensorData/SensorData";
 import UserDashboard from './Pages/userDashboard';
 import { GlobalProvider } from './context/globalContext';
 import Messages from './Components/MessagePage/MessagesPage';
@@ -80,7 +80,7 @@ const App = () => {
             <Route path="/gymEquipment" element={<GymEquipment />} />
             <Route path="/edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="/pharmacy-items" element={<Pharmacy />} />
-            <Route path="/sensor" element={<Sensor />} />
+            <Route path="/sensor-data" element={<SensorData />} />
 
             <Route path="messages" element={<Messages />} />
            

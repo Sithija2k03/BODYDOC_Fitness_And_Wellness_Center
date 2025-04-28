@@ -21,11 +21,16 @@ router.post("/", async (req, res) => {
     }
 });
 
-// GET - Retrieve sensor details
-router.get("/get-sensor", async (req, res) => {
+// GET - Always fetch the latest sensor data
+router.get("/latest", async (req, res) => {
     try {
-        const sensors = await Sensor.find();  // Fetch all sensor data from the database
-        res.status(200).json(sensors);  // Return the sensor data in JSON format
+        const latestData = await Sensor.findOne().sort({ timestamp: -1 }); // Sort by timestamp DESC
+        
+        if (!latestData) {
+            return res.status(404).json({ message: "No sensor data found" });
+        }
+
+        res.status(200).json(latestData);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });
