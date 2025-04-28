@@ -13,12 +13,14 @@ export const GlobalProvider = ({ children }) => {
     const [pharmacyItems, setPharmacyItems] = React.useState([]);
     const [gymEquipment, setGymEquipment] = React.useState([]);
     const [suppliers, setSuppliers] = React.useState([]);
+    const [pharmacySuppliers, setPharmacySuppliers] = useState([]);
      const [appointments, setAppointments] = React.useState([]);
      const [sensorData, setSensorData] = React.useState([]);
      const [bookings, setBookings] = React.useState([]);
      const [orders, setOrders] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [success, setSuccess] = React.useState(null);
+    
 
     
     // Income section
@@ -202,6 +204,15 @@ export const GlobalProvider = ({ children }) => {
         }
     }; 
     
+
+    const getPharmacySuppliers = async () => {
+        try {
+            const res = await axios.get('suppliers/pharmacy');
+            setPharmacySuppliers(res.data);
+        } catch (err) {
+            console.error(err.response?.data?.error || "Failed to fetch suppliers");
+        }
+    };
     
 
     //Gym Equipment Section
@@ -468,9 +479,11 @@ const getSensorData = async () => {
             success,
             getPharmacyItems, 
             addPharmacyItem, 
+            pharmacySuppliers,
             getSuppliers, 
             addSupplier,
             deleteSupplier,
+            getPharmacySuppliers,
 
             updateSupplier,
             deletePharmacyItem,
