@@ -6,7 +6,6 @@ import { plus } from '../../utils/icons';
 
 function EquipmentForm({ onClose }) {
     const { addGymEquipment, error: globalError, setError: setGlobalError } = useGlobalContext();
-    
 
     const [inputState, setInputState] = useState({
         equipmentId: '',
@@ -15,7 +14,6 @@ function EquipmentForm({ onClose }) {
         lastMaintenanceDate: ''
     });
 
-
     const [errors, setErrors] = useState({
         equipmentId: '',
         equipmentName: '',
@@ -23,13 +21,7 @@ function EquipmentForm({ onClose }) {
         lastMaintenanceDate: ''
     });
 
-    const {
-        equipmentId,
-        equipmentName,
-        equipmentCategory,
-        lastMaintenanceDate
-    } = inputState;
-
+    const { equipmentId, equipmentName, equipmentCategory, lastMaintenanceDate } = inputState;
 
     // Validation functions
     const validateEquipmentId = (value) => {
@@ -48,14 +40,14 @@ function EquipmentForm({ onClose }) {
     const validateDate = (value) => {
         if (!value) return "Last Maintenance Date is required";
         const selectedDate = new Date(value);
-        const currentDate = new Date('2025-04-24'); // Current date: April 24, 2025
-        const minDate = new Date('2020-04-24'); // 5 years ago
+        const currentDate = new Date(); // Fixed: Dynamic current date
+        const minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 5); // 5 years ago from today
         if (isNaN(selectedDate.getTime())) return "Invalid date format";
         if (selectedDate > currentDate) return "Date cannot be in the future";
         if (selectedDate < minDate) return "Date must be within the last 5 years";
         return "";
     };
-
 
     const handleInput = (name) => (e) => {
         const value = e.target.value;
@@ -63,7 +55,6 @@ function EquipmentForm({ onClose }) {
             ...prev,
             [name]: value
         }));
-
 
         // Validate input on change
         let error = '';
@@ -81,8 +72,8 @@ function EquipmentForm({ onClose }) {
             ...prev,
             [name]: error
         }));
-        setGlobalError(''); // Clear global error on input change
 
+        setGlobalError(''); // Clear global error on input change
     };
 
     const handleSubmit = async (e) => {
@@ -98,11 +89,12 @@ function EquipmentForm({ onClose }) {
 
         setErrors(newErrors);
 
-        // Check if any errors exist
         if (Object.values(newErrors).some(error => error)) {
             alert("Please fix the errors before submitting.");
             return;
-        // Validate that all fields are filled
+        }
+
+        // Validate all fields are filled
         for (let key in inputState) {
             if (inputState[key] === '') {
                 alert("Please fill all fields before submitting.");
@@ -134,7 +126,7 @@ function EquipmentForm({ onClose }) {
             });
         } catch (err) {
             setGlobalError(err.response?.data?.error || "Failed to add gym equipment");
-        } 
+        }
     };
 
     return (
@@ -171,37 +163,12 @@ function EquipmentForm({ onClose }) {
                 <input
                     type="date"
                     value={lastMaintenanceDate}
-                    placeholder="Last Maintenance Date"
                     onChange={handleInput('lastMaintenanceDate')}
-                    min="2020-04-24"
-                    max="2025-04-24"
+                    min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]}
+                    max={new Date().toISOString().split('T')[0]}
                 />
                 {errors.lastMaintenanceDate && <p className="error">{errors.lastMaintenanceDate}</p>}
             </div>
-            <input
-                type="number"
-                value={equipmentId}
-                placeholder="Equipment ID"
-                onChange={handleInput('equipmentId')}
-            />
-            <input
-                type="text"
-                value={equipmentName}
-                placeholder="Equipment Name"
-                onChange={handleInput('equipmentName')}
-            />
-            <input
-                type="text"
-                value={equipmentCategory}
-                placeholder="Category"
-                onChange={handleInput('equipmentCategory')}
-            />
-            <input
-                type="date"
-                value={lastMaintenanceDate}
-                placeholder="Last Maintenance Date"
-                onChange={handleInput('lastMaintenanceDate')}
-            />
 
             <div className="submit-btn">
                 <Button
@@ -215,7 +182,6 @@ function EquipmentForm({ onClose }) {
             </div>
         </FormStyled>
     );
-}
 }
 
 const FormStyled = styled.form`
@@ -275,15 +241,9 @@ const FormStyled = styled.form`
             border-radius: 8px;
             gap: 1.6rem;
             &:hover {
-                background: var(--color-green) !important;
+                background: #28a745 !important; /* Replaced var(--color-green) */
             }
         }
-    }
-
-    .error {
-        color: red;
-        font-size: 0.85rem;
-        margin: 0;
     }
 `;
 

@@ -4,6 +4,8 @@ import { InnerLayout } from "../../styles/Layouts";
 import BookingItem from "./BookingItem";
 import axios from "axios";
 import { search } from "../../utils/icons";
+import jsPDF from "jspdf"; // Correct
+import autoTable from "jspdf-autotable"; // Correct (import the function separately)
 
 const BookingList = () => {
     const [bookings, setBookings] = useState([]);
@@ -29,11 +31,10 @@ const BookingList = () => {
     const updateStatus = async (id, newStatus) => {
         try {
             console.log(`Updating status for booking ${id} to ${newStatus}`);
-            const response = await axios.put(`http://localhost:4000/booking/status/${id}`, {
+            await axios.put(`http://localhost:4000/booking/status/${id}`, {
                 status: newStatus,
             });
 
-            // Update UI
             setBookings(bookings.map(b =>
                 b._id === id ? { ...b, status: newStatus } : b
             ));
@@ -61,6 +62,32 @@ const BookingList = () => {
         b.Name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const generateReport = () => {
+        const doc = new jsPDF();
+        doc.text("Booking Report", 14, 20);
+
+        const tableColumn = ["Name", "Email", "Date", "Status"];
+        const tableRows = [];
+
+        filteredBookings.forEach(b => {
+            const bookingData = [
+                b.Name,
+                b.Email,
+                b.Date,
+                b.status
+            ];
+            tableRows.push(bookingData);
+        });
+
+        autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 30,
+        });
+
+        doc.save("booking_report.pdf");
+    };
+
     return (
         <BookingStyled>
             <InnerLayout>
@@ -74,6 +101,8 @@ const BookingList = () => {
                     />
                     <div className="search-icon">{search}</div>
                 </SearchBar>
+
+                <ReportButton onClick={generateReport}>Generate Report</ReportButton>
 
                 <div className="bookings">
                     {loading ? (
@@ -119,6 +148,22 @@ const SearchBar = styled.div`
     position: absolute;
     right: 820px;
     color: #228B22;
+  }
+`;
+
+const ReportButton = styled.button`
+  background-color: #228B22;
+  margin-right: -950px;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+  &:hover {
+    background-color: #196619;
   }
 `;
 

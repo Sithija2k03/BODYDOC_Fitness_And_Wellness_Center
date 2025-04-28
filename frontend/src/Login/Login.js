@@ -84,7 +84,21 @@ function Login() {
             onError={() => console.error('Failed to load login.jpg')}
           />
         </div>
-        {/* ... rest of the left section ... */}
+        <h1 style={styles.heading}>One Account, All BodyDoc</h1>
+        <p style={styles.subHeading}>
+          Sign into your BodyDoc account and access everything you need from one portal, powered by AI!
+        </p>
+        <ul style={styles.featureList}>
+          <li style={styles.featureItem}>🩺 Schedule and manage your medical appointments</li>
+          <li style={styles.featureItem}>📊 Track your health records and vitals with AI analysis</li>
+          <li style={styles.featureItem}>💊 Access the pharmacy with AI-driven medication reminders</li>
+          <li style={styles.featureItem}>🏊 Enjoy the swimming pool and stay active</li>
+          <li style={styles.featureItem}>🎱 Relax at the pool lounge with pool tables</li>
+          <li style={styles.featureItem}>🏸 Play badminton for fun and fitness</li>
+          <li style={styles.featureItem}>💪 Work out at the gym with AI-optimized routines</li>
+          <li style={styles.featureItem}>🤖 Get personalized health insights with BodyDoc AI</li>
+          <li style={styles.featureItem}>🌐 Access real-time wellness updates and event info</li>
+        </ul>
       </div>
       <div style={styles.rightSection}>
         <h2 style={styles.formHeading}>Account Login</h2>
@@ -116,7 +130,7 @@ function Login() {
             <label style={styles.checkboxLabel}>
               <input type="checkbox" style={styles.checkbox} /> Remember Me
             </label>
-            <a href="#" style={styles.forgotPassword}>Forgot your password?</a>
+            <a href="#" style={styles.forgotPassword}>...Forgot your password?</a>
           </div>
           <button type="submit" style={styles.button} disabled={isLoading}>
             {isLoading ? 'Signing In...' : 'SIGN IN'}

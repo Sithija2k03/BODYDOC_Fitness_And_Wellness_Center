@@ -212,12 +212,6 @@ const FormStyled = styled.form`
         outline: none;
     }
 
-    .error {
-        color: red;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-    }
-
     .submit-btn {
         margin-top: 1rem;
     }
